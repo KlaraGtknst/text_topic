@@ -87,10 +87,9 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
 
         try:
             embedding = model.encode(text[0])
-            #print('embedding: ', os.path.basename(path))#embedding)
+            print('embedding: ', os.path.basename(path))#embedding)
             client.update(index=DB_NAME, id=id, body={'doc': {'embedding': embedding, 'text': text[0],
-                                                              'path': path, 'file_name': os.path.basename(path)},
-                                                      'doc_as_upsert': True})
+                                                              'path': path, 'file_name': os.path.basename(path)}})
         except Exception as e:
             print('error in embedding: ', path, e)
             continue
