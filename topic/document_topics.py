@@ -1,5 +1,6 @@
 from top2vec import Top2Vec
 import data.files as files
+import matplotlib.pyplot as plt
 
 def init_document_topics(corpus, model=None):
     if model is None:
@@ -15,12 +16,19 @@ def get_topic_info(model):
     return model.get_topics()
 
 
-def display_wordcloud(model, keyword="tax"):
-    topic_words, word_scores, topic_scores, topic_nums = model.search_topics(keywords=[keyword], num_topics=5)
-    print(topic_words)
-    print(topic_nums)
+def display_wordcloud(model, keyword="tax", max_num_topics=2):
+    topic_words, word_scores, topic_scores, topic_nums = model.search_topics(keywords=[keyword],
+                                                                             num_topics=max_num_topics
+                                                                             )
+    #print(topic_words, word_scores, topic_scores, topic_nums)
     for topic in topic_nums:
-        model.generate_topic_wordcloud(topic)
+        try:
+            model.generate_topic_wordcloud(topic)
+            plt.show()
+        except ValueError:
+            print(f"Topic {topic} not found in model")
+
+
 
 
 
