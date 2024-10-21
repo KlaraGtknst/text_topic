@@ -38,12 +38,11 @@ class TopicModel():
             word_score_dict = dict(zip(self.model.topic_words[topic_num],
                                        softmax(self.model.topic_word_scores[topic_num])))
             wordcloud = WordCloud(width=1000, height=1000, background_color='white').generate_from_frequencies(word_score_dict)
-            ax = fig.add_subplot(1, num_topics, topic_num+1)
-            ax.axis('off')
-            ax.set_title('Topic ' + str(topic_num))
-            ax.imshow(wordcloud)
-        canvas.draw()
-        return Image.frombytes('RGB', canvas.get_width_height(), canvas.buffer_rgba())
+            plt.axis('off')
+            plt.title('Topic ' + str(topic_num))
+            plt.imshow(wordcloud)
+            canvas.draw()
+            plt.show()
 
 
 if __name__ == '__main__':
@@ -55,6 +54,4 @@ if __name__ == '__main__':
 
     model = TopicModel(documents=sentences)
     print('closest topics:', model.get_closest_topics(word='benutzer', num_topics=1)[0])
-    img_data = model.get_wordcloud_of_similar_topics(num_topics=2, word="benutzer")
-    imgplot = plt.imshow(img_data)
-    plt.show()
+    model.get_wordcloud_of_similar_topics(num_topics=2, word="benutzer")

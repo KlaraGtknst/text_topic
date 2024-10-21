@@ -21,12 +21,13 @@ def display_wordcloud(model, keyword="tax", max_num_topics=2):
                                                                              num_topics=max_num_topics
                                                                              )
     #print(topic_words, word_scores, topic_scores, topic_nums)
-    for topic in topic_nums:
+    for topic_num in topic_nums:
         try:
-            model.generate_topic_wordcloud(topic)
+            model.generate_topic_wordcloud(topic_num)
+            plt.title('Topic ' + str(topic_num))
             plt.show()
         except ValueError:
-            print(f"Topic {topic} not found in model")
+            print(f"Topic {topic_num} not found in model")
 
 
 
