@@ -1,7 +1,7 @@
 import glob
 import pypdf as pdf
 import hashlib
-
+import warnings
 
 def get_files(path: str = "/", file_ending: str = "txt"):
     if not path.endswith("/"):
@@ -23,17 +23,18 @@ def pdf_to_str(path: str) -> str:
     This function extracts the text from a pdf file.
     cf. https://pypi.org/project/PyPDF2/
     '''
-    try:
-        reader = pdf.PdfReader(path)
+    with warnings.catch_warnings(action="ignore"):
+        try:
+            reader = pdf.PdfReader(path)
 
-        text = ''
-        for page in reader.pages:
-            text += page.extract_text()
+            text = ''
+            for page in reader.pages:
+                text += page.extract_text()
 
-        return text
-    except:
-        # TODO: fix missing EOF marker in pdf
-        return ''
+            return text
+        except:
+            # TODO: fix missing EOF marker in pdf
+            return ''
 
 def get_hash_file(path: str):
     '''
