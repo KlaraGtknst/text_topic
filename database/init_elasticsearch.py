@@ -59,13 +59,11 @@ def initialize_db(src_path, client_addr=CLIENT_ADDR):
     init_db(client)
     print('finished deleting old and creating new index')
 
-    print(client.info())
-
     # Retrieve the mappings of the index
-    mappings = client.indices.get_mapping(index=DB_NAME)
+    #mappings = client.indices.get_mapping(index=DB_NAME)
 
     # Print the mappings to inspect the structure
-    print(mappings)
+    #print(mappings)
 
     # insert embeddings
     insert_embeddings(src_path, client)
@@ -95,16 +93,15 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
         text = extract_text_from_pdf(path) if path.endswith('.pdf') else open(path, 'r').read()
         id = get_hash_file(path)
 
-        embedding = model.encode(text[0])
-        doc = {'embedding': embedding, 'text': text[0], 'path': path, 'file_name': os.path.basename(path)}
+        doc = {'embedding': model.encode(text[0]), 'text': text[0], 'path': path, 'file_name': os.path.basename(path)}
 
         try:
-            #print('embedding: ', os.path.basename(path))#embedding)
-            client.update(index=DB_NAME, id=id, doc = doc)
+            # document already in database
+            client.update(index=DB_NAME, id=id, doc=doc)
 
         except NotFoundError as e:
             # document not in database
-            client.index(index=DB_NAME, id=id, document = doc)
+            client.index(index=DB_NAME, id=id, document=doc)
 
         except Exception as e:
             print('error in embedding: ', e)
