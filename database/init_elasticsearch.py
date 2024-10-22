@@ -24,24 +24,26 @@ def init_db(client: Elasticsearch):
 
     cf. https://www.elastic.co/guide/en/elasticsearch/reference/current/dense-vector.html for information about dense vectors and similarity measurement types
     '''
-    client.indices.create(index=DB_NAME, mappings={
-        "properties": {
-            "embedding": {
-                "type": "dense_vector",
-                "dims": 384,
-                "index": True,
-                "similarity": "cosine",
+    client.indices.create(index=DB_NAME, body={
+        "mappings": {
+            "properties": {
+                "embedding": {
+                    "type": "dense_vector",
+                    "dims": 384,
+                    "index": True,
+                    "similarity": "cosine",
+                },
+                "text": {
+                    "type": "text",
+                },
+                "path": {
+                    "type": "keyword",
+                },
+                "file_name": {
+                    "type": "text",
+                },
             },
-            "text": {
-                "type": "text",
-            },
-            "path": {
-                "type": "keyword",
-            },
-            "file_name": {
-                 "type": "text",
-            },
-        },
+        }
     })
 
 
@@ -56,6 +58,14 @@ def initialize_db(src_path, client_addr=CLIENT_ADDR):
     client.options(ignore_status=[400, 404]).indices.delete(index=DB_NAME)
     init_db(client)
     print('finished deleting old and creating new index')
+
+    print(client.info())
+
+    # Retrieve the mappings of the index
+    mappings = client.indices.get_mapping(index=DB_NAME)
+
+    # Print the mappings to inspect the structure
+    print(mappings)
 
     # insert embeddings
     insert_embeddings(src_path, client)
@@ -86,15 +96,15 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
         id = get_hash_file(path)
 
         embedding = model.encode(text[0])
+        doc = {'embedding': embedding, 'text': text[0], 'path': path, 'file_name': os.path.basename(path)}
+
         try:
             #print('embedding: ', os.path.basename(path))#embedding)
-            client.update(index=DB_NAME, id=id, body={'doc': {'embedding': embedding, 'text': text[0],
-                                                              'path': path, 'file_name': os.path.basename(path)}})
+            client.update(index=DB_NAME, id=id, doc = doc)
 
         except NotFoundError as e:
             # document not in database
-            client.index(index=DB_NAME, id=id, body={'doc': {'embedding': embedding, 'text': text[0],
-                                                              'path': path, 'file_name': os.path.basename(path)}})
+            client.index(index=DB_NAME, id=id, document = doc)
 
         except Exception as e:
             print('error in embedding: ', e)
