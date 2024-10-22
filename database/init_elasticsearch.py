@@ -1,4 +1,4 @@
-from elasticsearch import ApiError, ConflictError, Elasticsearch
+from elasticsearch import ApiError, ConflictError, Elasticsearch, NotFoundError
 #from text_embeddings.preprocessing.read_pdf import *
 from elasticsearch.helpers import bulk
 from sentence_transformers import SentenceTransformer
@@ -85,13 +85,19 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
         text = extract_text_from_pdf(path) if path.endswith('.pdf') else open(path, 'r').read()
         id = get_hash_file(path)
 
+        embedding = model.encode(text[0])
         try:
-            embedding = model.encode(text[0])
-            print('embedding: ', os.path.basename(path))#embedding)
+            #print('embedding: ', os.path.basename(path))#embedding)
             client.update(index=DB_NAME, id=id, body={'doc': {'embedding': embedding, 'text': text[0],
                                                               'path': path, 'file_name': os.path.basename(path)}})
+
+        except NotFoundError as e:
+            # document not in database
+            client.index(index=DB_NAME, id=id, body={'doc': {'embedding': embedding, 'text': text[0],
+                                                              'path': path, 'file_name': os.path.basename(path)}})
+
         except Exception as e:
-            print('error in embedding: ', path, e)
+            print('error in embedding: ', e)
             continue
 
 
