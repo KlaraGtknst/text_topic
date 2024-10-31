@@ -36,6 +36,9 @@ def init_db(client: Elasticsearch):
                 "text": {
                     "type": "text",
                 },
+                "directory": {
+                    "type": "text",
+                },
                 "path": {
                     "type": "keyword",
                 },
@@ -93,7 +96,8 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
         text = extract_text_from_pdf(path) if path.endswith('.pdf') else open(path, 'r').read()
         id = get_hash_file(path)
 
-        doc = {'embedding': model.encode(text[0]), 'text': text[0], 'path': path, 'file_name': os.path.basename(path)}
+        doc = {'embedding': model.encode(text[0]), 'text': text[0], 'path': path, 'file_name': os.path.basename(path),
+               'directory': os.path.dirname(path).split('/')[-1]}
 
         try:
             # document already in database
