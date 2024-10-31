@@ -42,4 +42,4 @@ if __name__ == '__main__':
 
     model = init_document_topics(corpus=sentences)
     print(model.get_topics()[0])
-    display_wordcloud(model, keyword="benutzer")
+    display_wordcloud(model, keyword="Deep")
