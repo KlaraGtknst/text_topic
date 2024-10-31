@@ -18,7 +18,8 @@ class TopicModel():
         self.model = Top2Vec(documents=self.documents,
                              embedding_model='distiluse-base-multilingual-cased',  # SBERT
                              speed='fast-learn',
-                             workers=8)
+                             workers=8,
+                             min_count=10) # TODO: increase when bigger dataset
 
     def get_num_topics(self):
         return self.model.get_num_topics()
@@ -46,8 +47,9 @@ class TopicModel():
 
 
 if __name__ == '__main__':
-    path = "/Users/klara/Downloads"
+    path = "/Users/klara/Documents/uni/"
     pdfs = files.get_files(path=path, file_ending="pdf")
+    #print(pdfs)
     sentences = []
     for pdf in pdfs:
         sentences.extend(files.extract_text_from_pdf(pdf))
