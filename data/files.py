@@ -6,7 +6,7 @@ import warnings
 def get_files(path: str = "/", file_ending: str = "txt"):
     if not path.endswith("/"):
         path += "/"
-    return glob.glob(f"{path}*.{file_ending}")
+    return [path for path in glob.glob(f"{path}/**", recursive=True) if path.endswith('pdf')]
 
 def extract_text_from_pdf(path: str):
     # creating a pdf reader object
@@ -23,7 +23,9 @@ def pdf_to_str(path: str) -> str:
     This function extracts the text from a pdf file.
     cf. https://pypi.org/project/PyPDF2/
     '''
+    #warnings.filterwarnings("ignore", category=urllib3.exceptions.NotOpenSSLWarning)
     with warnings.catch_warnings(action="ignore"):
+        warnings.simplefilter("ignore")  # Ignore all warnings
         try:
             reader = pdf.PdfReader(path)
 
