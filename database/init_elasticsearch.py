@@ -4,6 +4,7 @@ from elasticsearch.helpers import bulk
 from sentence_transformers import SentenceTransformer
 from data.files import pdf_to_str, get_hash_file, extract_text_from_pdf
 from constants import *
+from utils.os_manipulation import scanRecurse
 import os
 
 '''------initiate, fill and search in database-------
@@ -20,7 +21,7 @@ def init_db(client: Elasticsearch):
     This function initializes the database by creating an index (i.e. the structure for an entry of type DB_NAME database).
     The index contains the following fields:
     - text: the text of the document. The text is not tokenized, stemmed etc.
-    - path: the path to the document on the local maschine.
+    - path: the path to the document on the local machine.
 
     cf. https://www.elastic.co/guide/en/elasticsearch/reference/current/dense-vector.html for information about dense vectors and similarity measurement types
     '''
@@ -50,14 +51,21 @@ def init_db(client: Elasticsearch):
     })
 
 
-def initialize_db(src_path, client_addr=CLIENT_ADDR, init_db=True):
+def initialize_db(client_addr=CLIENT_ADDR, src_path="", create_db=True):
+    """
+    Initialize the database by creating an index and inserting the embeddings of the documents in the database.
+    :param src_path: Path to the directory containing the documents (.txt and .pdf)
+    :param client_addr: Address of the Elasticsearch client
+    :param init_db: Boolean indicating whether to create the database (true) or just return existing client (false)
+    :return: Elasticsearch client
+    """
     print('-' * 80)
 
     # Create the client instance
     client = Elasticsearch(client_addr)
     print('finished creating client')
 
-    if init_db:
+    if create_db:
         # delete old index and create new one
         client.options(ignore_status=[400, 404]).indices.delete(index=DB_NAME)
         init_db(client)
@@ -69,24 +77,31 @@ def initialize_db(src_path, client_addr=CLIENT_ADDR, init_db=True):
         # Print the mappings to inspect the structure
         #print(mappings)
 
-        # insert embeddings
-        insert_embeddings(src_path, client)
-        print('finished inserting embeddings')
+        if src_path != "":
+            try:
+                # insert embeddings
+                insert_embeddings(src_path, client)
+                print('finished inserting embeddings')
+            except Exception as e:
+                print(e)
+        else:
+            raise ValueError('no path given')
 
     return client
 
 
-def scanRecurse(baseDir: str):
-    baseDir = baseDir.split('*')[0] if '*' in baseDir else baseDir
 
-    for entry in os.scandir(baseDir):
-        if entry.is_file():
-            yield os.path.join(baseDir, entry.name)
-        else:   # recurse needs from, otherwise generator object is returned
-            yield from scanRecurse(entry.path + '/')
 
 
 def insert_embeddings(src_path: str, client: Elasticsearch):
+    """
+    Insert SentenceTransformer (SBERT) embeddings of documents (.txt and .pdf) in the database.
+    https://www.sbert.net/
+
+    :param src_path: Path to the directory containing the documents (.txt and .pdf)
+    :param client: Elasticsearch client
+    :return: -
+    """
     print('started with generate_models_embedding()')
     model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
 
@@ -114,14 +129,14 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
 
 
 def main(src_path: str, client_addr=CLIENT_ADDR):
-    initialize_db(src_path, client_addr=client_addr)
+    initialize_db(src_path=src_path, client_addr=client_addr, create_db=False)
 
 
 if __name__ == '__main__':
     #args = arguments()
     src_path = TEST_TRAINING_PATH#args.directory
 
-    client = initialize_db(src_path, client_addr=CLIENT_ADDR, init_db=False)
+    client = initialize_db(client_addr=CLIENT_ADDR, create_db=False, src_path=src_path)
     res = client.search(index=DB_NAME, body={
         'size': 10,
         'query': {
