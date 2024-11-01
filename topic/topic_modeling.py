@@ -22,15 +22,42 @@ class TopicModel():
                              min_count=10) # TODO: increase when bigger dataset
 
     def get_num_topics(self):
+        '''
+        This function returns the number of topics found in TopicModel.
+        :return: Number of topics
+        '''
         return self.model.get_num_topics()
 
     def get_closest_topics(self, word:str, num_topics:int):
+        """
+        Semantic search of topics using text query.
+
+        These are the topics closest to the vector. Topics are ordered by
+        proximity to the vector. Successive topics in the list are less
+        semantically similar to the vector.
+
+        :param word: Text query
+        :param num_topics: Number of topics to return
+        :return: array of most similar topics described by 50 most similar words; shape: (num topics, 50)
+        """
         return self.model.query_topics(word, num_topics=num_topics)
 
     def get_closest_documents(self, word:str, num_docs:int):
-        return self.model.query_documents(word, num_docs=num_docs)
+        """
+        Semantic search of documents using text query.
+        :param word: Text query
+        :param num_docs: Number of documents to return
+        :return: Documents, their score and ID in descending order of similarity
+        """
+        return self.model.query_documents(word, num_docs=num_docs, return_documents=True)
 
     def get_wordcloud_of_similar_topics(self, num_topics:int, word:str=None):
+        """
+        This function creates a wordcloud of the topics most similar to the word.
+        :param num_topics: Number of topics to return
+        :param word: Text query
+        :return: -
+        """
         topic_words, word_scores, topic_scores, topic_nums = self.model.search_topics(keywords=[word], num_topics=num_topics)
         fig = Figure(figsize=(10, 4))
         canvas = FigureCanvasAgg(fig)
@@ -48,8 +75,9 @@ class TopicModel():
 
 if __name__ == '__main__':
     path = "/Users/klara/Documents/uni/"
+
+    # texts
     pdfs = files.get_files(path=path, file_ending="pdf")
-    #print(pdfs)
     sentences = []
     for pdf in pdfs:
         sentences.extend(files.extract_text_from_pdf(pdf))
