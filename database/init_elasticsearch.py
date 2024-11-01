@@ -50,27 +50,28 @@ def init_db(client: Elasticsearch):
     })
 
 
-def initialize_db(src_path, client_addr=CLIENT_ADDR):
+def initialize_db(src_path, client_addr=CLIENT_ADDR, init_db=True):
     print('-' * 80)
 
     # Create the client instance
     client = Elasticsearch(client_addr)
     print('finished creating client')
 
-    # delete old index and create new one
-    client.options(ignore_status=[400, 404]).indices.delete(index=DB_NAME)
-    init_db(client)
-    print('finished deleting old and creating new index')
+    if init_db:
+        # delete old index and create new one
+        client.options(ignore_status=[400, 404]).indices.delete(index=DB_NAME)
+        init_db(client)
+        print('finished deleting old and creating new index')
 
-    # Retrieve the mappings of the index
-    #mappings = client.indices.get_mapping(index=DB_NAME)
+        # Retrieve the mappings of the index
+        #mappings = client.indices.get_mapping(index=DB_NAME)
 
-    # Print the mappings to inspect the structure
-    #print(mappings)
+        # Print the mappings to inspect the structure
+        #print(mappings)
 
-    # insert embeddings
-    insert_embeddings(src_path, client)
-    print('finished inserting embeddings')
+        # insert embeddings
+        insert_embeddings(src_path, client)
+        print('finished inserting embeddings')
 
     return client
 
@@ -120,7 +121,7 @@ if __name__ == '__main__':
     #args = arguments()
     src_path = TEST_TRAINING_PATH#args.directory
 
-    client = initialize_db(src_path, client_addr=CLIENT_ADDR)
+    client = initialize_db(src_path, client_addr=CLIENT_ADDR, init_db=False)
     res = client.search(index=DB_NAME, body={
         'size': 10,
         'query': {
@@ -128,3 +129,5 @@ if __name__ == '__main__':
         }
     })
     print('result: ', res)
+    print('text: ', res['hits']['hits'][0]['_source']['text'])
+    print('finished')
