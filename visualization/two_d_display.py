@@ -4,15 +4,16 @@ from elasticsearch import Elasticsearch
 from constants import *
 from sklearn.decomposition import PCA
 import pandas as pd
+from utils.os_manipulation import save_or_not
 
 
-def scatter_documents_2d(client):
+def scatter_documents_2d(client, save_path=None):
     '''
     This function creates a 2D scatter plot of the documents.
     '''
     # obtain results from elastic search
     res = client.search(index=DB_NAME, body={
-        'size': 10,
+        #'size': 10,
         'query': {
             'match_all': {}
         }
@@ -34,6 +35,7 @@ def scatter_documents_2d(client):
     plt.title('2D scatter plot of the documents')
     plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
     fig.tight_layout()
+    save_or_not(plt, file_name='scatter_documents_dir_2d.png', save_path=save_path, format='svg')
     plt.show()
 
 
