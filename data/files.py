@@ -10,9 +10,12 @@ def get_files(path: str = "/", file_ending: str = "txt"):
 
 def extract_text_from_pdf(path: str):
     # creating a pdf reader object
-    reader = pdf.PdfReader(path)
+    try:
+        reader = pdf.PdfReader(path)
 
-    text = [page.extract_text() for page in reader.pages]
+        text = [page.extract_text() for page in reader.pages]
+    except pdf.errors.PdfStreamError as e:
+        text = [str(e)]
     return text
 
 def pdf_to_str(path: str) -> str:
