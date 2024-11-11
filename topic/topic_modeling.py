@@ -100,15 +100,14 @@ class TopicModel():
             canvas.draw()
             plt.show()
 
-
-
-    def get_doc_topics(self, doc_ids: list):
+    def get_doc_topics(self, doc_ids: list, num_topics: int = 1):
         """
         This function returns the topics of documents.
         :param doc_ids: List of document ids
         :return: Topics of documents
         """
-        topic_nums, topic_score, topics_words, word_scores = self.model.get_documents_topics(doc_ids=doc_ids)
+        topic_nums, topic_score, topics_words, word_scores = self.model.get_documents_topics(doc_ids=doc_ids,
+                                                                                             num_topics=num_topics)
         print("obtained document topics")
         return topic_nums, topic_score, topics_words, word_scores
 
@@ -119,12 +118,13 @@ class TopicModel():
         :return: Incidence of topics in documents
         """
         # default number of topics returned by model is 1
-        topic_nums, topic_score, topics_words, word_scores = model.model.get_documents_topics(doc_ids=doc_ids, num_topics=10)
+        topic_nums, topic_score, topics_words, word_scores = self.get_doc_topics(doc_ids=doc_ids, num_topics=10)
 
         # create dataframe with document-topic incidence
         doc_topic_columns = {topic_num: [0 if topic_num not in topic_nums[doc_id] else \
                                              topic_score[doc_id][np.where(topic_nums[doc_id] == topic_num)[0][0]] \
                                          for doc_id in range(len(topic_score))] for topic_num in
+                             # TODO: doc:id in doc_ids
                              range(model.get_num_topics())}
 
         # real values are topic scores in [0, 1]
@@ -132,32 +132,43 @@ class TopicModel():
 
         return document_topic_incidence
 
-    def get_term_topic_incidence(self, documents: list):
+    def get_term_topic_incidence(self, doc_ids: list):
         """
         This function returns the incidence of terms in topics.
-        :param terms: List of terms
+        :param doc_ids: List of document ids
         :return: Incidence of terms in topics
         """
-        num_docs = len(documents)
         num_topics = self.get_num_topics()
-        topic_nums, topic_score, topics_words, word_scores = self.get_doc_topics(documents)
+        topic_nums, topic_score, topics_words, word_scores = self.get_doc_topics(doc_ids=doc_ids, num_topics=10)
+        num_docs = len(topic_score)
 
         # create term-topic incidence dataframe
-        topic_index_per_doc = {topic_num: [-1 if topic_num not in topic_nums[doc_id]\
-                                               else topic_nums[doc_id].index(topic_num)\
-                                for doc_id in range(num_docs)] for topic_num in num_topics}
+        # use num_docs instead of doc_ids, bc here we want to index return object not topic model object
+        topic_index_per_doc = {topic_num: [-1 if topic_num not in topic_nums[doc_id] \
+                                               else np.where(topic_nums[doc_id] == topic_num)[0][0] \
+                                           for doc_id in range(num_docs)] for topic_num in range(num_topics)}
+        # print("obtained topic index per doc", doc_ids[0])
+        # print("topic index of doc 0: ", topic_index_per_doc[0][0])
+        # print("topic num content ", topics_words[0][0])
+        # print("test", {term for doc_id in range(num_docs)
+        #                if topic_index_per_doc[0][doc_id] != -1
+        #                for term in topics_words[doc_id][topic_index_per_doc[0][doc_id]]})
 
-        terms_per_topic = {topic_num: {topics_words[doc_id][topic_index_per_doc[topic_num][doc_id]] \
-                                        for doc_id in range(num_docs)} for topic_num in num_topics}
+        terms_per_topic = {topic_num: {term for doc_id in range(num_docs)
+                                       if topic_index_per_doc[topic_num][doc_id] != -1
+                                       for term in topics_words[doc_id][topic_index_per_doc[topic_num][doc_id]]}
+                           for topic_num in range(num_topics)}
 
-        term_topic_columns = {term: [term in terms_per_topic[topic_num] for topic_num in num_topics] for term in
+        print("obtained terms per topic", terms_per_topic[0])
+        term_topic_columns = {term: [term in terms_per_topic[topic_num] for topic_num in range(num_topics)] for term in
                               self.model.vocab}
+
+        print("obtained term_topic_columns", term_topic_columns["behalf"][17:26])   # there is a true
+        print("topics where behalf is present: ", np.where(np.array(term_topic_columns["behalf"]))[0])
 
         # values are binary: 1 if term is in topic, 0 otherwise
         term_topic_incidence = pd.DataFrame(term_topic_columns)  # automatic index == term id in TopicModel
-        return term_topic_incidence # TODO: test
-
-
+        return term_topic_incidence
 
 
 if __name__ == '__main__':
@@ -195,6 +206,10 @@ if __name__ == '__main__':
     duration = 15
     doc_ids = list(range(start, start + len(sentences[start:start + duration])))
     print(doc_ids)
+    #
+    # doc_topic_incidence = model.get_document_topic_incidence(doc_ids=doc_ids)
+    # print(doc_topic_incidence.head())
 
-    doc_topic_incidence = model.get_document_topic_incidence(doc_ids=doc_ids)
-    print(doc_topic_incidence.head())
+    # test term-topic incidence
+    term_topic_incidence = model.get_term_topic_incidence(doc_ids=doc_ids)
+    print("term-topic incidence:\n", term_topic_incidence)
