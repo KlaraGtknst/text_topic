@@ -163,12 +163,86 @@ class TopicModel():
         term_topic_columns = {term: [term in terms_per_topic[topic_num] for topic_num in range(num_topics)] for term in
                               self.model.vocab}
 
-        print("obtained term_topic_columns", term_topic_columns["behalf"][17:26])   # there is a true
+        print("obtained term_topic_columns", term_topic_columns["behalf"][17:26])  # there is a true
         print("topics where behalf is present: ", np.where(np.array(term_topic_columns["behalf"]))[0])
 
         # values are binary: 1 if term is in topic, 0 otherwise
         term_topic_incidence = pd.DataFrame(term_topic_columns)  # automatic index == term id in TopicModel
         return term_topic_incidence
+
+    def row_normalize_df(self, df):
+        """
+        This function normalizes the rows of a dataframe.
+        :param df: Dataframe to normalize
+        :return: Normalized dataframe
+        """
+        return df.div(df.sum(axis=1), axis=0)
+
+    def get_density_doc_topic_threshold(self, normalized_doc_topic_incidence, threshold: float):
+        """
+        This function returns the density of the document-topic incidence matrix.
+        :param normalized_doc_topic_incidence: Normalized document-topic incidence matrix
+        :param threshold: Threshold for weights in the matrix to be considered as relevant
+        :return: Density of the document-topic incidence matrix (proportion of weights above threshold)
+        """
+        return np.mean(normalized_doc_topic_incidence > threshold)
+
+    def display_density_doc_topic_threshold(self, normalized_doc_topic_incidence, save_path: str = None,
+                                            opt_density: float = 0.1):
+        """
+        This function displays the density of the document-topic incidence matrix for different thresholds.
+        :param normalized_doc_topic_incidence: Normalized document-topic incidence matrix
+        :return: Density of the document-topic incidence matrix (proportion of weights above threshold)
+        """
+        plt.figure()
+        thresholds = np.linspace(0, 1, 100)
+        densities = [self.get_density_doc_topic_threshold(normalized_doc_topic_incidence, threshold) for threshold in
+                     thresholds]
+        plt.fill_between(thresholds, densities, color='skyblue', alpha=0.6, label='Density')
+        opt_threshold = thresholds[np.where(np.array(densities) - opt_density > 0)[0][-1]]
+        plt.axvline(x=opt_threshold, color='purple', linestyle='--',
+                    label=f'Optimal threshold = {np.round(opt_threshold, decimals=2)} '
+                          f'for density = {opt_density}')
+        plt.xlabel('Threshold')
+        plt.ylabel('Density')
+        title = 'Density of document-topic incidence matrix'
+        plt.legend()
+        plt.title(title)
+        if save_path:
+            plt.savefig(save_path + title + '.svg', format='svg')
+        plt.show()
+        return densities, thresholds, opt_threshold
+
+    def determine_threshold_doc_topic_threshold(self, doc_topic_incidence, opt_density: float = 0.1,
+                                                save_path: str = None):
+        """
+        This function displays the density of the document-topic incidence matrix for different thresholds.
+        :param normalized_doc_topic_incidence: Normalized document-topic incidence matrix
+        :param opt_density: Optimal density of the document-topic incidence matrix
+        :return: Optimal density of the document-topic incidence matrix (proportion of weights above threshold),
+                Row normalized document-topic incidence matrix
+        """
+        normalized_doc_topic_incidence = self.row_normalize_df(doc_topic_incidence)
+        densities, thresholds, opt_threshold = self.display_density_doc_topic_threshold(normalized_doc_topic_incidence,
+                                                                                        save_path=save_path,
+                                                                                        opt_density=opt_density)
+        return opt_threshold, normalized_doc_topic_incidence
+
+    def apply_threshold_doc_topic_incidence(self, doc_topic_incidence, threshold: float = None):
+        """
+        This function applies a threshold to the document-topic incidence matrix.
+        :param doc_topic_incidence: Document-topic incidence matrix;
+                if threshold is None, row normalized matrix is calculated;
+                if threshold is provided, input matrix is assumed to be row normalized
+        :param threshold: (Optional) Threshold for weights in the matrix to be considered as relevant;
+                if None, optimal threshold is determined
+        :return: Document-topic incidence matrix with threshold applied
+        """
+        if threshold is None:
+            # determine optimal threshold
+            # overwrites doc_topic_incidence with row normalized version
+            threshold, doc_topic_incidence = self.determine_threshold_doc_topic_threshold(doc_topic_incidence)
+        return doc_topic_incidence.map(lambda x: 1 if x > threshold else 0)
 
 
 if __name__ == '__main__':
@@ -176,6 +250,7 @@ if __name__ == '__main__':
     dataset_path = "../dataset/"
     model_path = '../models/'
     incidence_save_path = "../results/incidences/"
+    plot_save_path = "../results/plots/"
 
     # texts
     if dataset_path:
@@ -212,7 +287,15 @@ if __name__ == '__main__':
     save_df_to_csv(doc_topic_incidence, incidence_save_path, "doc_topic_incidence")
     print("first 5doc-topic incidence:\n", doc_topic_incidence.head())
 
+    # determine optimal threshold for document-topic incidence
+    threshold, row_norm_doc_topic_df = model.determine_threshold_doc_topic_threshold(doc_topic_incidence, opt_density=0.1,
+                                                                                     save_path=plot_save_path)
+    print("optimal threshold: ", threshold)
+    thres_row_norm_doc_topic_df = model.apply_threshold_doc_topic_incidence(row_norm_doc_topic_df, threshold=threshold)
+    save_df_to_csv(thres_row_norm_doc_topic_df, incidence_save_path, "thres_row_norm_doc_topic_incidence")
+    print("first 5 thresholded doc-topic incidence:\n", thres_row_norm_doc_topic_df.head())
+
     # test term-topic incidence
-    term_topic_incidence = model.get_term_topic_incidence(doc_ids=doc_ids)
-    save_df_to_csv(term_topic_incidence, incidence_save_path, "term_topic_incidence")
-    print("first 5 term-topic incidence:\n", term_topic_incidence.head())
+    # term_topic_incidence = model.get_term_topic_incidence(doc_ids=doc_ids)
+    # save_df_to_csv(term_topic_incidence, incidence_save_path, "term_topic_incidence")
+    # print("first 5 term-topic incidence:\n", term_topic_incidence.head())
