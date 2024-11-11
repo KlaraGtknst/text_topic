@@ -2,6 +2,7 @@ import glob
 import pypdf as pdf
 import hashlib
 import warnings
+import tqdm
 
 def get_files(path: str = "/", file_ending: str = "txt"):
     if not path.endswith("/"):
@@ -55,3 +56,25 @@ def get_hash_file(path: str):
             fb = f.read(BLOCK_SIZE)
     id = file_hash.hexdigest()
     return id
+
+
+def save_sentences_to_file(sentences, dataset_path):
+    # save the sentences to a file
+    # files.save_text_to_file(sentences, dataset_path + "sentences_old.txt")
+    with open(dataset_path + 'sentences1.txt', 'w') as f:
+        for i in tqdm(range(len(sentences)), desc='Writing sentences to file'):
+            sentence = sentences[i].encode("utf-8", errors="ignore")
+            try:
+                f.write(f"NEWFILE{sentence}")
+            except AttributeError as e:
+                # f.write(f"{sentence}\n")
+                print(f"Error with sentence {i} encountered: {e}")
+                pass
+    f.close()
+
+def load_sentences_from_file(dataset_path):
+    # load the sentences from a file
+    with open(dataset_path + 'sentences1.txt') as f:
+        sentences = f.read()  # f.readlines()
+    print("File content read successfully")  # Check if this prints
+    return sentences

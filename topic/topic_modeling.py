@@ -9,6 +9,9 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from PIL import Image
 import data.files as files
 import pandas as pd
+import numpy as np
+from data.files import save_sentences_to_file, load_sentences_from_file
+import tqdm
 
 
 class TopicModel():
@@ -34,7 +37,7 @@ class TopicModel():
         :param path: Path to the file
         :return: -
         """
-        self.model.save(path + "topic_model_old")  # TODO: test
+        self.model.save(path + "topic_model")  # TODO: test
 
     def load_model(self, path: str = "models/"):
         """
@@ -42,7 +45,7 @@ class TopicModel():
         :param path: Path to the file
         :return: -
         """
-        self.model = Top2Vec.load(path + "topic_model_old")  # TODO: test
+        self.model = Top2Vec.load(path + "topic_model")  # TODO: test
 
     def get_num_topics(self):
         '''
@@ -102,30 +105,32 @@ class TopicModel():
     def get_doc_topics(self, doc_ids: list):
         """
         This function returns the topics of documents.
-        :param documents: List of document IDs
+        :param doc_ids: List of document ids
         :return: Topics of documents
         """
         topic_nums, topic_score, topics_words, word_scores = self.model.get_documents_topics(doc_ids=doc_ids)
         print("obtained document topics")
         return topic_nums, topic_score, topics_words, word_scores
 
-    def get_document_topic_incidence(self, documents: list):
+    def get_document_topic_incidence(self, doc_ids: list):
         """
         This function returns the incidence of topics in documents.
-        :param documents: List of documents
+        :param doc_ids: List of document ids
         :return: Incidence of topics in documents
         """
-        num_docs = len(documents)
-        topic_nums, topic_score, topics_words, word_scores = self.get_doc_topics(documents)
+        # default number of topics returned by model is 1
+        topic_nums, topic_score, topics_words, word_scores = model.model.get_documents_topics(doc_ids=doc_ids, num_topics=10)
 
         # create dataframe with document-topic incidence
         doc_topic_columns = {topic_num: [0 if topic_num not in topic_nums[doc_id] else \
-                                             topic_score[doc_id][topic_nums[doc_id].index(topic_num)] \
-                                         for doc_id in range(num_docs)] for topic_num in self.get_num_topics()}
+                                             topic_score[doc_id][np.where(topic_nums[doc_id] == topic_num)[0][0]] \
+                                         for doc_id in range(len(topic_score))] for topic_num in
+                             range(model.get_num_topics())}
+
         # real values are topic scores in [0, 1]
         document_topic_incidence = pd.DataFrame(doc_topic_columns)  # automatic index == document id in TopicModel
 
-        return document_topic_incidence # TODO: test
+        return document_topic_incidence
 
     def get_term_topic_incidence(self, documents: list):
         """
@@ -154,15 +159,42 @@ class TopicModel():
 
 
 
+
 if __name__ == '__main__':
     path = "/Users/klara/Documents/uni/"
+    dataset_path = "../dataset/"
+    model_path = '../models/'
 
     # texts
-    pdfs = files.get_files(path=path, file_ending="pdf")
-    sentences = []
-    for pdf in pdfs:
-        sentences.extend(files.extract_text_from_pdf(pdf))
+    if dataset_path:
+        sentences = load_sentences_from_file(dataset_path)
+        sentences = sentences.split('NEWFILE')  # (r"\n'b'b'")
+    else:
+        pdfs = files.get_files(path=path, file_ending="pdf")
+        sentences = []
+        for i in tqdm(range(len(pdfs)), desc='Extracting text from pdfs'):
+            pdf = pdfs[i]
+            sentence = files.extract_text_from_pdf(pdf)
+            if type(sentence) != str:
+                sentence = str(sentence)
+            sentences.extend([sentence])
+        #save_sentences_to_file(sentences, dataset_path)
 
-    model = TopicModel(documents=sentences)
-    print('closest topics:', model.get_closest_topics(word='benutzer', num_topics=1)[0])
-    model.get_wordcloud_of_similar_topics(num_topics=2, word="benutzer")
+    if model_path:
+        model = TopicModel(None)
+        model.load_model(path=model_path)
+        #print(model)
+    else:
+        model = TopicModel(documents=sentences)
+        #model.save_model(path=model_path)
+    #print('closest topics:', model.get_closest_topics(word='benutzer', num_topics=1)[0])
+    #model.get_wordcloud_of_similar_topics(num_topics=2, word="benutzer")
+
+    # test document-topic incidence
+    start = 5
+    duration = 15
+    doc_ids = list(range(start, start + len(sentences[start:start + duration])))
+    print(doc_ids)
+
+    doc_topic_incidence = model.get_document_topic_incidence(doc_ids=doc_ids)
+    print(doc_topic_incidence.head())
