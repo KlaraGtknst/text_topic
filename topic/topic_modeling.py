@@ -22,6 +22,7 @@ class TopicModel():
 
     def create_model(self):
         self.model = Top2Vec(documents=self.documents,
+                             document_ids=list(range(len(self.documents))),
                              embedding_model='distiluse-base-multilingual-cased',  # SBERT
                              speed='fast-learn',
                              workers=8,
@@ -33,7 +34,7 @@ class TopicModel():
         :param path: Path to the file
         :return: -
         """
-        self.model.save(path + "topic_model")  # TODO: test
+        self.model.save(path + "topic_model_old")  # TODO: test
 
     def load_model(self, path: str = "models/"):
         """
@@ -41,7 +42,7 @@ class TopicModel():
         :param path: Path to the file
         :return: -
         """
-        self.model = Top2Vec.load(path + "topic_model")  # TODO: test
+        self.model = Top2Vec.load(path + "topic_model_old")  # TODO: test
 
     def get_num_topics(self):
         '''
@@ -98,15 +99,13 @@ class TopicModel():
 
 
 
-    def get_doc_topics(self, documents: list):
+    def get_doc_topics(self, doc_ids: list):
         """
         This function returns the topics of documents.
-        :param documents: List of documents
+        :param documents: List of document IDs
         :return: Topics of documents
         """
-        # since no document ids were provided, the index of each document in the original corpus are the id.
-        num_docs = len(documents)
-        topic_nums, topic_score, topics_words, word_scores = self.model.get_documents_topics(list(range(num_docs)))
+        topic_nums, topic_score, topics_words, word_scores = self.model.get_documents_topics(doc_ids=doc_ids)
         print("obtained document topics")
         return topic_nums, topic_score, topics_words, word_scores
 
