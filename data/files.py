@@ -78,3 +78,15 @@ def load_sentences_from_file(dataset_path):
         sentences = f.read()  # f.readlines()
     print("File content read successfully")  # Check if this prints
     return sentences
+
+
+def save_df_to_csv(df, path, file_name):
+    """
+    This function saves a dataframe to a csv file.
+    :param df: Dataframe to save
+    :param path: Path to save the file, incl. / at the end
+    :param file_name: Name of the file, without file ending
+    :return: -
+    """
+    df.to_csv(path + file_name + '.csv', index=True)
+    print(f"Dataframe saved to {path}")
