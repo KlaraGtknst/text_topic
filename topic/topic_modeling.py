@@ -10,7 +10,7 @@ from PIL import Image
 import data.files as files
 import pandas as pd
 import numpy as np
-from data.files import save_sentences_to_file, load_sentences_from_file
+from data.files import save_sentences_to_file, load_sentences_from_file, save_df_to_csv
 import tqdm
 
 
@@ -121,10 +121,10 @@ class TopicModel():
         topic_nums, topic_score, topics_words, word_scores = self.get_doc_topics(doc_ids=doc_ids, num_topics=10)
 
         # create dataframe with document-topic incidence
+        # use num_docs instead of doc_ids, bc here we want to index return object not topic model object
         doc_topic_columns = {topic_num: [0 if topic_num not in topic_nums[doc_id] else \
                                              topic_score[doc_id][np.where(topic_nums[doc_id] == topic_num)[0][0]] \
                                          for doc_id in range(len(topic_score))] for topic_num in
-                             # TODO: doc:id in doc_ids
                              range(model.get_num_topics())}
 
         # real values are topic scores in [0, 1]
@@ -175,6 +175,7 @@ if __name__ == '__main__':
     path = "/Users/klara/Documents/uni/"
     dataset_path = "../dataset/"
     model_path = '../models/'
+    incidence_save_path = "../results/incidences/"
 
     # texts
     if dataset_path:
@@ -202,14 +203,16 @@ if __name__ == '__main__':
     #model.get_wordcloud_of_similar_topics(num_topics=2, word="benutzer")
 
     # test document-topic incidence
-    start = 5
-    duration = 15
-    doc_ids = list(range(start, start + len(sentences[start:start + duration])))
-    print(doc_ids)
-    #
-    # doc_topic_incidence = model.get_document_topic_incidence(doc_ids=doc_ids)
-    # print(doc_topic_incidence.head())
+    start = 0
+    duration = len(sentences)
+    doc_ids = list(range(start, start + len(sentences[start:start + duration]) - 1))
+    #print(doc_ids)
+
+    doc_topic_incidence = model.get_document_topic_incidence(doc_ids=doc_ids)
+    save_df_to_csv(doc_topic_incidence, incidence_save_path, "doc_topic_incidence")
+    print("first 5doc-topic incidence:\n", doc_topic_incidence.head())
 
     # test term-topic incidence
     term_topic_incidence = model.get_term_topic_incidence(doc_ids=doc_ids)
-    print("term-topic incidence:\n", term_topic_incidence)
+    save_df_to_csv(term_topic_incidence, incidence_save_path, "term_topic_incidence")
+    print("first 5 term-topic incidence:\n", term_topic_incidence.head())
