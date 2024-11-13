@@ -1,4 +1,3 @@
-from concepts import Context
 from fcapy.context import FormalContext
 import pandas as pd
 import numpy as np
