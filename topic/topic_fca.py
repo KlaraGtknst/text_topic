@@ -80,15 +80,15 @@ def print_stats(ctx):
     :param ctx: Formal context
     :return: -
     """
-    # TODO: methods don't exist in the library
-    # print("Number of objects: ", ctx.definition())
-    # print("Number of attributes: ", ctx.n_attributes)
-    # print("Number of relations: ", ctx.n_relations)
+    print("Number of objects: ", len(ctx.objects))
+    print("Number of attributes: ", len(ctx.properties))
 
 
 def print_in_extents(ctx):
     for extent, intent in ctx.lattice:
         print('%r %r' % (extent, intent))
+
+
 
 if __name__ == '__main__':
     path = "/Users/klara/Documents/uni/"
@@ -102,15 +102,15 @@ if __name__ == '__main__':
     ctx = csv2ctx(path_to_file=incidence_save_path, filename=top_doc_filename)
     #print(ctx)
 
-    #print_in_extents(ctx=ctx)
+    print_in_extents(ctx=ctx)
 
-    #ctx.lattice.graphviz()
+    ctx.lattice.graphviz()
 
-    print("Extent of topic 0: ", topic2docs(ctx=ctx, topic_ids=[0]))
-
-    print("Intent of doc 0: ", doc2topics(ctx=ctx, doc_ids=list(range(0,30))))
-
-    print_stats(ctx)
+    # print("Extent of topic 0: ", topic2docs(ctx=ctx, topic_ids=[0]))
+    #
+    # print("Intent of doc 0: ", doc2topics(ctx=ctx, doc_ids=list(range(0,30))))
+    #
+    # print_stats(ctx)
 
 
 
