@@ -8,6 +8,7 @@ from utils.os_manipulation import save_or_not
 
 def search_db(client):
     '''
+    Returns ten first documents in the database.
     :param client: Elasticsearch client
     :return: result of the query
     '''
@@ -21,14 +22,16 @@ def search_db(client):
 
 def obtain_directories(client):
     '''
+    Returns a set of all directories in the database.
     :param client: Elasticsearch client
     :return: list of directories
     '''
     res = search_db(client)
     return set([r['_source']['directory'] for r in res['hits']['hits']])
 
-def get_directory_content(client, directory):
+def get_directory_content(client, directory:str):
     '''
+    Returns a list of all texts in a given directory (only this directory and not its children).
     :param client: Elasticsearch client
     :return: None
     '''
@@ -43,8 +46,10 @@ def get_directory_content(client, directory):
     texts = [r['_source']['text'] for r in res['hits']['hits']]
     return texts
 
-def display_directory_content(client, directory, save_path=None):
+def display_directory_content(client, directory:str, save_path=None):
     '''
+    Displays a wordcloud of the content of a given directory.
+    If save_path is not None, saves the wordcloud as a .png file.
     :param client: Elasticsearch client
     :return: None
     '''
@@ -60,6 +65,10 @@ def display_directory_content(client, directory, save_path=None):
 
 def scatter_dir_content(client, save_path=None):
     '''
+    Displays a 2D scatter plot of the documents in the database.
+    The documents are represented by their embeddings.
+    Each document is colored according to its parent directory.
+    The plot is saved as a .png file if save_path is not None.
     :param client: Elasticsearch client
     :return: None
     '''

@@ -1,3 +1,4 @@
+import datetime
 import glob
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
@@ -34,18 +35,19 @@ class TopicModel():
     def save_model(self, path: str = "models/"):
         """
         Save the model to a file.
+        The name of the file is 'topic_model' and the current date.
         :param path: Path to the file
         :return: -
         """
-        self.model.save(path + "topic_model")  # TODO: test
+        self.model.save(path + "topic_model_" + datetime.datetime.now().strftime('%x'))
 
-    def load_model(self, path: str = "models/"):
+    def load_model(self, path: str = "models/", filename: str = "topic_model"):
         """
         Load the model from a file.
         :param path: Path to the file
         :return: -
         """
-        self.model = Top2Vec.load(path + "topic_model")  # TODO: test
+        self.model = Top2Vec.load(path + filename)
 
     def get_num_topics(self):
         '''
@@ -144,27 +146,20 @@ class TopicModel():
 
         # create term-topic incidence dataframe
         # use num_docs instead of doc_ids, bc here we want to index return object not topic model object
-        topic_index_per_doc = {topic_num: [-1 if topic_num not in topic_nums[doc_id] \
-                                               else np.where(topic_nums[doc_id] == topic_num)[0][0] \
+        topic_index_per_doc = {topic_num: [-1 if topic_num not in topic_nums[doc_id]
+                                               else np.where(topic_nums[doc_id] == topic_num)[0][0]
                                            for doc_id in range(num_docs)] for topic_num in range(num_topics)}
-        # print("obtained topic index per doc", doc_ids[0])
-        # print("topic index of doc 0: ", topic_index_per_doc[0][0])
-        # print("topic num content ", topics_words[0][0])
-        # print("test", {term for doc_id in range(num_docs)
-        #                if topic_index_per_doc[0][doc_id] != -1
-        #                for term in topics_words[doc_id][topic_index_per_doc[0][doc_id]]})
 
         terms_per_topic = {topic_num: {term for doc_id in range(num_docs)
                                        if topic_index_per_doc[topic_num][doc_id] != -1
                                        for term in topics_words[doc_id][topic_index_per_doc[topic_num][doc_id]]}
                            for topic_num in range(num_topics)}
 
-        print("obtained terms per topic", terms_per_topic[0])
+        print("obtained terms per topic")
         term_topic_columns = {term: [term in terms_per_topic[topic_num] for topic_num in range(num_topics)] for term in
                               self.model.vocab}
 
-        print("obtained term_topic_columns", term_topic_columns["behalf"][17:26])  # there is a true
-        print("topics where behalf is present: ", np.where(np.array(term_topic_columns["behalf"]))[0])
+        print("obtained term_topic_columns")
 
         # values are binary: 1 if term is in topic, 0 otherwise
         term_topic_incidence = pd.DataFrame(term_topic_columns)  # automatic index == term id in TopicModel
@@ -255,7 +250,7 @@ if __name__ == '__main__':
     # texts
     if dataset_path:
         sentences = load_sentences_from_file(dataset_path)
-        sentences = sentences.split('NEWFILE')  # (r"\n'b'b'")
+        sentences = sentences.split('NEWFILE')
     else:
         pdfs = files.get_files(path=path, file_ending="pdf")
         sentences = []
@@ -270,12 +265,11 @@ if __name__ == '__main__':
     if model_path:
         model = TopicModel(None)
         model.load_model(path=model_path)
-        #print(model)
+
     else:
         model = TopicModel(documents=sentences)
-        #model.save_model(path=model_path)
-    #print('closest topics:', model.get_closest_topics(word='benutzer', num_topics=1)[0])
-    #model.get_wordcloud_of_similar_topics(num_topics=2, word="benutzer")
+        model.save_model(path=model_path)   # unique name with date
+
 
     # test document-topic incidence
     start = 0
@@ -284,7 +278,7 @@ if __name__ == '__main__':
     #print(doc_ids)
 
     doc_topic_incidence = model.get_document_topic_incidence(doc_ids=doc_ids)
-    save_df_to_csv(doc_topic_incidence, incidence_save_path, "doc_topic_incidence")
+    #save_df_to_csv(doc_topic_incidence, incidence_save_path, "doc_topic_incidence")
     print("first 5doc-topic incidence:\n", doc_topic_incidence.head())
 
     # determine optimal threshold for document-topic incidence
@@ -292,10 +286,10 @@ if __name__ == '__main__':
                                                                                      save_path=plot_save_path)
     print("optimal threshold: ", threshold)
     thres_row_norm_doc_topic_df = model.apply_threshold_doc_topic_incidence(row_norm_doc_topic_df, threshold=threshold)
-    save_df_to_csv(thres_row_norm_doc_topic_df, incidence_save_path, "thres_row_norm_doc_topic_incidence")
+    #save_df_to_csv(thres_row_norm_doc_topic_df, incidence_save_path, "thres_row_norm_doc_topic_incidence")
     print("first 5 thresholded doc-topic incidence:\n", thres_row_norm_doc_topic_df.head())
 
     # test term-topic incidence
-    # term_topic_incidence = model.get_term_topic_incidence(doc_ids=doc_ids)
+    term_topic_incidence = model.get_term_topic_incidence(doc_ids=doc_ids)
     # save_df_to_csv(term_topic_incidence, incidence_save_path, "term_topic_incidence")
-    # print("first 5 term-topic incidence:\n", term_topic_incidence.head())
+    print("first 5 term-topic incidence:\n", term_topic_incidence.head())

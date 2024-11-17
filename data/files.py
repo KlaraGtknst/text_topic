@@ -4,12 +4,23 @@ import hashlib
 import warnings
 import tqdm
 
-def get_files(path: str = "/", file_ending: str = "txt"):
+def get_files(path: str = "/"):
+    """
+    This function returns a list of all file paths that end with 'pdf' in a directory.
+    :param path: Path to the directory; if no path is given, the function returns all pdf files in the current directory.
+    :return: List of file paths
+    """
     if not path.endswith("/"):
         path += "/"
     return [path for path in glob.glob(f"{path}/**", recursive=True) if path.endswith('pdf')]
 
 def extract_text_from_pdf(path: str):
+    """
+    This function extracts the text from a pdf file.
+    If the pdf file is not readable, the function returns a list which contains the error message.
+    :param path: Path to the pdf file
+    :return: List of text from the pdf file; each entry is the text of one page
+    """
     # creating a pdf reader object
     try:
         reader = pdf.PdfReader(path)
@@ -49,7 +60,7 @@ def get_hash_file(path: str):
     '''
     BLOCK_SIZE = 65536000 # The size of each read from the file
     file_hash = hashlib.sha256() # Create the hash object, can use something other than `.sha256()` if you wish
-    with open(path, 'rb') as f: # Open the file to read it's bytes, automatically closes file at end
+    with open(path, 'rb') as f: # Open the file to read its bytes, automatically closes file at end
         fb = f.read(BLOCK_SIZE) # Read from the file. Take in the amount declared above
         while len(fb) > 0: # While there is still data being read from the file
             file_hash.update(fb) # Update the hash
@@ -58,25 +69,37 @@ def get_hash_file(path: str):
     return id
 
 
-def save_sentences_to_file(sentences, dataset_path):
-    # save the sentences to a file
-    # files.save_text_to_file(sentences, dataset_path + "sentences_old.txt")
-    with open(dataset_path + 'sentences1.txt', 'w') as f:
+def save_sentences_to_file(sentences, dataset_path, save_filename:str='sentences2.txt'):
+    """
+    This function saves the sentences to a file.
+    Each new sentence is preceded by the string 'NEWFILE'.
+    :param sentences: List of sentences to save
+    :param dataset_path: Path to the dataset; ends with '/'
+    :param save_filename: Name of the file to save the sentences to
+    :return: -
+    """
+    with open(dataset_path + save_filename, 'w') as f:
         for i in tqdm(range(len(sentences)), desc='Writing sentences to file'):
             sentence = sentences[i].encode("utf-8", errors="ignore")
             try:
                 f.write(f"NEWFILE{sentence}")
             except AttributeError as e:
-                # f.write(f"{sentence}\n")
                 print(f"Error with sentence {i} encountered: {e}")
                 pass
     f.close()
 
-def load_sentences_from_file(dataset_path):
+def load_sentences_from_file(dataset_path, filename:str='sentences1.txt'):
+    """
+    This function loads the sentences from a file.
+    File was created with save_sentences_to_file.
+    :param dataset_path: Path to the dataset; ends with '/'
+    :param filename: Name of the file to load the sentences from
+    :return: String of sentences
+    """
     # load the sentences from a file
-    with open(dataset_path + 'sentences1.txt') as f:
-        sentences = f.read()  # f.readlines()
-    print("File content read successfully")  # Check if this prints
+    with open(dataset_path + filename) as f:
+        sentences = f.read()
+    print("File content read successfully")
     return sentences
 
 

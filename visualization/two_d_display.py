@@ -10,6 +10,12 @@ from utils.os_manipulation import save_or_not
 def scatter_documents_2d(client, save_path=None):
     '''
     This function creates a 2D scatter plot of the documents.
+    The documents are represented by their embeddings.
+    Each document is colored according to its parent directory.
+    The plot is saved as a .png file if save_path is not None.
+    :param client: Elasticsearch client
+    :param save_path: path to save the plot
+    :return -
     '''
     # obtain results from elastic search
     res = client.search(index=DB_NAME, body={
@@ -23,7 +29,7 @@ def scatter_documents_2d(client, save_path=None):
     class_dirs = [r['_source']['directory'] for r in res['hits']['hits']]
 
     # reduce dimensionality to 2D
-    pca = PCA(n_components=2)
+    pca = PCA(n_components=2)   # TODO: TSNE/ UMAP instead of PCA?
     transformed_embs = pca.fit_transform(embeddings)
 
     # create dataframe

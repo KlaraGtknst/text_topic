@@ -1,5 +1,4 @@
 from elasticsearch import ApiError, ConflictError, Elasticsearch, NotFoundError
-#from text_embeddings.preprocessing.read_pdf import *
 from elasticsearch.helpers import bulk
 from sentence_transformers import SentenceTransformer
 from data.files import pdf_to_str, get_hash_file, extract_text_from_pdf
@@ -22,6 +21,9 @@ def init_db(client: Elasticsearch):
     The index contains the following fields:
     - text: the text of the document. The text is not tokenized, stemmed etc.
     - path: the path to the document on the local machine.
+    - embedding: the SentenceTransformer embedding of the text.
+    - directory: the parent directory of the document.
+    - file_name: the name of the document.
 
     cf. https://www.elastic.co/guide/en/elasticsearch/reference/current/dense-vector.html for information about dense vectors and similarity measurement types
     '''
@@ -71,12 +73,6 @@ def initialize_db(client_addr=CLIENT_ADDR, src_path="", create_db=True):
         init_db(client)
         print('finished deleting old and creating new index')
 
-        # Retrieve the mappings of the index
-        #mappings = client.indices.get_mapping(index=DB_NAME)
-
-        # Print the mappings to inspect the structure
-        #print(mappings)
-
         if src_path != "":
             try:
                 # insert embeddings
@@ -92,7 +88,6 @@ def initialize_db(client_addr=CLIENT_ADDR, src_path="", create_db=True):
 
 
 
-
 def insert_embeddings(src_path: str, client: Elasticsearch):
     """
     Insert SentenceTransformer (SBERT) embeddings of documents (.txt and .pdf) in the database.
@@ -102,7 +97,7 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
     :param client: Elasticsearch client
     :return: -
     """
-    print('started with generate_models_embedding()')
+    print('started with insert_embeddings()')
     model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
 
     for path in scanRecurse(baseDir=src_path):
