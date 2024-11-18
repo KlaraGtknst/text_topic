@@ -1,4 +1,4 @@
 CLIENT_ADDR = "http://localhost:9200"
 DB_NAME = "txt_db"
-TEST_TRAINING_PATH = '/Users/klara/Downloads'
+TEST_TRAINING_PATH = "/Users/klara/Documents/uni/"#'/Users/klara/Downloads'
 SAVE_PATH = '../results'
