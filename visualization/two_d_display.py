@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 from elasticsearch import Elasticsearch
+#from elasticsearch_dsl import Search
 from constants import *
 from sklearn.decomposition import PCA
 import pandas as pd
@@ -18,8 +19,10 @@ def scatter_documents_2d(client, save_path=None):
     :return -
     '''
     # obtain results from elastic search
+    client.indices.refresh(index=DB_NAME)
+    count = int(client.cat.count(index=DB_NAME, format="json")[0]["count"])
     res = client.search(index=DB_NAME, body={
-        #'size': 10,
+        'size': count,
         'query': {
             'match_all': {}
         }
@@ -36,10 +39,11 @@ def scatter_documents_2d(client, save_path=None):
     df = pd.DataFrame({'x': transformed_embs[:, 0], 'y': transformed_embs[:, 1], 'parent directory': class_dirs})
 
     # plot highlighting the different directories as classes
-    fig = plt.figure()
+    fig = plt.figure(figsize=(12, 8))
     sns.scatterplot(x=df['x'], y=df['y'], hue=df['parent directory'])
     plt.title('2D scatter plot of the documents')
-    plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
+    plt.legend(loc="upper left", fontsize="9", fancybox=True, shadow=True, ncol=3, bbox_to_anchor=(1.04, 1))
+    #legend.set_in_layout(False)
     fig.tight_layout()
     save_or_not(plt, file_name='scatter_documents_dir_2d.png', save_path=save_path, format='svg')
     plt.show()
