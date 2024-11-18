@@ -80,17 +80,17 @@ def scatter_dir_content(client, save_path=None):
 if __name__ == '__main__':
     #args = arguments()
     src_path = TEST_TRAINING_PATH#args.directory
-    save_dir = SAVE_PATH
+    save_dir = SAVE_PATH + '/plots/'
 
     # get client of existing database
-    client = initialize_db(src_path, client_addr=CLIENT_ADDR, init_db=False)
+    client = initialize_db(src_path=src_path, client_addr=CLIENT_ADDR, create_db=False)
 
     # search for documents in database
-    res = search_db(client)
-    print('result: ', res)
+    #res = search_db(client)
+    #print('result: ', res)
 
     # obtain directories & display content
-    display_directory_content(client, directory='DB_Tickets', save_path=save_dir)
+    display_directory_content(client, directory='SozNet', save_path=save_dir)
 
     # scatter plot of documents highlighting directories
     scatter_dir_content(client, save_path=save_dir)
