@@ -68,8 +68,8 @@ def doc2topics(ctx, doc_ids:list[int]):
     """
     Get the intent of a document.
     The intent of a document is the set of topics that are associated with the document.
-    :param ctx:
-    :param doc_ids:
+    :param ctx: Formal context
+    :param doc_ids: List of document ids
     :return:
     """
     return ctx.intension(["doc_" + str(d_id) for d_id in doc_ids])
@@ -88,6 +88,72 @@ def print_in_extents(ctx):
     for extent, intent in ctx.lattice:
         print('%r %r' % (extent, intent))
 
+def ctx2fimi(ctx, path_to_file:str):
+    """
+    Convert a context to a file in the FIMI format.
+    According to the FIMI format, each line represents an object.
+    The line contains a list of its attributes/features.
+
+     cf. https://fcalgs.sourceforge.net/pcbo-amai.html, https://fcalgs.sourceforge.net/format.html
+    :param ctx: Context to convert
+    :param path_to_file: Path to save the file including the '/' at the end
+    :return: -
+    """
+    with open(path_to_file + "context_format_fimi.fimi", "x") as f:
+        for object_id in range(len(ctx.objects)):
+            f.write(f"{' '.join(map(str, list(doc2topics(ctx, doc_ids=[object_id]))))}\n")
+    f.close()
+    print("Context saved as FIMI file")
+
+def intents_from_fimi(path_to_file:str, filename:str):
+    """
+    Load intents from a FIMI file.
+    :param path_to_file: Path to the FIMI file including the '/' at the end
+    :param filename: Complete filename of the FIMI file including the type extension
+    :return: List of intents
+    """
+    with open(path_to_file + filename, "r") as f:
+        intents = f.readlines()
+    f.close()
+
+    def to_int(element):
+        return int(element) if element else None
+
+    return [list(map(to_int, i.removesuffix('\n').split(' '))) for i in intents]
+
+
+def reconstruct_concept_from_intent(ctx, intent:list[int]):
+    """
+    Reconstructs a formal concept given its intent.
+
+    :param ctx: List of lists (binary matrix) representing the formal context.
+    :param intent: List of attribute indices representing the intent.
+    :return: A tuple (extent, intent_closure) representing the reconstructed formal concept.
+    """
+    num_objects = ctx.objects
+    num_attributes = len(ctx.properties)
+    print(num_objects, num_attributes)
+
+    # Step 1: Compute extent (objects that share all attributes in the intent)
+    extent = []
+    for obj_id in range(len(num_objects)):
+        if set(doc2topics(ctx=ctx, doc_ids=[obj_id])) == set(intent):
+            extent.append(num_objects[obj_id])  # Use 1-based indexing for object identifiers
+
+    # Step 2: Compute intent closure (attributes shared by all objects in the extent)
+    if extent:  # If the extent is not empty
+        intent_closure = set(range(1, num_attributes + 1))  # Start with all attributes
+        for obj_idx in extent:
+            obj_attributes = {
+                attr_idx + 1 for attr_idx, val in enumerate(ctx[obj_idx - 1]) if val == 1
+            }
+            intent_closure &= obj_attributes  # Intersect with attributes of the current object
+    else:  # If extent is empty, closure is empty
+        intent_closure = set()
+
+    return extent, sorted(intent_closure)
+
+
 
 
 if __name__ == '__main__':
@@ -101,10 +167,23 @@ if __name__ == '__main__':
     # Load the context
     ctx = csv2ctx(path_to_file=incidence_save_path, filename=top_doc_filename)
     #print(ctx)
+    #ctx2fimi(ctx, path_to_file=incidence_save_path)
+    #print("Context converted to FIMI format")
 
-    print_in_extents(ctx=ctx)
+    # Reconstruct the concept
+    input_intents = intents_from_fimi(path_to_file=incidence_save_path, filename="intents.fimi")
+    print(intents_from_fimi(path_to_file=incidence_save_path, filename="intents.fimi"))
+    for input_intent in input_intents:
+        extent, intent_closure = reconstruct_concept_from_intent(ctx, input_intent)
 
-    ctx.lattice.graphviz()
+        # Output
+        print(f"Given Intent: {input_intent}")
+        print(f"Reconstructed Extent: {extent}")
+        print(f"Reconstructed Intent Closure: {intent_closure}")
+
+    #print_in_extents(ctx=ctx)
+
+    #ctx.lattice.graphviz()
 
     # print("Extent of topic 0: ", topic2docs(ctx=ctx, topic_ids=[0]))
     #
