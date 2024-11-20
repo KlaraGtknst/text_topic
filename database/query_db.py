@@ -20,14 +20,23 @@ def search_db(client, num_res:int=10):
     })
     return res
 
+def get_num_indexed_documents(client):
+    '''
+    Returns the number of documents in the database.
+    :param client: Elasticsearch client
+    :return: number of documents
+    '''
+    client.indices.refresh(index=DB_NAME)
+    count = int(client.cat.count(index=DB_NAME, format="json")[0]["count"])
+    return count
+
 def obtain_directories(client):
     '''
     Returns a set of all directories in the database.
     :param client: Elasticsearch client
     :return: list of directories
     '''
-    client.indices.refresh(index=DB_NAME)
-    count = int(client.cat.count(index=DB_NAME, format="json")[0]["count"])
+    count = get_num_indexed_documents(client)
     res = search_db(client, num_res=count)
     return set([r['_source']['directory'] for r in res['hits']['hits']])
 
@@ -39,6 +48,7 @@ def get_directory_content(client, directory:str):
     '''
     res = client.search(index=DB_NAME, body={
         '_source': ['text'],
+        'size': get_num_indexed_documents(client),
         'query': {
             'match': {
                 'directory': directory
