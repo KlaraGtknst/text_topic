@@ -6,14 +6,14 @@ import matplotlib.pyplot as plt
 from visualization.two_d_display import scatter_documents_2d
 from utils.os_manipulation import save_or_not
 
-def search_db(client):
+def search_db(client, num_res:int=10):
     '''
     Returns ten first documents in the database.
     :param client: Elasticsearch client
     :return: result of the query
     '''
     res = client.search(index=DB_NAME, body={
-        'size': 10,
+        'size': num_res,
         'query': {
             'match_all': {}
         }
@@ -26,7 +26,9 @@ def obtain_directories(client):
     :param client: Elasticsearch client
     :return: list of directories
     '''
-    res = search_db(client)
+    client.indices.refresh(index=DB_NAME)
+    count = int(client.cat.count(index=DB_NAME, format="json")[0]["count"])
+    res = search_db(client, num_res=count)
     return set([r['_source']['directory'] for r in res['hits']['hits']])
 
 def get_directory_content(client, directory:str):
