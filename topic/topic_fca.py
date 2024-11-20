@@ -150,7 +150,8 @@ def get_concept_lattice(ctx, intents):
     Get the concept lattice of a context.
     :param ctx: Formal context
     :param intents: List of intents
-    :return: Concept lattice
+    :return: Concept lattice as a list of lists, where each inner list represent the extents and intent closures of one
+    formal concept.
     """
 
     return [list(reconstruct_concept_from_intent(ctx, input_intent)) for input_intent in intents]
@@ -184,7 +185,9 @@ if __name__ == '__main__':
     #     print(f"Given Intent: {input_intent}")
     #     print(f"Reconstructed Extent: {extent}")
     #     print(f"Reconstructed Intent Closure: {intent_closure}")
-    print("size of concept lattice: ", len(get_concept_lattice(ctx, intents)))  # should be 14476
+    concept_lattice = get_concept_lattice(ctx, intents[50:60])
+    print("size of concept lattice: ", len(concept_lattice))  # should be 14476
+    print("Concept lattice: ", concept_lattice)
 
     #print_in_extents(ctx=ctx)
 
