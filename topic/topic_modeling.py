@@ -27,7 +27,9 @@ class TopicModel():
     def create_model(self):
         self.model = Top2Vec(documents=self.documents,
                              document_ids=list(range(len(self.documents))),
-                             embedding_model='distiluse-base-multilingual-cased',  # SBERT
+                             # Universal Sentence Encoder multilingual
+                             # https://www.sbert.net/docs/sentence_transformer/pretrained_models.html, 20.11.2024
+                             embedding_model='distiluse-base-multilingual-cased',
                              speed='fast-learn',
                              workers=8,
                              min_count=10)  # TODO: increase when bigger dataset
