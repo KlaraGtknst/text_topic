@@ -4,6 +4,7 @@ from sentence_transformers import SentenceTransformer
 from data.files import pdf_to_str, get_hash_file, extract_text_from_pdf
 from constants import *
 from utils.os_manipulation import scanRecurse
+from NER import named_entity_recognition
 import os
 
 '''------initiate, fill and search in database-------
@@ -47,6 +48,9 @@ def init_db(client: Elasticsearch):
                 },
                 "file_name": {
                     "type": "text",
+                },
+                "named_entities": {
+                    "type": "nested",
                 },
             },
         }
@@ -99,16 +103,19 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
     """
     print('started with insert_embeddings()')
     model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
+    ner = named_entity_recognition.NamedEntityRecognition()
 
     for path in scanRecurse(baseDir=src_path):
         if not (path.endswith('.pdf') or path.endswith('.txt')):
             continue
 
         text = extract_text_from_pdf(path) if path.endswith('.pdf') else open(path, 'r').read()
+        text = ' '.join(text)
         id = get_hash_file(path)
+        named_entities = ner.get_named_entities_dictionary(text=text)
 
-        doc = {'embedding': model.encode(text[0]), 'text': text[0], 'path': path, 'file_name': os.path.basename(path),
-               'directory': os.path.dirname(path).split('/')[-1]}
+        doc = {'embedding': model.encode(text), 'text': text, 'path': path, 'file_name': os.path.basename(path),
+               'directory': os.path.dirname(path).split('/')[-1], 'named_entities': named_entities}
 
         try:
             # document already in database
@@ -131,7 +138,7 @@ if __name__ == '__main__':
     #args = arguments()
     src_path = TEST_TRAINING_PATH#args.directory
 
-    client = initialize_db(client_addr=CLIENT_ADDR, create_db=False, src_path=src_path)
+    client = initialize_db(client_addr=CLIENT_ADDR, create_db=True, src_path=src_path)
     res = client.search(index=DB_NAME, body={
         'size': 10,
         'query': {
