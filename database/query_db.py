@@ -72,7 +72,7 @@ def display_directory_content(client, directory:str, save_path=None):
     plt.title('Wordcloud of directory: ' + directory)
     plt.imshow(wordcloud, interpolation="bilinear")
     plt.axis("off")
-    save_or_not(plt, file_name='wordcloud_' + directory + '.png', save_path=save_path, format='svg')
+    save_or_not(plt, file_name='wordcloud_' + directory + '.svg', save_path=save_path, format='svg')
     plt.show()
 
 def scatter_dir_content(client, save_path=None):
