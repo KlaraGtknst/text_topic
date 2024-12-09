@@ -87,6 +87,43 @@ def scatter_dir_content(client, save_path=None):
     scatter_documents_2d(client, save_path=save_path)
 
 
+def get_named_entities_for_doc(client, nested_field_path, key_name, num_res:int=10):
+    '''
+    Returns ten first documents in the database.
+    :param client: Elasticsearch client
+    :param nested_field_path: Path to the nested field (e.g., "parent.child").
+    :param key_name: The specific key to retrieve values for.
+    :return: result of the query
+    '''
+    # FIXME: implement query for named entity recognition -> returns empty list
+    query = {
+        "query": {
+            "exists": {
+                "field": nested_field_path
+            }
+        },
+        "_source": nested_field_path
+    }
+
+    # Execute the search query
+    response = client.search(index=DB_NAME, body=query, size=1000)
+    print('response: ', response)
+
+    # Extract the values
+    values = []
+    for hit in response['hits']['hits']:
+        # Navigate to the nested field
+        nested_field = hit['_source']
+        for part in nested_field_path.split('.'):
+            nested_field = nested_field.get(part, {})
+
+        # Add the value for the specified key if it exists
+        if key_name in nested_field:
+            values.append(nested_field[key_name])
+
+    return values
+
+
 
 
 if __name__ == '__main__':
@@ -102,9 +139,16 @@ if __name__ == '__main__':
     #print('result: ', res)
 
     # obtain directories & display content
-    display_directory_content(client, directory='SozNet', save_path=save_dir)
+    # display_directory_content(client, directory='SozNet', save_path=save_dir)
+    #
+    # # scatter plot of documents highlighting directories
+    # scatter_dir_content(client, save_path=save_dir)
 
-    # scatter plot of documents highlighting directories
-    scatter_dir_content(client, save_path=save_dir)
+
+    # get named entities for documents
+    nested_field_path = "named_entities"
+    key_name = "ORG"
+    named_entities = get_named_entities_for_doc(client, nested_field_path, key_name)
+    print(f"Named entities for key '{key_name}': {named_entities}")
 
     print('finished')
