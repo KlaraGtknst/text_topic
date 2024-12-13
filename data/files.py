@@ -24,6 +24,8 @@ def extract_text_from_pdf(path: str):
     # creating a pdf reader object
     try:
         reader = pdf.PdfReader(path)
+        if reader.is_encrypted:
+            return ["Warning: File is encrypted."]
 
         text = []
         for page in reader.pages:
