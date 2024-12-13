@@ -1,6 +1,6 @@
 import constants
 import topic.topic_modeling as tm
-import utils.os_manipulation as files
+import data.files as files
 import tqdm
 
 from data.files import save_sentences_to_file, save_df_to_csv
