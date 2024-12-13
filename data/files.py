@@ -43,6 +43,8 @@ def extract_text_from_pdf(path: str):
         return [str(e)]
     except ValueError as e:         # negative seek value -1
         return [str(e)]
+    except Exception as e:  # all other errors
+        return [str(e)]
 
 def pdf_to_str(path: str) -> str:
     '''
