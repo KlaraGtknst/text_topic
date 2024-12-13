@@ -15,7 +15,7 @@ if __name__ == '__main__':
     # texts
     pdfs = files.get_files(path=path)
     sentences = []
-    for i in tqdm(range(len(pdfs)), desc='Extracting text from pdfs'):
+    for i in tqdm.tqdm(range(len(pdfs)), desc='Extracting text from pdfs'):
         pdf = pdfs[i]
         sentence = files.extract_text_from_pdf(pdf)
         if type(sentence) != str:
