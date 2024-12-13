@@ -41,6 +41,8 @@ def extract_text_from_pdf(path: str):
         return [str(e)]
     except AttributeError as e:     # Document is encrypted
         return [str(e)]
+    except ValueError as e:         # negative seek value -1
+        return [str(e)]
 
 def pdf_to_str(path: str) -> str:
     '''
