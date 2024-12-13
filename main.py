@@ -13,7 +13,7 @@ if __name__ == '__main__':
     plot_save_path = "../results/plots/"
 
     # texts
-    pdfs = files.get_files(path=path, file_ending="pdf")
+    pdfs = files.get_files(path=path)
     sentences = []
     for i in tqdm(range(len(pdfs)), desc='Extracting text from pdfs'):
         pdf = pdfs[i]
