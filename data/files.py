@@ -25,10 +25,20 @@ def extract_text_from_pdf(path: str):
     try:
         reader = pdf.PdfReader(path)
 
-        text = [page.extract_text() for page in reader.pages]
+        text = []
+        for page in reader.pages:
+            try:
+                # Attempt to extract text
+                page_text = page.extract_text()
+                if page_text:
+                    text.append(page_text)
+                else:
+                    text.append("Warning: No text found on this page.")
+            except Exception as e:
+                text.append(f"Error extracting text from page: {e}")
+        return "\n".join(text)
     except pdf.errors.PdfStreamError as e:
-        text = [str(e)]
-    return text
+        return [str(e)]
 
 def pdf_to_str(path: str) -> str:
     '''
