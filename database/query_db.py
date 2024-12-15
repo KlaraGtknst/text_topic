@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 from visualization.two_d_display import scatter_documents_2d
 from utils.os_manipulation import save_or_not
 
-def search_db(client, num_res:int=10):
+
+def search_db(client, num_res: int = 10):
     '''
     Returns ten first documents in the database.
     :param client: Elasticsearch client
@@ -20,6 +21,7 @@ def search_db(client, num_res:int=10):
     })
     return res
 
+
 def get_num_indexed_documents(client):
     '''
     Returns the number of documents in the database.
@@ -29,6 +31,7 @@ def get_num_indexed_documents(client):
     client.indices.refresh(index=DB_NAME)
     count = int(client.cat.count(index=DB_NAME, format="json")[0]["count"])
     return count
+
 
 def obtain_directories(client):
     '''
@@ -40,7 +43,8 @@ def obtain_directories(client):
     res = search_db(client, num_res=count)
     return set([r['_source']['directory'] for r in res['hits']['hits']])
 
-def get_directory_content(client, directory:str):
+
+def get_directory_content(client, directory: str):
     '''
     Returns a list of all texts in a given directory (only this directory and not its children).
     :param client: Elasticsearch client
@@ -58,7 +62,8 @@ def get_directory_content(client, directory:str):
     texts = [r['_source']['text'] for r in res['hits']['hits']]
     return texts
 
-def display_directory_content(client, directory:str, save_path=None):
+
+def display_directory_content(client, directory: str, save_path=None):
     '''
     Displays a wordcloud of the content of a given directory.
     If save_path is not None, saves the wordcloud as a .png file.
@@ -75,6 +80,7 @@ def display_directory_content(client, directory:str, save_path=None):
     save_or_not(plt, file_name='wordcloud_' + directory + '.svg', save_path=save_path, format='svg')
     plt.show()
 
+
 def scatter_dir_content(client, save_path=None):
     '''
     Displays a 2D scatter plot of the documents in the database.
@@ -87,7 +93,7 @@ def scatter_dir_content(client, save_path=None):
     scatter_documents_2d(client, save_path=save_path)
 
 
-def get_named_entities_for_doc(client, nested_field_path, key_name, num_res:int=10):
+def get_named_entities_for_doc(client, nested_field_path, key_name, num_res: int = 10):
     '''
     Returns ten first documents in the database.
     :param client: Elasticsearch client
@@ -98,12 +104,24 @@ def get_named_entities_for_doc(client, nested_field_path, key_name, num_res:int=
     # FIXME: implement query for named entity recognition -> returns empty list
     query = {
         "query": {
-            "exists": {
-                "field": nested_field_path
+            "nested": {
+                "path": nested_field_path,
+                "query": {
+                    "exists": {
+                        "field": f"{nested_field_path}.{key_name}"  # Check if the 'value' field exists in the nested field
+                    }
+                },
             }
-        },
-        "_source": nested_field_path
+        }
     }
+    # query = {
+    #     "query": {
+    #         "exists": {
+    #             "field": nested_field_path
+    #         }
+    #     },
+    #     "_source": nested_field_path
+    # }
 
     # Execute the search query
     response = client.search(index=DB_NAME, body=query, size=1000)
@@ -124,11 +142,9 @@ def get_named_entities_for_doc(client, nested_field_path, key_name, num_res:int=
     return values
 
 
-
-
 if __name__ == '__main__':
     #args = arguments()
-    src_path = TEST_TRAINING_PATH#args.directory
+    src_path = TEST_TRAINING_PATH  #args.directory
     save_dir = SAVE_PATH + '/plots/'
 
     # get client of existing database
@@ -144,10 +160,9 @@ if __name__ == '__main__':
     # # scatter plot of documents highlighting directories
     # scatter_dir_content(client, save_path=save_dir)
 
-
     # get named entities for documents
     nested_field_path = "named_entities"
-    key_name = "ORG"
+    key_name = "GPE"#"ORG"
     named_entities = get_named_entities_for_doc(client, nested_field_path, key_name)
     print(f"Named entities for key '{key_name}': {named_entities}")
 
