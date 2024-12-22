@@ -1,6 +1,7 @@
 import constants
 import topic.topic_modeling as tm
 import data.files as files
+import database.init_elasticsearch as db
 import tqdm
 
 from data.files import save_sentences_to_file, save_df_to_csv
@@ -11,6 +12,10 @@ if __name__ == '__main__':
     model_path = '../models/'
     incidence_save_path = "../results/incidences/"
     plot_save_path = "../results/plots/"
+
+    # elasticsearch client
+    client = db.initialize_db(client_addr=constants.CLIENT_ADDR, create_db=True, src_path=constants.SERVER_PATH)
+    print("client created & db initialized")
 
     # texts
     pdfs = files.get_files(path=path)
