@@ -136,7 +136,7 @@ def main(src_path: str, client_addr=CLIENT_ADDR):
 
 if __name__ == '__main__':
     #args = arguments()
-    src_path = TEST_TRAINING_PATH#args.directory
+    src_path = SERVER_PATH#TEST_TRAINING_PATH#args.directory
 
     client = initialize_db(client_addr=CLIENT_ADDR, create_db=True, src_path=src_path)
     res = client.search(index=DB_NAME, body={

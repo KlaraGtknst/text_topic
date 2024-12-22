@@ -11,3 +11,9 @@ Hence, the elastic search database will be available at `http://localhost:9200`.
 After that, you can run the following file to index the documents:
 ```init_elasticsearch.py
 ```
+
+Before usage DB on server, you need to create a tunnel to the server:
+```bash
+ssh -L 9200:localhost:9200 watzmann
+```
+(ssh port forwarding)
