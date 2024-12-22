@@ -114,18 +114,10 @@ def get_named_entities_for_doc(client, nested_field_path, key_name, num_res: int
             }
         }
     }
-    # query = {
-    #     "query": {
-    #         "exists": {
-    #             "field": nested_field_path
-    #         }
-    #     },
-    #     "_source": nested_field_path
-    # }
 
     # Execute the search query
     response = client.search(index=DB_NAME, body=query, size=1000)
-    print('response: ', response)
+    #print('response: ', response)
 
     # Extract the values
     values = []
