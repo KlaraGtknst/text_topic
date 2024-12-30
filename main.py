@@ -26,7 +26,7 @@ if __name__ == '__main__':
         if type(sentence) != str:
             sentence = str(sentence)
         sentences.extend([sentence])
-    save_sentences_to_file(sentences, dataset_path)
+    save_sentences_to_file(sentences=sentences, dataset_path=dataset_path, save_filename='sentences_ETYNTKE.txt')
 
     model = tm.TopicModel(documents=sentences)
     model.save_model(path=model_path)  # unique name with date
