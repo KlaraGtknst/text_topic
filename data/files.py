@@ -3,6 +3,7 @@ import pypdf as pdf
 import hashlib
 import warnings
 import tqdm
+import utils.os_manipulation as osm
 
 def get_files(path: str = "/"):
     """
@@ -94,6 +95,7 @@ def save_sentences_to_file(sentences, dataset_path, save_filename:str='sentences
     :param save_filename: Name of the file to save the sentences to
     :return: -
     """
+    osm.exists_or_create(dataset_path)  # create the directory if it does not exist
     with open(dataset_path + save_filename, 'w') as f:
         for i in tqdm(range(len(sentences)), desc='Writing sentences to file'):
             sentence = sentences[i].encode("utf-8", errors="ignore")
