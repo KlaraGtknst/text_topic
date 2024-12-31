@@ -97,7 +97,7 @@ def save_sentences_to_file(sentences, dataset_path, save_filename:str='sentences
     """
     osm.exists_or_create(dataset_path)  # create the directory if it does not exist
     with open(dataset_path + save_filename, 'w') as f:
-        for i in tqdm(range(len(sentences)), desc='Writing sentences to file'):
+        for i in tqdm.tqdm(range(len(sentences)), desc='Writing sentences to file'):
             sentence = sentences[i].encode("utf-8", errors="ignore")
             try:
                 f.write(f"NEWFILE{sentence}")
