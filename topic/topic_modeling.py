@@ -41,7 +41,7 @@ class TopicModel():
         :param path: Path to the file
         :return: -
         """
-        self.model.save(path + "topic_model_" + datetime.datetime.now().strftime('%x'))
+        self.model.save(path + "topic_model_" + datetime.datetime.now().strftime('%x').replace('/', '_'))
 
     def load_model(self, path: str = "models/", filename: str = "topic_model"):
         """
