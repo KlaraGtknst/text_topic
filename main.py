@@ -8,10 +8,10 @@ from data.files import save_sentences_to_file, save_df_to_csv
 
 if __name__ == '__main__':
     path = constants.SERVER_PATH
-    dataset_path = "../dataset/"
-    model_path = '../models/'
-    incidence_save_path = "../results/incidences/"
-    plot_save_path = "../results/plots/"
+    dataset_path = constants.SERVER_PATH_TO_PROJECT + 'dataset/'
+    model_path = constants.SERVER_PATH_TO_PROJECT + 'models/'
+    incidence_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/incidences/'
+    plot_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/plots/'
 
     # elasticsearch client
     client = db.initialize_db(client_addr=constants.CLIENT_ADDR, create_db=True, src_path=constants.SERVER_PATH)
