@@ -1,3 +1,4 @@
+import nlp
 import constants
 import topic.topic_modeling as tm
 import data.files as files
@@ -15,9 +16,18 @@ if __name__ == '__main__':
     plot_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/plots/'
     date = datetime.datetime.now().strftime('%x').replace('/', '_')
 
+    # according to error message:
+    # increase max length
+    nlp.max_length = 2000000
+
     # elasticsearch client
     client = db.initialize_db(client_addr=constants.CLIENT_ADDR, create_db=True, src_path=constants.SERVER_PATH)
     print("client created & db initialized")
+
+    # according to error message:
+    # The parser and NER models require roughly 1GB of temporary memory per 100,000 characters in the input.
+    # This means long texts may cause memory allocation errors -> reduce the length
+    nlp.max_length = 1000000
 
     # texts
     # pdfs = files.get_files(path=path)
