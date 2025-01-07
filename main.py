@@ -36,10 +36,12 @@ if __name__ == '__main__':
 
     if load_existing_topic_model:
         model = tm.TopicModel(documents=None)
-        model.load_model(path=model_path, filename='topic_model_01_05_25')
+        model = model.load_model(path=model_path, filename='topic_model_01_05_25')
     else:
         model = tm.TopicModel(documents=sentences)
         model.save_model(path=model_path + date)  # unique name with date
+
+    print("topic model created & saved")
 
     # test document-topic incidence
     start = 0
