@@ -1,4 +1,6 @@
 import nlp
+import spacy
+
 import constants
 import topic.topic_modeling as tm
 import data.files as files
@@ -18,6 +20,7 @@ if __name__ == '__main__':
 
     # according to error message:
     # increase max length
+    nlp = spacy.load('en_core_web_sm')
     nlp.max_length = 2000000
 
     # elasticsearch client
