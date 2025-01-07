@@ -17,11 +17,11 @@ if __name__ == '__main__':
     incidence_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/incidences/'
     plot_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/plots/'
     date = datetime.datetime.now().strftime('%x').replace('/', '_')
-    load_existing_topic_model = True
+    load_existing_topic_model = False
 
     # elasticsearch client
-    client = db.initialize_db(client_addr=constants.CLIENT_ADDR, create_db=False, src_path=constants.SERVER_PATH)
-    print("client created & db initialized")
+    client = db.initialize_db(client_addr=constants.CLIENT_ADDR, create_db=True, src_path=constants.SERVER_PATH)
+    print("----client created & db initialized----")
 
     # texts
     pdfs = files.get_files(path=path)
@@ -41,7 +41,7 @@ if __name__ == '__main__':
         model = tm.TopicModel(documents=sentences)
         model.save_model(path=model_path + date)  # unique name with date
 
-    print("topic model created & saved")
+    print("----topic model created & saved----")
 
     # test document-topic incidence
     start = 0
@@ -50,7 +50,8 @@ if __name__ == '__main__':
 
     doc_topic_incidence = model.get_document_topic_incidence(doc_ids=doc_ids)
     save_df_to_csv(doc_topic_incidence, incidence_save_path, f"doc_topic_incidence{date}")
-    print("first 5doc-topic incidence:\n", doc_topic_incidence.head())
+    print("----obtained & saved doc-topic incidence----")
+    print("first 5 doc-topic incidence:\n", doc_topic_incidence.head())
 
     # determine optimal threshold for document-topic incidence
     threshold, row_norm_doc_topic_df = model.determine_threshold_doc_topic_threshold(doc_topic_incidence,
@@ -59,9 +60,11 @@ if __name__ == '__main__':
     print("optimal threshold: ", threshold)
     thres_row_norm_doc_topic_df = model.apply_threshold_doc_topic_incidence(row_norm_doc_topic_df, threshold=threshold)
     save_df_to_csv(thres_row_norm_doc_topic_df, incidence_save_path, f"thres_row_norm_doc_topic_incidence{date}")
+    print("----obtained & saved thresholded doc-topic incidence----")
     print("first 5 thresholded doc-topic incidence:\n", thres_row_norm_doc_topic_df.head())
 
     # test term-topic incidence
     term_topic_incidence = model.get_term_topic_incidence(doc_ids=doc_ids)
     save_df_to_csv(term_topic_incidence, incidence_save_path, f"term_topic_incidence{date}")
+    print("----obtained & saved term-topic incidence----")
     print("first 5 term-topic incidence:\n", term_topic_incidence.head())
