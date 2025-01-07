@@ -18,6 +18,7 @@ import tqdm
 class TopicModel():
 
     def __init__(self, documents: list):
+        self.model = None
         self.documents = documents
         # pretrained models: universal-sentence-encoder, sentence-transformers
         # model trains own model: doc2vec
@@ -50,7 +51,6 @@ class TopicModel():
         :return: -
         """
         self.model = Top2Vec.load(path + filename)
-        return self.model
 
     def get_num_topics(self):
         '''
