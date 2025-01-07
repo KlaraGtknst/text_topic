@@ -17,7 +17,7 @@ if __name__ == '__main__':
     incidence_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/incidences/'
     plot_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/plots/'
     date = datetime.datetime.now().strftime('%x').replace('/', '_')
-    old_topic_model_path = model_path + 'topic_model_01_05_25'
+    load_existing_topic_model = True
 
     # elasticsearch client
     client = db.initialize_db(client_addr=constants.CLIENT_ADDR, create_db=False, src_path=constants.SERVER_PATH)
@@ -34,9 +34,9 @@ if __name__ == '__main__':
         sentences.extend([sentence])
     save_sentences_to_file(sentences=sentences, dataset_path=dataset_path, save_filename=f'sentences_ETYNTKE{date}.txt')
 
-    if old_topic_model_path:
+    if load_existing_topic_model:
         model = tm.TopicModel(documents=None)
-        model.load_model(old_topic_model_path)
+        model.load_model(path=model_path, filename='topic_model_01_05_25')
     else:
         model = tm.TopicModel(documents=sentences)
         model.save_model(path=model_path + date)  # unique name with date
