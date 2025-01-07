@@ -130,7 +130,7 @@ class TopicModel():
         doc_topic_columns = {topic_num: [0 if topic_num not in topic_nums[doc_id] else \
                                              topic_score[doc_id][np.where(topic_nums[doc_id] == topic_num)[0][0]] \
                                          for doc_id in range(len(topic_score))] for topic_num in
-                             range(model.get_num_topics())}
+                             range(self.model.get_num_topics())}
 
         # real values are topic scores in [0, 1]
         document_topic_incidence = pd.DataFrame(doc_topic_columns)  # automatic index == document id in TopicModel
