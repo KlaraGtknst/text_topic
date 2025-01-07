@@ -50,6 +50,7 @@ class TopicModel():
         :return: -
         """
         self.model = Top2Vec.load(path + filename)
+        return self.model
 
     def get_num_topics(self):
         '''
