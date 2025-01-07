@@ -211,7 +211,8 @@ class TopicModel():
         plt.legend()
         plt.title(title)
         if save_path:
-            plt.savefig(save_path + title + '.svg', format='svg')
+            date = datetime.datetime.now().strftime('%x').replace('/', '_')
+            plt.savefig(save_path + title + date + '.svg', format='svg')
         plt.show()
         return densities, thresholds, opt_threshold
 
