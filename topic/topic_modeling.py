@@ -197,26 +197,24 @@ class TopicModel():
         densities = [self.get_density_doc_topic_threshold(normalized_doc_topic_incidence, threshold) for threshold in
                      thresholds]
         plt.fill_between(thresholds, densities, color='skyblue', alpha=0.6, label='Density')
-        print(np.array(densities) - opt_density)
-        print(np.where(np.array(densities) - opt_density > 0))
-        return densities, thresholds, None
-        try:
+        if np.where(np.array(densities) - opt_density > 0)[0].size == 0:    # if only negative values, array is empty
+            opt_threshold = np.max(densities)   # keep all values
+        else:
             opt_threshold = thresholds[np.where(np.array(densities) - opt_density > 0)[0][-1]]
-            plt.axvline(x=opt_threshold, color='purple', linestyle='--',
-                        label=f'Optimal threshold = {np.round(opt_threshold, decimals=2)} '
-                              f'for density = {opt_density}')
-            plt.xlabel('Threshold')
-            plt.ylabel('Density')
-            title = 'Density of document-topic incidence matrix'
-            plt.legend()
-            plt.title(title)
-            if save_path:
-                plt.savefig(save_path + title + '.svg', format='svg')
-            plt.show()
-            return densities, thresholds, opt_threshold
-        except IndexError:
-            print("No densities exceed the optimal density.")
-            return densities, thresholds, None
+
+        plt.axvline(x=opt_threshold, color='purple', linestyle='--',
+                    label=f'Optimal threshold = {np.round(opt_threshold, decimals=2)} '
+                          f'for density = {opt_density}')
+        plt.xlabel('Threshold')
+        plt.ylabel('Density')
+        title = 'Density of document-topic incidence matrix'
+        plt.legend()
+        plt.title(title)
+        if save_path:
+            plt.savefig(save_path + title + '.svg', format='svg')
+        plt.show()
+        return densities, thresholds, opt_threshold
+
 
     def determine_threshold_doc_topic_threshold(self, doc_topic_incidence, opt_density: float = 0.1,
                                                 save_path: str = None):
