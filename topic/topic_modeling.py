@@ -199,6 +199,7 @@ class TopicModel():
         plt.fill_between(thresholds, densities, color='skyblue', alpha=0.6, label='Density')
         print(np.array(densities) - opt_density)
         print(np.where(np.array(densities) - opt_density > 0))
+        return densities, thresholds, None
         try:
             opt_threshold = thresholds[np.where(np.array(densities) - opt_density > 0)[0][-1]]
             plt.axvline(x=opt_threshold, color='purple', linestyle='--',
