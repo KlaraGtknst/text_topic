@@ -112,8 +112,6 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
 
         text = extract_text_from_pdf(path) if path.endswith('.pdf') else open(path, 'r').read()
         text = ' '.join(text)
-        nlp = spacy.load('en_core_web_sm')
-        nlp.tokenizer.max_length = len(text) + 100    # https://datascience.stackexchange.com/questions/38745/increasing-spacy-max-nlp-limit
         id = get_hash_file(path)
         named_entities = ner.get_named_entities_dictionary(text=text)
 
