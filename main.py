@@ -20,7 +20,7 @@ if __name__ == '__main__':
     old_topic_model_path = model_path + 'topic_model_01_05_25'
 
     # elasticsearch client
-    client = db.initialize_db(client_addr=constants.CLIENT_ADDR, create_db=True, src_path=constants.SERVER_PATH)
+    client = db.initialize_db(client_addr=constants.CLIENT_ADDR, create_db=False, src_path=constants.SERVER_PATH)
     print("client created & db initialized")
 
     # texts
