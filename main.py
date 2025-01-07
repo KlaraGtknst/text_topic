@@ -35,7 +35,7 @@ if __name__ == '__main__':
     save_sentences_to_file(sentences=sentences, dataset_path=dataset_path, save_filename=f'sentences_ETYNTKE{date}.txt')
 
     if old_topic_model_path:
-        model = tm.TopicModel()
+        model = tm.TopicModel(documents=None)
         model.load_model(old_topic_model_path)
     else:
         model = tm.TopicModel(documents=sentences)
