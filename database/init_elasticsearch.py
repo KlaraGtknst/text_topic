@@ -7,6 +7,7 @@ from constants import *
 from utils.os_manipulation import scanRecurse
 from NER import named_entity_recognition
 import os
+import nlp
 
 '''------initiate, fill and search in database-------
 run this code by typing and altering the path:
@@ -119,7 +120,8 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
 
         text = ' '.join(text)
         id = get_hash_file(path)
-        named_entities = ner.get_named_entities_dictionary(text=text)
+        limit = min(10 ** 6, len(text)) # nlp.max_length: https://spacy.io/api/language
+        named_entities = ner.get_named_entities_dictionary(text=text[:limit])
 
         doc = {'embedding': model.encode(text), 'text': text, 'path': path, 'file_name': os.path.basename(path),
                'directory': os.path.dirname(path).split('/')[-1], 'named_entities': named_entities}
