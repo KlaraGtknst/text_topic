@@ -110,15 +110,12 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
 
     for path in scanRecurse(baseDir=src_path):
 
-        if path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
-            text = path.split('/')[-1].split('.')[0]
-        elif path.endswith('.pdf') or path.endswith('.txt'):
+        if path.endswith('.pdf') or path.endswith('.txt'):
             text, success = extract_text_from_pdf(path) if path.endswith('.pdf') else open(path, 'r').read()
             if not success:
                 text = 'Error extracting text from pdf.'
-        else:
-            print(f'current path {path} did not work, bc file type is {path.split(".")[-1]}')
-            continue
+        else:   # any other file type
+            text = path.split('/')[-1].split('.')[0]
 
         id = get_hash_file(path)
         limit = min(10 ** 6, len(text))     # nlp.max_length: https://spacy.io/api/language
