@@ -74,9 +74,9 @@ def initialize_db(client_addr=CLIENT_ADDR, src_path="", create_db=True):
 
     if create_db:
         # delete old index and create new one
-        client.options(ignore_status=[400, 404]).indices.delete(index=DB_NAME)
-        init_db(client)
-        print('finished deleting old and creating new index')
+        # client.options(ignore_status=[400, 404]).indices.delete(index=DB_NAME)
+        # init_db(client)
+        # print('finished deleting old and creating new index')
 
         if src_path != "":
             try:
