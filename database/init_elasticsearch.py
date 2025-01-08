@@ -51,6 +51,9 @@ def init_db(client: Elasticsearch):
                 "file_name": {
                     "type": "text",
                 },
+                "file_type": {
+                    "type": "text",
+                },
                 "named_entities": {
                     "type": "nested",
                 },
@@ -107,7 +110,6 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
 
     for path in scanRecurse(baseDir=src_path):
 
-
         if path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
             text = path.split('/')[-1].split('.')[0]
         elif path.endswith('.pdf') or path.endswith('.txt'):
@@ -115,21 +117,20 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
             if not success:
                 text = 'Error extracting text from pdf.'
         else:
-            print('current path did not work:', path)
+            print(f'current path {path} did not work, bc file type is {path.split(".")[-1]}')
             continue
 
-        # text = ' '.join(text)
         id = get_hash_file(path)
-        limit = min(10 ** 6, len(text)) # nlp.max_length: https://spacy.io/api/language
+        limit = min(10 ** 6, len(text))     # nlp.max_length: https://spacy.io/api/language
         named_entities = ner.get_named_entities_dictionary(text=text[:limit])
 
         doc = {'embedding': model.encode(text), 'text': text, 'path': path, 'file_name': os.path.basename(path),
-               'directory': os.path.dirname(path).split('/')[-1], 'named_entities': named_entities}
+               'directory': os.path.dirname(path).split('/')[-1], 'named_entities': named_entities,
+               'file_type': path.split('.')[-1]}
 
         try:
             # insert document in database if it does not exist, else update it
-            resp = client.update(index=DB_NAME, id=id, doc=doc, doc_as_upsert=True)
-            print('response: ', resp, 'for path: ', path)
+            client.update(index=DB_NAME, id=id, doc=doc, doc_as_upsert=True)
 
         except Exception as e:
             print('error in embedding: ', e)
