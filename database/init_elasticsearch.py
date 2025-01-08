@@ -2,10 +2,11 @@ import spacy
 from elasticsearch import ApiError, ConflictError, Elasticsearch, NotFoundError
 from elasticsearch.helpers import bulk
 from sentence_transformers import SentenceTransformer
-from data.files import pdf_to_str, get_hash_file, extract_text_from_pdf
+from data.files import pdf_to_str, get_hash_file, extract_text_from_pdf, get_files
 from constants import *
 from utils.os_manipulation import scanRecurse
 from NER import named_entity_recognition
+import tqdm
 import os
 import nlp
 
@@ -109,16 +110,19 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
     ner = named_entity_recognition.NamedEntityRecognition()
 
     for path in scanRecurse(baseDir=src_path):
+        print('path: ', path)
 
         if path.endswith('.pdf') or path.endswith('.txt'):
-            text, success = extract_text_from_pdf(path) if path.endswith('.pdf') else open(path, 'r').read()
+            print('before extracting text')
+            text, success = extract_text_from_pdf(path) if path.endswith('.pdf') else (open(path2file, 'r').read(), True)
+            print('before extracting text')
             if not success:
                 text = 'Error extracting text from pdf.'
-        else:   # any other file type
+        else:  # any other file type
             text = path.split('/')[-1].split('.')[0]
 
         id = get_hash_file(path)
-        limit = min(10 ** 6, len(text))     # nlp.max_length: https://spacy.io/api/language
+        limit = min(10 ** 6, len(text))  # nlp.max_length: https://spacy.io/api/language
         named_entities = ner.get_named_entities_dictionary(text=text[:limit])
 
         doc = {'embedding': model.encode(text), 'text': text, 'path': path, 'file_name': os.path.basename(path),
@@ -139,16 +143,32 @@ def main(src_path: str, client_addr=CLIENT_ADDR):
 
 
 # if __name__ == '__main__':
-#     #args = arguments()
-#     src_path = SERVER_PATH  #TEST_TRAINING_PATH#args.directory
-#
-#     client = initialize_db(client_addr=CLIENT_ADDR, create_db=True, src_path=src_path)
-#     res = client.search(index=DB_NAME, body={
-#         'size': 10,
-#         'query': {
-#             'match_all': {}
-#         }
-#     })
-#     print('result: ', res)
-#     print('text: ', res['hits']['hits'][0]['_source']['text'])
-#     print('finished')
+    #args = arguments()
+    # src_path = SERVER_PATH  #TEST_TRAINING_PATH#args.directory
+    #
+    # client = initialize_db(client_addr=CLIENT_ADDR, create_db=True, src_path=src_path)
+    # res = client.search(index=DB_NAME, body={
+    #     'size': 10,
+    #     'query': {
+    #         'match_all': {}
+    #     }
+    # })
+    # print('result: ', res)
+    # print('text: ', res['hits']['hits'][0]['_source']['text'])
+    # print('finished')
+
+    # path = '/Users/klara/Downloads/Exotic Weapons'
+    # num_successes = 0
+    # limit_num_docs = 1
+    # paths = get_files(path)[:limit_num_docs]
+    # paths.append('/Users/klara/Downloads/Exotic Weapons/AAA_test.txt')
+    # print('PATHS', paths)
+    # for i in tqdm.tqdm(range(len(paths)), desc='Extracting text from pdfs'):
+    #     path2file = paths[i]
+    #
+    #     text, success = (extract_text_from_pdf(path2file) if path2file.endswith('.pdf')
+    #                      else (open(path2file, 'r').read(), True))
+    #
+    #     print('NEW DOC', text, success)
+    #     num_successes += success
+    # print(f"Number of successful extractions: {num_successes}/{len(get_files(path)[:limit_num_docs])}")
