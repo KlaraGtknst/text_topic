@@ -119,12 +119,12 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
                'directory': os.path.dirname(path).split('/')[-1], 'named_entities': named_entities}
 
         try:
-            # document already in database
-            client.update(index=DB_NAME, id=id, doc=doc)
+            ## document already in database
+            client.update(index=DB_NAME, id=id, doc=doc, doc_as_upsert=True)
 
-        except NotFoundError as e:
-            # document not in database
-            client.index(index=DB_NAME, id=id, document=doc)
+        # except NotFoundError as e:
+        #     # document not in database
+        #     client.index(index=DB_NAME, id=id, document=doc)
 
         except Exception as e:
             print('error in embedding: ', e)
