@@ -109,7 +109,9 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
         if path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
             text = path.split('/')[-1].split('.')[0]
         elif path.endswith('.pdf') or path.endswith('.txt'):
-            text = extract_text_from_pdf(path) if path.endswith('.pdf') else open(path, 'r').read()
+            text, success = extract_text_from_pdf(path) if path.endswith('.pdf') else open(path, 'r').read()
+            if not success:
+                text = 'Error extracting text from pdf.'
         else:
             continue
 
