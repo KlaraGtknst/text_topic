@@ -58,19 +58,19 @@ class NamedEntityRecognition:
             named_entities[ent.label_].append(ent.text)
         return named_entities
 
-if __name__ == "__main__":
-    ner = NamedEntityRecognition()
-    sample_text = "Apple is a big company in the USA, California, Silicon valley."
-    print("sample text:", sample_text)
-    named_entities = ner.get_named_entities(text=sample_text)
-    print("all named entities:", named_entities)
-    entity_categories_to_consider = ['PERSON', 'ORG']
-    print(f"named entities for list of categories={entity_categories_to_consider}:",
-          ner.get_named_entities_from_subset(text=sample_text, subset_categories=entity_categories_to_consider))
-
-    print(f"entities for list of categories={entity_categories_to_consider}: ",
-          ner.get_entities_from_named_entity_list(named_entities, subset_categories=entity_categories_to_consider))
-
-    print(f"categories of named entities: ", ner.get_categories_from_named_entity_list(named_entities))
-
-    print(f"named entities dictionary: ", ner.get_named_entities_dictionary(sample_text))
+# if __name__ == "__main__":
+#     ner = NamedEntityRecognition()
+#     sample_text = "Apple is a big company in the USA, California, Silicon valley."
+#     print("sample text:", sample_text)
+#     named_entities = ner.get_named_entities(text=sample_text)
+#     print("all named entities:", named_entities)
+#     entity_categories_to_consider = ['PERSON', 'ORG']
+#     print(f"named entities for list of categories={entity_categories_to_consider}:",
+#           ner.get_named_entities_from_subset(text=sample_text, subset_categories=entity_categories_to_consider))
+#
+#     print(f"entities for list of categories={entity_categories_to_consider}: ",
+#           ner.get_entities_from_named_entity_list(named_entities, subset_categories=entity_categories_to_consider))
+#
+#     print(f"categories of named entities: ", ner.get_categories_from_named_entity_list(named_entities))
+#
+#     print(f"named entities dictionary: ", ner.get_named_entities_dictionary(sample_text))

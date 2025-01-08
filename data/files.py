@@ -138,14 +138,14 @@ def save_df_to_csv(df, path, file_name):
 
 
 
-if __name__ == '__main__':
-    path = '/Users/klara/Downloads/Exotic Weapons'
-    num_successes = 0
-    limit_num_docs = 10
-    paths = get_files(path)[:limit_num_docs]
-    for i in tqdm.tqdm(range(len(paths)), desc='Extracting text from pdfs'):
-        path2file = paths[i]
-        text, success = extract_text_from_pdf(path2file)
-        print('NEW DOC', text)
-        num_successes += success
-    print(f"Number of successful extractions: {num_successes}/{len(get_files(path)[:limit_num_docs])}")
+# if __name__ == '__main__':
+#     path = '/Users/klara/Downloads/Exotic Weapons'
+#     num_successes = 0
+#     limit_num_docs = 10
+#     paths = get_files(path)[:limit_num_docs]
+#     for i in tqdm.tqdm(range(len(paths)), desc='Extracting text from pdfs'):
+#         path2file = paths[i]
+#         text, success = extract_text_from_pdf(path2file)
+#         print('NEW DOC', text)
+#         num_successes += success
+#     print(f"Number of successful extractions: {num_successes}/{len(get_files(path)[:limit_num_docs])}")
