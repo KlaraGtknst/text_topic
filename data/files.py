@@ -41,15 +41,15 @@ def extract_text_from_pdf(path: str):
                     text.append("Empty page.")
             except Exception as e:
                 text.append(f"Error extracting text from page: {e}")
-        return "\n".join(text), True
+        return " ".join(text), True
     except pdf.errors.PdfStreamError as e:
-        return [str(e)], False
+        return str(e), False
     except AttributeError as e:     # Document is encrypted
-        return [str(e)], False
+        return str(e), False
     except ValueError as e:         # negative seek value -1
-        return [str(e)], False
+        return str(e), False
     except Exception as e:  # all other errors
-        return [str(e)], False
+        return str(e), False
 
 def pdf_to_str(path: str) -> str:
     '''
@@ -138,13 +138,14 @@ def save_df_to_csv(df, path, file_name):
 
 
 
-# if __name__ == '__main__':
-#     path = '/Users/klara/Downloads/Exotic Weapons'
-#     num_successes = 0
-#     paths = get_files(path)[:10]
-#     for i in tqdm.tqdm(range(len(paths)), desc='Extracting text from pdfs'):
-#         path2file = paths[i]
-#         text, success = extract_text_from_pdf(path2file)
-#         print(text)
-#         num_successes += success
-#     print(f"Number of successful extractions: {num_successes}/{len(get_files(path))}")
+if __name__ == '__main__':
+    path = '/Users/klara/Downloads/Exotic Weapons'
+    num_successes = 0
+    limit_num_docs = 10
+    paths = get_files(path)[:limit_num_docs]
+    for i in tqdm.tqdm(range(len(paths)), desc='Extracting text from pdfs'):
+        path2file = paths[i]
+        text, success = extract_text_from_pdf(path2file)
+        print('NEW DOC', text)
+        num_successes += success
+    print(f"Number of successful extractions: {num_successes}/{len(get_files(path)[:limit_num_docs])}")
