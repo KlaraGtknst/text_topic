@@ -91,8 +91,6 @@ def initialize_db(client_addr=CLIENT_ADDR, src_path="", create_db=True):
     return client
 
 
-
-
 def insert_embeddings(src_path: str, client: Elasticsearch):
     """
     Insert SentenceTransformer (SBERT) embeddings of documents (.txt and .pdf) in the database.
@@ -107,10 +105,14 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
     ner = named_entity_recognition.NamedEntityRecognition()
 
     for path in scanRecurse(baseDir=src_path):
-        if not (path.endswith('.pdf') or path.endswith('.txt')):
+
+        if path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
+            text = path.split('/')[-1].split('.')[0]
+        elif path.endswith('.pdf') or path.endswith('.txt'):
+            text = extract_text_from_pdf(path) if path.endswith('.pdf') else open(path, 'r').read()
+        else:
             continue
 
-        text = extract_text_from_pdf(path) if path.endswith('.pdf') else open(path, 'r').read()
         text = ' '.join(text)
         id = get_hash_file(path)
         named_entities = ner.get_named_entities_dictionary(text=text)
@@ -119,12 +121,8 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
                'directory': os.path.dirname(path).split('/')[-1], 'named_entities': named_entities}
 
         try:
-            ## document already in database
+            # insert document in database if it does not exist
             client.update(index=DB_NAME, id=id, doc=doc, doc_as_upsert=True)
-
-        # except NotFoundError as e:
-        #     # document not in database
-        #     client.index(index=DB_NAME, id=id, document=doc)
 
         except Exception as e:
             print('error in embedding: ', e)
@@ -137,7 +135,7 @@ def main(src_path: str, client_addr=CLIENT_ADDR):
 
 if __name__ == '__main__':
     #args = arguments()
-    src_path = SERVER_PATH#TEST_TRAINING_PATH#args.directory
+    src_path = SERVER_PATH  #TEST_TRAINING_PATH#args.directory
 
     client = initialize_db(client_addr=CLIENT_ADDR, create_db=True, src_path=src_path)
     res = client.search(index=DB_NAME, body={
