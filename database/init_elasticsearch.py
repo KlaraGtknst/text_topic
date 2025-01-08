@@ -126,7 +126,8 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
 
         try:
             # insert document in database if it does not exist, else update it
-            client.update(index=DB_NAME, id=id, doc=doc, doc_as_upsert=True)
+            resp = client.update(index=DB_NAME, id=id, doc=doc, doc_as_upsert=True)
+            print('response: ', resp, 'for path: ', path)
 
         except Exception as e:
             print('error in embedding: ', e)
