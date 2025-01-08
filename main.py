@@ -20,6 +20,7 @@ if __name__ == '__main__':
     load_existing_topic_model = False
 
     # elasticsearch client
+    print('Path to the dataset: ', path)
     client = db.initialize_db(client_addr=constants.CLIENT_ADDR, create_db=True, src_path=constants.SERVER_PATH)
     print("----client created & db initialized----")
 

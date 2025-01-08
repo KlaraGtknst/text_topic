@@ -106,6 +106,7 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
 
     for path in scanRecurse(baseDir=src_path):
 
+
         if path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
             text = path.split('/')[-1].split('.')[0]
         elif path.endswith('.pdf') or path.endswith('.txt'):
@@ -113,6 +114,7 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
             if not success:
                 text = 'Error extracting text from pdf.'
         else:
+            print('current path did not work:', path)
             continue
 
         text = ' '.join(text)
