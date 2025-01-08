@@ -19,6 +19,19 @@ def get_files(path: str = "/"):
         path += "/"
     return [path for path in glob.glob(f"{path}/**", recursive=True) if path.endswith('pdf')]
 
+def extract_text_from_txt(path: str):
+    """
+    This function extracts the text from a txt file.
+    :param path: Path to the txt file.
+    :return: Text from the txt file (string)
+    """
+    try:
+        with open(path, 'r') as f:
+            text = f.read()
+        return text, True
+    except Exception as e:  # all other errors
+        return str(e), False
+
 def extract_text_from_pdf(path: str):
     """
     This function extracts the text from a pdf file.

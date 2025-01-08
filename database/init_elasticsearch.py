@@ -2,7 +2,7 @@ import spacy
 from elasticsearch import ApiError, ConflictError, Elasticsearch, NotFoundError
 from elasticsearch.helpers import bulk
 from sentence_transformers import SentenceTransformer
-from data.files import pdf_to_str, get_hash_file, extract_text_from_pdf, get_files
+from data.files import pdf_to_str, get_hash_file, extract_text_from_pdf, get_files, extract_text_from_txt
 from constants import *
 from utils.os_manipulation import scanRecurse
 from NER import named_entity_recognition
@@ -114,7 +114,7 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
 
         if path.endswith('.pdf') or path.endswith('.txt'):
             print('before extracting text')
-            text, success = extract_text_from_pdf(path) if path.endswith('.pdf') else (open(path, 'r').read(), True)
+            text, success = extract_text_from_pdf(path) if path.endswith('.pdf') else extract_text_from_txt(path)
             print('after extracting text')
             if not success:
                 text = 'Error extracting text from pdf.'
