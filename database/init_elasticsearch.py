@@ -118,7 +118,7 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
             print('current path did not work:', path)
             continue
 
-        text = ' '.join(text)
+        # text = ' '.join(text)
         id = get_hash_file(path)
         limit = min(10 ** 6, len(text)) # nlp.max_length: https://spacy.io/api/language
         named_entities = ner.get_named_entities_dictionary(text=text[:limit])
