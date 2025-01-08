@@ -114,8 +114,8 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
 
         if path.endswith('.pdf') or path.endswith('.txt'):
             print('before extracting text')
-            text, success = extract_text_from_pdf(path) if path.endswith('.pdf') else (open(path2file, 'r').read(), True)
-            print('before extracting text')
+            text, success = extract_text_from_pdf(path) if path.endswith('.pdf') else (open(path, 'r').read(), True)
+            print('after extracting text')
             if not success:
                 text = 'Error extracting text from pdf.'
         else:  # any other file type
