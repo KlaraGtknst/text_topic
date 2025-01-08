@@ -123,7 +123,7 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
                'directory': os.path.dirname(path).split('/')[-1], 'named_entities': named_entities}
 
         try:
-            # insert document in database if it does not exist
+            # insert document in database if it does not exist, else update it
             client.update(index=DB_NAME, id=id, doc=doc, doc_as_upsert=True)
 
         except Exception as e:
@@ -135,17 +135,17 @@ def main(src_path: str, client_addr=CLIENT_ADDR):
     initialize_db(src_path=src_path, client_addr=client_addr, create_db=False)
 
 
-if __name__ == '__main__':
-    #args = arguments()
-    src_path = SERVER_PATH  #TEST_TRAINING_PATH#args.directory
-
-    client = initialize_db(client_addr=CLIENT_ADDR, create_db=True, src_path=src_path)
-    res = client.search(index=DB_NAME, body={
-        'size': 10,
-        'query': {
-            'match_all': {}
-        }
-    })
-    print('result: ', res)
-    print('text: ', res['hits']['hits'][0]['_source']['text'])
-    print('finished')
+# if __name__ == '__main__':
+#     #args = arguments()
+#     src_path = SERVER_PATH  #TEST_TRAINING_PATH#args.directory
+#
+#     client = initialize_db(client_addr=CLIENT_ADDR, create_db=True, src_path=src_path)
+#     res = client.search(index=DB_NAME, body={
+#         'size': 10,
+#         'query': {
+#             'match_all': {}
+#         }
+#     })
+#     print('result: ', res)
+#     print('text: ', res['hits']['hits'][0]['_source']['text'])
+#     print('finished')
