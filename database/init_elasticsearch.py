@@ -110,12 +110,9 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
     ner = named_entity_recognition.NamedEntityRecognition()
 
     for path in scanRecurse(baseDir=src_path):
-        print('path: ', path)
 
         if path.endswith('.pdf') or path.endswith('.txt'):
-            print('before extracting text')
             text, success = extract_text_from_pdf(path) if path.endswith('.pdf') else extract_text_from_txt(path)
-            print('after extracting text')
             if not success:
                 text = 'Error extracting text from pdf.'
         else:  # any other file type
