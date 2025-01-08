@@ -38,7 +38,7 @@ def extract_text_from_pdf(path: str):
                 if page_text:
                     text.append(page_text)
                 else:
-                    text.append("Warning: No text found on this page.")
+                    text.append("Empty page.")
             except Exception as e:
                 text.append(f"Error extracting text from page: {e}")
         return "\n".join(text), True
@@ -141,10 +141,10 @@ def save_df_to_csv(df, path, file_name):
 # if __name__ == '__main__':
 #     path = '/Users/klara/Downloads/Exotic Weapons'
 #     num_successes = 0
-#     paths = get_files(path)
+#     paths = get_files(path)[:10]
 #     for i in tqdm.tqdm(range(len(paths)), desc='Extracting text from pdfs'):
 #         path2file = paths[i]
 #         text, success = extract_text_from_pdf(path2file)
-#         #print(text)
+#         print(text)
 #         num_successes += success
 #     print(f"Number of successful extractions: {num_successes}/{len(get_files(path))}")
