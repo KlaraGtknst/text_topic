@@ -123,7 +123,7 @@ def scatter_documents_2d(client, save_path=None, on_server=False, use_tsne=False
     plt.title('2D scatter plot of the documents')
     plt.legend(loc="upper left", fontsize="9", fancybox=True, shadow=True, ncol=3, bbox_to_anchor=(1.04, 1))
     fig.tight_layout()  # if too many classes: will rise a warning, but the plot will be saved correctly
-    save_or_not(plt, file_name=f'{transformation}_scatter_documents_dir_2d_{unique_id_suffix}.png',
+    save_or_not(plt, file_name=f'{transformation}_scatter_documents_dir_2d_{unique_id_suffix}.svg',
                 save_path=save_path, format='svg')
     plt.show()
 
