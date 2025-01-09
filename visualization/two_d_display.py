@@ -18,17 +18,22 @@ def scatter_documents_2d(client, save_path=None):
     :return -
     '''
     # obtain results from elastic search
+    upper_request_limit = 10000
     client.indices.refresh(index=DB_NAME)
     count = int(client.cat.count(index=DB_NAME, format="json")[0]["count"])
-    res = client.search(index=DB_NAME, body={
-        'size': count,
-        'query': {
-            'match_all': {}
-        }
-    })
+    results = []
+    for start_idx in range(0, count, upper_request_limit):
+        res = client.search(index=DB_NAME, body={
+            'from': start_idx,  # Starting index
+            'size':  min(count, upper_request_limit),  # Number of documents to fetch
+            'query': {
+                'match_all': {}
+            }
+        })
+        results.extend(res['hits']['hits'])
 
-    embeddings = [r['_source']['embedding'] for r in res['hits']['hits']]
-    class_dirs = [r['_source']['directory'] for r in res['hits']['hits']]
+    embeddings = [r['_source']['embedding'] for r in results]
+    class_dirs = [r['_source']['directory'] for r in results]
 
     # reduce dimensionality to 2D
     pca = PCA(n_components=2)   # TODO: TSNE/ UMAP instead of PCA?
