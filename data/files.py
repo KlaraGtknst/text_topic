@@ -9,15 +9,16 @@ import utils.os_manipulation as osm
 # Suppress logging from pypdf
 logging.getLogger("pypdf").setLevel(logging.CRITICAL)
 
-def get_files(path: str = "/"):
+def get_files(path: str = "/", file_type: str = 'pdf'):
     """
     This function returns a list of all file paths that end with 'pdf' in a directory.
     :param path: Path to the directory; if no path is given, the function returns all pdf files in the current directory.
+    :param file_type: Type of files to return; default is 'pdf'
     :return: List of file paths
     """
     if not path.endswith("/"):
         path += "/"
-    return [path for path in glob.glob(f"{path}/**", recursive=True) if path.endswith('pdf')]
+    return [path for path in glob.glob(f"{path}/**", recursive=True) if path.endswith(file_type)]
 
 def extract_text_from_txt(path: str):
     """
