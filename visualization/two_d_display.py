@@ -23,9 +23,10 @@ def scatter_documents_2d(client, save_path=None):
     count = int(client.cat.count(index=DB_NAME, format="json")[0]["count"])
     results = []
     for start_idx in range(0, count, upper_request_limit):
+        print(f"Fetching {start_idx} to {start_idx + upper_request_limit} documents")
         res = client.search(index=DB_NAME, body={
             'from': start_idx,  # Starting index
-            'size':  min(count, upper_request_limit),  # Number of documents to fetch
+            'size': upper_request_limit,  # Number of documents to fetch
             'query': {
                 'match_all': {}
             }
