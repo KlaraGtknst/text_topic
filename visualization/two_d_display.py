@@ -38,10 +38,7 @@ def process_directory_names(dir_list: list, max_num_alphabetic: int = 4, num_thr
     # Replace strings with >50% numbers with the word 'numbers'
     processed_dirs = []
     for dir_name in dir_list:
-        if len(dir_name) < max_num_alphabetic and is_all_alphabet(dir_name):
-            # Replace short alphabetic strings (<4 characters) with 'chars'
-            processed_dirs.append("chars")
-        elif is_mostly_numbers(dir_name):
+        if is_mostly_numbers(dir_name):
             # Replace strings with >50% numbers with 'numbers'
             processed_dirs.append("numbers")
         else:
@@ -54,7 +51,13 @@ def process_directory_names(dir_list: list, max_num_alphabetic: int = 4, num_thr
             shared_dirs[dir_name] = "numbers"
             continue
         base_name = remove_numbers(dir_name)
-        shared_dirs[dir_name] = base_name
+        shared_dirs[dir_name] = base_name   # may produce short alphabetical strings
+
+    # Replace short alphabetic strings (<4 characters) with 'chars'
+    for i in range(len(processed_dirs)):
+        dir_name = processed_dirs[i]
+        if len(dir_name) < max_num_alphabetic and is_all_alphabet(dir_name):
+            processed_dirs[i] = 'chars'
 
     # Generate the final list using shared directory names
     final_dirs = [shared_dirs[dir_name] for dir_name in processed_dirs]
