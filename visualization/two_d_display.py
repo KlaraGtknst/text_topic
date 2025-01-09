@@ -9,26 +9,37 @@ from sklearn.manifold import TSNE
 import numpy as np
 import re
 
-def process_directory_names(dir_list:list):
+def process_directory_names(dir_list:list, max_num_alphabetic:int=4, num_threshold:float=0.5):
     """
     Process directory names to remove numbers and replace similar names with a common base name.
     :param dir_list: A list of directory names.
+    :param max_num_alphabetic: The maximum number of alphabetic characters in a string to not be replaced with 'chars'.
+    :param num_threshold: The threshold for the percentage of digits in a string to be considered mostly numbers.
+    All strings with >50% digits are replaced with 'numbers'.
     :return: A list of processed directory names, where similar names are replaced with a common base name and
     words with >50% numbers are replaced with the word 'numbers'.
     """
     def is_mostly_numbers(s):
         """Check if a string has more than 50% digits."""
         num_count = sum(c.isdigit() for c in s)
-        return num_count > len(s) / 2
+        return num_count > len(s) * num_threshold
 
     def remove_numbers(s):
         """Remove digits from a string."""
         return re.sub(r'\d+', '', s)
 
+    def is_all_alphabet(s):
+        """Check if all characters in a string are alphabetic."""
+        return all(c.isalpha() for c in s)
+
     # Replace strings with >50% numbers with the word 'numbers'
     processed_dirs = []
     for dir_name in dir_list:
-        if is_mostly_numbers(dir_name):
+        if len(dir_name) < max_num_alphabetic and is_all_alphabet(dir_name):
+            # Replace short alphabetic strings (<4 characters) with 'chars'
+            processed_dirs.append("chars")
+        elif is_mostly_numbers(dir_name):
+            # Replace strings with >50% numbers with 'numbers'
             processed_dirs.append("numbers")
         else:
             processed_dirs.append(dir_name)
