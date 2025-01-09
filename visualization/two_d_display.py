@@ -22,22 +22,39 @@ def scatter_documents_2d(client, save_path=None):
     client.indices.refresh(index=DB_NAME)
     count = int(client.cat.count(index=DB_NAME, format="json")[0]["count"])
     results = []
-    for start_idx in range(0, count, upper_request_limit):
-        print(f"Fetching {start_idx} to {start_idx + upper_request_limit} documents")
-        res = client.search(index=DB_NAME, body={
-            'from': start_idx,  # Starting index
-            'size': upper_request_limit,  # Number of documents to fetch
-            'query': {
-                'match_all': {}
-            }
-        })
-        results.extend(res['hits']['hits'])
+
+    res = client.search(index=DB_NAME, body={
+        'size': upper_request_limit,  # Number of documents to fetch
+        'query': {
+            'match_all': {}
+        }
+    },
+                            scroll='2m'  # Keep the scroll context alive for 2 minutes
+                            )
+    # Get the first batch of results
+    scroll_id = res['_scroll_id']
+    results.extend(res['hits']['hits'])
+
+    # Fetch additional batches
+    while True:
+        response = client.scroll(
+            scroll_id=scroll_id,
+            scroll='2m'
+        )
+        hits = response['hits']['hits']
+        if not hits:  # Break if no more results
+            break
+        results.extend(hits)  # Add the new results to the list
+        scroll_id = response['_scroll_id']  # Update scroll ID for the next iteration
+
+    # Clear the scroll context
+    client.clear_scroll(scroll_id=scroll_id)
 
     embeddings = [r['_source']['embedding'] for r in results]
     class_dirs = [r['_source']['directory'] for r in results]
 
     # reduce dimensionality to 2D
-    pca = PCA(n_components=2)   # TODO: TSNE/ UMAP instead of PCA?
+    pca = PCA(n_components=2)  # TODO: TSNE/ UMAP instead of PCA?
     transformed_embs = pca.fit_transform(embeddings)
 
     # create dataframe
@@ -53,9 +70,6 @@ def scatter_documents_2d(client, save_path=None):
     save_or_not(plt, file_name='scatter_documents_dir_2d.png', save_path=save_path, format='svg')
     plt.show()
 
-
-
 # if __name__ == '__main__':
 #     client = Elasticsearch(CLIENT_ADDR)
 #     scatter_documents_2d(client, save_path=SERVER_SAVE_PATH)
-
