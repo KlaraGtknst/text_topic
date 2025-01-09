@@ -3,13 +3,15 @@ import seaborn as sns
 from elasticsearch import Elasticsearch
 from constants import *
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+import umap
 import pandas as pd
 from utils.os_manipulation import save_or_not
-from sklearn.manifold import TSNE
 import numpy as np
 import re
 
-def process_directory_names(dir_list:list, max_num_alphabetic:int=4, num_threshold:float=0.5):
+
+def process_directory_names(dir_list: list, max_num_alphabetic: int = 4, num_threshold: float = 0.5):
     """
     Process directory names to remove numbers and replace similar names with a common base name.
     :param dir_list: A list of directory names.
@@ -19,6 +21,7 @@ def process_directory_names(dir_list:list, max_num_alphabetic:int=4, num_thresho
     :return: A list of processed directory names, where similar names are replaced with a common base name and
     words with >50% numbers are replaced with the word 'numbers'.
     """
+
     def is_mostly_numbers(s):
         """Check if a string has more than 50% digits."""
         num_count = sum(c.isdigit() for c in s)
@@ -58,7 +61,7 @@ def process_directory_names(dir_list:list, max_num_alphabetic:int=4, num_thresho
     return final_dirs
 
 
-def scatter_documents_2d(client, save_path=None, on_server=False, use_tsne=False, preprocess_dirs=True,
+def scatter_documents_2d(client, save_path=None, on_server=False, reducer='PCA', preprocess_dirs=True,
                          unique_id_suffix=""):
     '''
     This function creates a 2D scatter plot of the documents.
@@ -69,7 +72,8 @@ def scatter_documents_2d(client, save_path=None, on_server=False, use_tsne=False
     :param save_path: path to save the plot
     :param on_server: if the function is run on the server. Since there are deeper directories on the server,
     the documents are coloured according to the uppermost directory.
-    :param use_tsne: if True, t-SNE is used for dimensionality reduction, else PCA
+    :param reducer: if 'TSNE', t-SNE is used for dimensionality reduction, if 'PCA' then PCA is used,
+    if 'UMAP' then UMAP is used
     :param preprocess_dirs: if True, preprocess the directory names, i.e. remove numbers
     and replace similar names with a common base name
     :param unique_id_suffix: unique id suffix for the file name; default is empty string (hence, no suffix)
@@ -87,8 +91,8 @@ def scatter_documents_2d(client, save_path=None, on_server=False, use_tsne=False
             'match_all': {}
         }
     },
-                            scroll='2m'  # Keep the scroll context alive for 2 minutes -> used for big data
-                            )
+                        scroll='2m'  # Keep the scroll context alive for 2 minutes -> used for big data
+                        )
     # Get the first batch of results
     scroll_id = res['_scroll_id']
     results.extend(res['hits']['hits'])
@@ -117,12 +121,14 @@ def scatter_documents_2d(client, save_path=None, on_server=False, use_tsne=False
         colour_criteria = process_directory_names(colour_criteria)
 
     # reduce dimensionality to 2D
-    transformation = "TSNE" if use_tsne else "PCA"
-    if use_tsne:
+    if reducer == 'TSNE':
         tsne = TSNE(n_components=2)
         transformed_embs = tsne.fit_transform(np.array(embeddings))
-    else:
-        pca = PCA(n_components=2)  # TODO: UMAP
+    elif reducer == 'UMAP':
+        umap_reducer = umap.UMAP(n_components=2)
+        transformed_embs = umap_reducer.fit_transform(embeddings)
+    else:   # PCA is the default
+        pca = PCA(n_components=2)
         transformed_embs = pca.fit_transform(embeddings)
 
     # create dataframe
@@ -134,7 +140,7 @@ def scatter_documents_2d(client, save_path=None, on_server=False, use_tsne=False
     plt.title('2D scatter plot of the documents')
     plt.legend(loc="upper left", fontsize="9", fancybox=True, shadow=True, ncol=3, bbox_to_anchor=(1.04, 1))
     fig.tight_layout()  # if too many classes: will rise a warning, but the plot will be saved correctly
-    save_or_not(plt, file_name=f'{transformation}_scatter_documents_dir_2d_{unique_id_suffix}.svg',
+    save_or_not(plt, file_name=f'{reducer}_scatter_documents_dir_2d_{unique_id_suffix}.svg',
                 save_path=save_path, format='svg')
     plt.show()
 
