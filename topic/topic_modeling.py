@@ -150,7 +150,7 @@ class TopicModel():
         # create term-topic incidence dataframe
         # use num_docs instead of doc_ids, bc here we want to index return object not topic model object
         topic_index_per_doc = {topic_num: [-1 if topic_num not in topic_nums[doc_id]
-                                               else np.where(topic_nums[doc_id] == topic_num)[0][0]
+                                           else np.where(topic_nums[doc_id] == topic_num)[0][0]
                                            for doc_id in range(num_docs)] for topic_num in range(num_topics)}
 
         terms_per_topic = {topic_num: {term for doc_id in range(num_docs)
@@ -197,8 +197,8 @@ class TopicModel():
         densities = [self.get_density_doc_topic_threshold(normalized_doc_topic_incidence, threshold) for threshold in
                      thresholds]
         plt.fill_between(thresholds, densities, color='skyblue', alpha=0.6, label='Density')
-        if np.where(np.array(densities) - opt_density > 0)[0].size == 0:    # if only negative values, array is empty
-            opt_threshold = np.max(densities)   # keep all values
+        if np.where(np.array(densities) - opt_density > 0)[0].size == 0:  # if only negative values, array is empty
+            opt_threshold = np.max(densities)  # keep all values
         else:
             opt_threshold = thresholds[np.where(np.array(densities) - opt_density > 0)[0][-1]]
 
@@ -215,7 +215,6 @@ class TopicModel():
             plt.savefig(save_path + title + date + '.svg', format='svg')
         plt.show()
         return densities, thresholds, opt_threshold
-
 
     def determine_threshold_doc_topic_threshold(self, doc_topic_incidence, opt_density: float = 0.1,
                                                 save_path: str = None):
@@ -277,10 +276,9 @@ if __name__ == '__main__':
 
     else:
         model = TopicModel(documents=sentences)
-        model.save_model(path=model_path)   # unique name with date
+        model.save_model(path=model_path)  # unique name with date
 
-
-    # test document-topic incidence
+    # document-topic incidence
     start = 0
     duration = len(sentences)
     doc_ids = list(range(start, start + len(sentences[start:start + duration]) - 1))
@@ -291,7 +289,8 @@ if __name__ == '__main__':
     print("first 5doc-topic incidence:\n", doc_topic_incidence.head())
 
     # determine optimal threshold for document-topic incidence
-    threshold, row_norm_doc_topic_df = model.determine_threshold_doc_topic_threshold(doc_topic_incidence, opt_density=0.1,
+    threshold, row_norm_doc_topic_df = model.determine_threshold_doc_topic_threshold(doc_topic_incidence,
+                                                                                     opt_density=0.1,
                                                                                      save_path=plot_save_path)
     print("optimal threshold: ", threshold)
     thres_row_norm_doc_topic_df = model.apply_threshold_doc_topic_incidence(row_norm_doc_topic_df, threshold=threshold)
