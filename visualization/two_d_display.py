@@ -49,7 +49,7 @@ def scatter_documents_2d(client, save_path=None):
 
 
 
-if __name__ == '__main__':
-    client = Elasticsearch(CLIENT_ADDR)
-    scatter_documents_2d(client, save_path=SERVER_SAVE_PATH)
+# if __name__ == '__main__':
+#     client = Elasticsearch(CLIENT_ADDR)
+#     scatter_documents_2d(client, save_path=SERVER_SAVE_PATH)
 
