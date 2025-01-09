@@ -5,7 +5,8 @@ from constants import *
 from sklearn.decomposition import PCA
 import pandas as pd
 from utils.os_manipulation import save_or_not
-from scipy.manifold import TSNE
+from sklearn.manifold import TSNE
+
 
 def scatter_documents_2d(client, save_path=None, on_server=False):
     '''
@@ -60,7 +61,7 @@ def scatter_documents_2d(client, save_path=None, on_server=False):
     # reduce dimensionality to 2D
     pca = PCA(n_components=2)  # TODO: TSNE/ UMAP instead of PCA?
     tsne = TSNE(n_components=2)
-    transformed_embs = pca.fit_transform(embeddings)
+    transformed_embs = tsne.fit_transform(embeddings)
 
     # create dataframe
     df = pd.DataFrame({'x': transformed_embs[:, 0], 'y': transformed_embs[:, 1], 'parent directory': colour_criteria})
