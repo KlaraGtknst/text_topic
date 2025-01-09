@@ -6,9 +6,10 @@ from sklearn.decomposition import PCA
 import pandas as pd
 from utils.os_manipulation import save_or_not
 from sklearn.manifold import TSNE
+import numpy as np
 
 
-def scatter_documents_2d(client, save_path=None, on_server=False):
+def scatter_documents_2d(client, save_path=None, on_server=False, use_tsne=False):
     '''
     This function creates a 2D scatter plot of the documents.
     The documents are represented by their embeddings.
@@ -18,6 +19,7 @@ def scatter_documents_2d(client, save_path=None, on_server=False):
     :param save_path: path to save the plot
     :param on_server: if the function is run on the server. Since there are deeper directories on the server,
     the documents are coloured according to the uppermost directory.
+    :param use_tsne: if True, t-SNE is used for dimensionality reduction, else PCA
     :return -
     '''
     # obtain results from elastic search
@@ -59,9 +61,12 @@ def scatter_documents_2d(client, save_path=None, on_server=False):
     colour_criteria = [r['_source']['path'].split('/ETYNTKE/')[-1].split('/')[0] for r in results] if on_server else class_dirs
 
     # reduce dimensionality to 2D
-    pca = PCA(n_components=2)  # TODO: TSNE/ UMAP instead of PCA?
-    tsne = TSNE(n_components=2)
-    transformed_embs = tsne.fit_transform(embeddings)
+    if use_tsne:
+        tsne = TSNE(n_components=2)
+        transformed_embs = tsne.fit_transform(np.array(embeddings))
+    else:
+        pca = PCA(n_components=2)  # TODO: TSNE/ UMAP instead of PCA?
+        transformed_embs = pca.fit_transform(embeddings)
 
     # create dataframe
     df = pd.DataFrame({'x': transformed_embs[:, 0], 'y': transformed_embs[:, 1], 'parent directory': colour_criteria})
