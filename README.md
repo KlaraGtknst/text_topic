@@ -36,3 +36,24 @@ After that, you can run the following file to index the documents (i.e. run on t
 ```bash
 python3 main.py
 ```
+
+## Incidences to Context
+Once the incidences are produced by the main.py file, 
+you want to convert them to the FIMI format:
+```bash
+phyton3 topic_modeling.py
+```
+
+These FIMI files can be used to compute their intents via PCBO (FCALGS).
+This algorithm is implemented in the `fcalgs` package.
+You need to install the package first (i.e. run on the watzmann server):
+```bash
+wget https://sourceforge.net/projects/fcalgs/files/pcbo/amai/pcbo-amai.zip
+unzip pcbo-amai.zip
+``` 
+(website worked on 09.01.2025)
+
+After that, you can run the following command to compute the intents:
+```bash
+./pcbo -P4 /file/to/fimi/file.fimi /name/of/output/file.fimi
+```
