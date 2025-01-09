@@ -1,9 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 from elasticsearch import Elasticsearch
-
-import constants
-#from elasticsearch_dsl import Search
 from constants import *
 from sklearn.decomposition import PCA
 import pandas as pd
@@ -54,6 +51,5 @@ def scatter_documents_2d(client, save_path=None):
 
 if __name__ == '__main__':
     client = Elasticsearch(CLIENT_ADDR)
-    scatter_documents_2d(client, save_path=constants.SERVER_SAVE_PATH)
-    #plt.show()
+    scatter_documents_2d(client, save_path=SERVER_SAVE_PATH)
 
