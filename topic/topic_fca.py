@@ -3,6 +3,7 @@ from concepts import Context
 from fcapy.lattice import ConceptLattice
 import pandas as pd
 import numpy as np
+import constants
 
 
 def save_ctx_as_txt(ctx, save_path: str, filename: str = "context"):
@@ -166,24 +167,36 @@ def get_concept_lattice(ctx, intents):
 
 
 if __name__ == '__main__':
-    path = "/Users/klara/Documents/uni/"
-    dataset_path = "../dataset/"
-    model_path = '../models/'
-    incidence_save_path = "../results/incidences/"
-    plot_save_path = "../results/plots/"
-    top_doc_filename = "thres_row_norm_doc_topic_incidence.csv"
+    on_server = True
+    date = "01_08_25"
+    path = constants.SERVER_PATH if on_server else "/Users/klara/Documents/uni/"
+    dataset_path = constants.SERVER_PATH_TO_PROJECT + 'dataset/' if on_server else "../dataset/"
+    model_path = constants.SERVER_PATH_TO_PROJECT + 'models/' if on_server else '../models/'
+    incidence_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/incidences/server_080125/' \
+        if on_server else "../results/incidences/"
+    plot_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/plots/server_080125/' \
+        if on_server else "../results/plots/"
+    top_doc_filename = f"thres_row_norm_doc_topic_incidence{date}.csv" \
+        if on_server else "thres_row_norm_doc_topic_incidence.csv"
+    term_topic_filename = f"term_topic_incidence{date}.csv" \
+        if on_server else "term_topic_incidence.csv"
 
-    # Load the context
-    ctx = csv2ctx(path_to_file=incidence_save_path, filename=top_doc_filename)
-    #print(ctx)
-    #ctx2fimi(ctx, path_to_file=incidence_save_path)
-    #print("Context converted to FIMI format")
+    # Load the doc-topic context
+    doc_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=top_doc_filename)
+    ctx2fimi(doc_topic_ctx, path_to_file=incidence_save_path)
+
+    # Load the term-topic context
+    term_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=term_topic_filename)
+    ctx2fimi(term_topic_ctx, path_to_file=incidence_save_path)
+
+    # TODO: obtain intents efficiently via pcbo (terminal)
 
     # Reconstruct the concept
-    intents = intents_from_fimi(path_to_file=incidence_save_path, filename="intents.fimi")
-    #print("Intents: ", intents)
-    print("size of concept lattice: ", len(intents))  # == 14476
+    # top_doc_intents = intents_from_fimi(path_to_file=incidence_save_path, filename=f"doc_topic_intents_{date}.fimi")
+    # # print("Intents: ", intents)
+    # print("size of concept lattice: ", len(top_doc_intents))  # == 14476 if local
 
+    # visualization
     # for input_intent in input_intents[50:]:
     #     extent, intent_closure = reconstruct_concept_from_intent(ctx, intents)
     #
@@ -191,13 +204,13 @@ if __name__ == '__main__':
     #     print(f"Given Intent: {input_intent}")
     #     print(f"Reconstructed Extent: {extent}")
     #     print(f"Reconstructed Intent Closure: {intent_closure}")
-    concept_lattice = get_concept_lattice(ctx, intents[50:60])
-    print("size of concept lattice: ", len(concept_lattice))  # should be 14476
-    print("Concept lattice: ", concept_lattice)
+    # concept_lattice = get_concept_lattice(ctx, intents[50:60])
+    # print("size of concept lattice: ", len(concept_lattice))  # should be 14476
+    # print("Concept lattice: ", concept_lattice)
 
-    #print_in_extents(ctx=ctx)
+    # print_in_extents(ctx=ctx)
 
-    #ctx.lattice.graphviz()
+    # ctx.lattice.graphviz()
 
     # print("Extent of topic 0: ", topic2docs(ctx=ctx, topic_ids=[0]))
     #
