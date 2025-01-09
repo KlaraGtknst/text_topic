@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 
-def save_ctx_as_txt(ctx, save_path:str, filename:str="context"):
+def save_ctx_as_txt(ctx, save_path: str, filename: str = "context"):
     """
     Save the context to a file.
     :param ctx: Context to save
@@ -16,7 +16,8 @@ def save_ctx_as_txt(ctx, save_path:str, filename:str="context"):
     with open(save_path + filename + ".txt", "w") as text_file:
         text_file.write(ctx)
 
-def load_ctx_from_txt(load_path:str, filename:str="context"):
+
+def load_ctx_from_txt(load_path: str, filename: str = "context"):
     """
     Load the context from a file.
     :param load_path: Load path including '/' at the end
@@ -27,7 +28,8 @@ def load_ctx_from_txt(load_path:str, filename:str="context"):
         read_string_context = text_file.read()
         return Context.fromstring(read_string_context)
 
-def csv2ctx(path_to_file:str, filename:str):
+
+def csv2ctx(path_to_file: str, filename: str):
     """
     Load a context from a csv file.
     The entries in the csv file are expected to be 0 or 1.
@@ -54,7 +56,8 @@ def csv2ctx(path_to_file:str, filename:str):
 
     return ctx
 
-def topic2docs(ctx, topic_ids:list[int]):
+
+def topic2docs(ctx, topic_ids: list[int]):
     """
     Get the extent of a topic.
     The extent of a topic is the set of documents that are associated with the topic.
@@ -64,7 +67,8 @@ def topic2docs(ctx, topic_ids:list[int]):
     """
     return ctx.extension(["topic_" + str(t_id) for t_id in topic_ids])
 
-def doc2topics(ctx, doc_ids:list[int]):
+
+def doc2topics(ctx, doc_ids: list[int]):
     """
     Get the intent of a document.
     The intent of a document is the set of topics that are associated with the document.
@@ -73,6 +77,7 @@ def doc2topics(ctx, doc_ids:list[int]):
     :return:
     """
     return ctx.intension(["doc_" + str(d_id) for d_id in doc_ids])
+
 
 def print_stats(ctx):
     """
@@ -88,7 +93,8 @@ def print_in_extents(ctx):
     for extent, intent in ctx.lattice:
         print('%r %r' % (extent, intent))
 
-def ctx2fimi(ctx, path_to_file:str):
+
+def ctx2fimi(ctx, path_to_file: str):
     """
     Convert a context to a file in the FIMI format.
     According to the FIMI format, each line represents an object.
@@ -105,7 +111,8 @@ def ctx2fimi(ctx, path_to_file:str):
     f.close()
     print("Context saved as FIMI file")
 
-def intents_from_fimi(path_to_file:str, filename:str):
+
+def intents_from_fimi(path_to_file: str, filename: str):
     """
     Load intents from a FIMI file.
     :param path_to_file: Path to the FIMI file including the '/' at the end
@@ -122,7 +129,7 @@ def intents_from_fimi(path_to_file:str, filename:str):
     return [list(map(to_int, i.removesuffix('\n').split(' '))) for i in intents]
 
 
-def reconstruct_concept_from_intent(ctx, intent:list[int]):
+def reconstruct_concept_from_intent(ctx, intent: list[int]):
     """
     Reconstructs a formal concept given its intent.
 
@@ -145,6 +152,7 @@ def reconstruct_concept_from_intent(ctx, intent:list[int]):
     #print("Intent Closure: ", intent_closure)
     return extent, intent_closure
 
+
 def get_concept_lattice(ctx, intents):
     """
     Get the concept lattice of a context.
@@ -155,8 +163,6 @@ def get_concept_lattice(ctx, intents):
     """
 
     return [list(reconstruct_concept_from_intent(ctx, input_intent)) for input_intent in intents]
-
-
 
 
 if __name__ == '__main__':
@@ -176,7 +182,7 @@ if __name__ == '__main__':
     # Reconstruct the concept
     intents = intents_from_fimi(path_to_file=incidence_save_path, filename="intents.fimi")
     #print("Intents: ", intents)
-    print("size of concept lattice: ", len(intents))    # == 14476
+    print("size of concept lattice: ", len(intents))  # == 14476
 
     # for input_intent in input_intents[50:]:
     #     extent, intent_closure = reconstruct_concept_from_intent(ctx, intents)
@@ -198,6 +204,3 @@ if __name__ == '__main__':
     # print("Intent of doc 0: ", doc2topics(ctx=ctx, doc_ids=list(range(0,30))))
     #
     # print_stats(ctx)
-
-
-
