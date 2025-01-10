@@ -52,8 +52,6 @@ def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_pat
     transformed_embs = obtain_low_dim_embs(high_dim_embs=high_dim_embs, reducer=reducer)
 
     # plot the clusters
-    fig = plt.figure(figsize=(12, 8))
-
     sns.scatterplot(x=transformed_embs[:, 0], y=transformed_embs[:, 1], hue=clusters, palette="viridis")
 
     # legend for the clusters (with named entity labels)
