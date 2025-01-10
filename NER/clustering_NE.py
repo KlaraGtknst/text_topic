@@ -34,11 +34,6 @@ class ClusterNamedEntities:
         query = {
             "size": self.es_request_limit,
             "_source": [f"named_entities.{self.category}"],
-            "query": {"exists": {"field": f"named_entities.{self.category}"}}
-        }
-        query = {
-            "size": self.es_request_limit,
-            "_source": [f"named_entities.{self.category}"],
             "query": {
                 "nested": {
                     "path": "named_entities",
