@@ -2,13 +2,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from elasticsearch import Elasticsearch
 from constants import *
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-import umap
 import pandas as pd
 from utils.os_manipulation import save_or_not
 import numpy as np
 import re
+from visualization.plotting_utils import obtain_low_dim_embs
 
 
 def process_directory_names(dir_list: list, max_num_alphabetic: int = 4, num_threshold: float = 0.5):
@@ -124,15 +122,7 @@ def scatter_documents_2d(client, save_path=None, on_server=False, reducer='PCA',
         colour_criteria = process_directory_names(colour_criteria)
 
     # reduce dimensionality to 2D
-    if reducer == 'TSNE':
-        tsne = TSNE(n_components=2)
-        transformed_embs = tsne.fit_transform(np.array(embeddings))
-    elif reducer == 'UMAP':
-        umap_reducer = umap.UMAP(n_components=2)
-        transformed_embs = umap_reducer.fit_transform(embeddings)
-    else:   # PCA is the default
-        pca = PCA(n_components=2)
-        transformed_embs = pca.fit_transform(embeddings)
+    transformed_embs = obtain_low_dim_embs(high_dim_embs=embeddings, reducer=reducer)
 
     # create dataframe
     df = pd.DataFrame({'x': transformed_embs[:, 0], 'y': transformed_embs[:, 1], 'parent directory': colour_criteria})
