@@ -14,8 +14,9 @@ from utils.os_manipulation import exists_or_create
 
 class ClusterNamedEntities:
 
-    def __init__(self, client, index=constants.DB_NAME, category='ORG', top_n=50, n_clusters=5, output_file="",
-                 es_request_limit=10000):
+    def __init__(self, client, index: str = constants.DB_NAME, category: str = 'ORG', top_n: int = 50,
+                 n_clusters: int = 5, output_file: str = "",
+                 es_request_limit: int = 10000):
         """
         Initialize the Named Entity Clustering class.
         :param client: Elasticsearch client, already connected to the server
