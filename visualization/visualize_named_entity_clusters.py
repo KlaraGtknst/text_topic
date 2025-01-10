@@ -59,7 +59,7 @@ def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_pat
     # legend for the clusters (with named entity labels)
     handles, _ = plt.gca().get_legend_handles_labels()
     plt.legend(handles=handles, labels=list(format_labels(labels=labels, clusters=clusters).values()),
-               title='Named Entities', loc="upper left", fontsize="9", fancybox=True, shadow=True, ncol=3,
+               title='Named Entities', loc="upper left", fontsize="9", fancybox=True, shadow=True,
                bbox_to_anchor=(1.04, 1))
 
     plt.title(f"Named entity clusters (category: {category}, reducer: {reducer})")
