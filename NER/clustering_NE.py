@@ -114,7 +114,7 @@ class ClusterNamedEntities:
         }
 
         output_file = (self.category + constants.SERVER_SAVE_PATH +
-                       f"cluster_NE_results_{datetime.datetime.now().strftime('%x').replace('/', '_')}.json") \
+                       f"/cluster_NE_results_{datetime.datetime.now().strftime('%x').replace('/', '_')}.json") \
             if self.output_file == "" else self.output_file
 
         with open(output_file, "w") as f:
