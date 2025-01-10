@@ -65,7 +65,7 @@ def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_pat
         if not save_path.endswith("/"):
             save_path += "/"
         title = f"named_entity_clusters_{category}_{reducer}_{date}.svg"
-        plt.savefig(save_path + title, format='svg', dpi=300)
+        plt.savefig(save_path + title, format='svg', dpi=300, bbox_inches='tight')
         print(f"Plot saved to {save_path}{title}.")
     plt.show()
 
