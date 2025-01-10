@@ -43,7 +43,7 @@ class ClusterNamedEntities:
                 "nested": {
                     "path": "named_entities",
                     "query": {
-                        "exits": {
+                        "exists": {
                                "field": f"named_entities.{self.category}"
                         }
                     }
