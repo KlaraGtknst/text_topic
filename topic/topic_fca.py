@@ -190,7 +190,7 @@ def get_concept_lattice(ctx, intents):
 #     term_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=term_topic_filename)
 #     ctx2fimi(term_topic_ctx, path_to_file=incidence_save_path)
 #
-#     # TODO: obtain intents efficiently via pcbo (terminal)
+
 
     # Reconstruct the concept
     # top_doc_intents = intents_from_fimi(path_to_file=incidence_save_path, filename=f"doc_topic_intents_{date}.fimi")
