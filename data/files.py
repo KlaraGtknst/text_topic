@@ -1,4 +1,6 @@
 import glob
+import json
+
 import pypdf as pdf
 import hashlib
 import warnings
@@ -8,6 +10,19 @@ import utils.os_manipulation as osm
 
 # Suppress logging from pypdf
 logging.getLogger("pypdf").setLevel(logging.CRITICAL)
+
+def load_dict_from_json(path: str):
+    """
+    This function loads a dictionary from a json file.
+    :param path: Path to the json file
+    :return: Dictionary
+    """
+    try:
+        with open(path, 'r') as f:
+            dictionary = json.load(f)
+        return dictionary
+    except Exception as e:
+        raise e
 
 def get_files(path: str = "/", file_type: str = 'pdf'):
     """
