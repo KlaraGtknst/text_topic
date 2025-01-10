@@ -8,10 +8,11 @@ def extract_embs_clusters(ne_results: dict):
     """
     Extract the embeddings clusters from the dictionary.
     :param ne_results: Dictionary containing the embeddings clusters. Must have the keys "top_n_embeddings" and "clusters".
-    :return: Two lists containing embeddings, clusters.
+    :return: Two lists containing keys (named entities), embeddings, clusters.
     """
     try:
-        return list(ne_results["top_n_embeddings"].values()), list(ne_results["clusters"].values())
+        return (list(ne_results["top_n_embeddings"].keys()), list(ne_results["top_n_embeddings"].values()),
+                list(ne_results["clusters"].values()))
     except KeyError as e:
         print("The dictionary must have the keys 'top_n_embeddings' and 'clusters'.")
         raise e
@@ -28,7 +29,7 @@ def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_pat
     :return: -
     """
     date = datetime.datetime.now().strftime('%x').replace('/', '_')
-    high_dim_embs, clusters = extract_embs_clusters(ne_results)
+    labels, high_dim_embs, clusters = extract_embs_clusters(ne_results)
 
     # reduce dimensionality to 2D
     transformed_embs = obtain_low_dim_embs(high_dim_embs=high_dim_embs, reducer=reducer)
@@ -37,6 +38,11 @@ def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_pat
     plt.figure(figsize=(10, 10))
 
     sns.scatterplot(x=transformed_embs[:, 0], y=transformed_embs[:, 1], hue=clusters, palette="viridis")
+
+    # legend for the clusters (with named entity labels)
+    handles, _ = plt.gca().get_legend_handles_labels()
+    plt.legend(handles=handles, labels=labels, title='Named Entities')
+
     plt.title(f"Named entity clusters (category: {category}, reducer: {reducer})")
     if save_path != "":
         if not save_path.endswith("/"):
