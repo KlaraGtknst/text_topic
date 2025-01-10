@@ -26,7 +26,12 @@ if __name__ == '__main__':
     #                         unique_id_suffix=date + '_' + str(i))
 
     # visualize named entity clusters
-    path = "/norgay/bigstore/kgu/dev/text_topic/results/plots/server_080125/cluster_NER/cluster_NE_results_PERSON_01_10_25.json"
-    ne_cluster_dict = files.load_dict_from_json(path=path)
-    display_NE_cluster(ne_results=ne_cluster_dict, reducer="PCA", category="PERSON",
-                       save_path=constants.SERVER_SAVE_PATH + "/cluster_NER/")
+    save_path = constants.SERVER_SAVE_PATH + "/cluster_NER/"
+    json_files = files.get_files(path=save_path, file_type='json')
+    for i in tqdm.tqdm(range(len(json_files)), desc='Producing plots of NER cluster files'):
+        file_path = json_files[i]
+        category = file_path.split('/')[-1].split('_')[3]
+        print(category)
+        # ne_cluster_dict = files.load_dict_from_json(path=file_path)
+        # display_NE_cluster(ne_results=ne_cluster_dict, reducer="TSNE", category=category,
+        #                    save_path=save_path)
