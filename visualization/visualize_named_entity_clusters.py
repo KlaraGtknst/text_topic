@@ -8,10 +8,10 @@ def extract_embs_clusters(ne_results: dict):
     """
     Extract the embeddings clusters from the dictionary.
     :param ne_results: Dictionary containing the embeddings clusters. Must have the keys "top_n_embeddings" and "clusters".
-    :return: List of embeddings clusters.
+    :return: Two lists containing embeddings, clusters.
     """
     try:
-        return ne_results["top_n_embeddings"], ne_results["clusters"]
+        return list(ne_results["top_n_embeddings"].values()), list(ne_results["clusters"].values())
     except KeyError as e:
         print("The dictionary must have the keys 'top_n_embeddings' and 'clusters'.")
         raise e
