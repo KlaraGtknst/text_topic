@@ -1,8 +1,10 @@
+import constants
 from constants import *
 from database.init_elasticsearch import initialize_db
 import topic.topic_modeling as tm
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+from collections import Counter, defaultdict
 from visualization.two_d_display import scatter_documents_2d
 from utils.os_manipulation import save_or_not
 
@@ -63,7 +65,7 @@ def get_directory_content(client, directory: str):
     return texts
 
 
-def display_directory_content(client, directory: str, save_path:str=None):
+def display_directory_content(client, directory: str, save_path: str = None):
     '''
     Displays a wordcloud of the content of a given directory.
     If save_path is not None, saves the wordcloud as a .png file.
@@ -81,7 +83,7 @@ def display_directory_content(client, directory: str, save_path:str=None):
     plt.show()
 
 
-def scatter_dir_content(client, save_path:str=None):
+def scatter_dir_content(client, save_path: str = None):
     '''
     Displays a 2D scatter plot of the documents in the database.
     The documents are represented by their embeddings.
@@ -93,45 +95,57 @@ def scatter_dir_content(client, save_path:str=None):
     scatter_documents_2d(client, save_path=save_path)
 
 
-def get_named_entities_for_doc(client, nested_field_path:str, key_name:str, num_res: int = 10):
+# should work, since used in NER/clustering_NE.py
+def get_named_entities_for_docs(client, key_name: str, nested_field_path: str = "named_entities",
+                                es_request_limit: int = 10000, num_res: int = 10):
     '''
-    Returns ten first documents in the database.
+    Fetch named entities of the specified category using the scroll API for large datasets.
     :param client: Elasticsearch client
     :param nested_field_path: Path to the nested field (e.g., "parent.child").
     :param key_name: The specific key to retrieve values for.
-    :return: result of the query
+    :return: result of the query, a map of named entities to documents
     '''
-    # FIXME: implement query for named entity recognition -> returns empty list
+    named_entities = []
+    doc_map = defaultdict(list)  # Map named entities to documents
+
     query = {
+        "size": es_request_limit,
+        "_source": [f"{nested_field_path}.{key_name}"],
         "query": {
             "nested": {
                 "path": nested_field_path,
                 "query": {
                     "exists": {
-                        "field": f"{nested_field_path}.{key_name}"  # Check if the 'value' field exists in the nested field
+                        # Check if the 'value' field exists in the nested field
+                        "field": f"{nested_field_path}.{key_name}"
                     }
                 },
             }
         }
     }
 
-    # Execute the search query
-    response = client.search(index=DB_NAME, body=query, size=1000)
-    #print('response: ', response)
+    response = client.search(index=constants.DB_NAME, body=query, scroll="2m")
+    scroll_id = response["_scroll_id"]
 
-    # Extract the values
-    values = []
-    for hit in response['hits']['hits']:
-        # Navigate to the nested field
-        nested_field = hit['_source']
-        for part in nested_field_path.split('.'):
-            nested_field = nested_field.get(part, {})
+    # Process the first batch of results
+    while True:
+        hits = response["hits"]["hits"]
+        if not hits:
+            break
 
-        # Add the value for the specified key if it exists
-        if key_name in nested_field:
-            values.append(nested_field[key_name])
+        for doc in hits:
+            doc_id = doc["_id"]
+            entities = doc["_source"].get("named_entities", {}).get(key_name, [])
+            named_entities.extend(entities)
+            for entity in entities:
+                doc_map[entity].append(doc_id)
 
-    return values
+        # Fetch the next batch of results
+        response = client.scroll(scroll_id=scroll_id, scroll="2m")
+
+    # Clear the scroll context to free resources on the server
+    client.clear_scroll(scroll_id=scroll_id)
+    return named_entities, doc_map
 
 
 if __name__ == '__main__':
@@ -154,8 +168,8 @@ if __name__ == '__main__':
 
     # get named entities for documents
     nested_field_path = "named_entities"
-    key_name = "GPE"#"ORG"
-    named_entities = get_named_entities_for_doc(client, nested_field_path, key_name)
+    key_name = "GPE"  #"ORG"
+    named_entities = get_named_entities_for_docs(client, nested_field_path, key_name)
     print(f"Named entities for key '{key_name}': {named_entities}")
 
     print('finished')
