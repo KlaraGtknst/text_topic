@@ -43,10 +43,8 @@ class ClusterNamedEntities:
                 "nested": {
                     "path": "named_entities",
                     "query": {
-                        "bool": {
-                            "must": [
-                                {"term": {"named_entities": self.category}}
-                            ]
+                        "exits": {
+                               "field": f"named_entities.{self.category}"
                         }
                     }
                 }
