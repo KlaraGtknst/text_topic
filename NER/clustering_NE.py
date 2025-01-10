@@ -37,17 +37,20 @@ class ClusterNamedEntities:
             "query": {"exists": {"field": f"named_entities.{self.category}"}}
         }
         query = {
-            "nested": {
-                "path": "named_entities",
-                "query": {
-                    "bool": {
-                        "must": [
-                            {"term": {"named_entities": self.category}}
-                        ]
+            "size": self.es_request_limit,
+            "_source": [f"named_entities.{self.category}"],
+            "query": {
+                "nested": {
+                    "path": "named_entities",
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {"term": {"named_entities": self.category}}
+                            ]
+                        }
                     }
                 }
-            }
-        }
+            }}
 
         response = self.client.search(index=self.index, body=query, scroll="2m")
         scroll_id = response["_scroll_id"]
