@@ -28,10 +28,11 @@ if __name__ == '__main__':
     # visualize named entity clusters
     save_path = constants.SERVER_SAVE_PATH + "/cluster_NER/"
     json_files = files.get_files(path=save_path, file_type='json')
-    for i in tqdm.tqdm(range(len(json_files)), desc='Producing plots of NER cluster files'):
-        file_path = json_files[i]
-        category = file_path.split('/')[-1].split('_')[3]
-        print(category)
-        # ne_cluster_dict = files.load_dict_from_json(path=file_path)
-        # display_NE_cluster(ne_results=ne_cluster_dict, reducer="TSNE", category=category,
-        #                    save_path=save_path)
+    for reducer in ['TSNE', 'PCA', 'UMAP']:
+        print(f"Started with reducer: {reducer}")
+        for i in tqdm.tqdm(range(len(json_files)), desc='Producing plots of NER cluster files'):
+            file_path = json_files[i]
+            category = file_path.split('/')[-1].split('_')[3]
+            ne_cluster_dict = files.load_dict_from_json(path=file_path)
+            display_NE_cluster(ne_results=ne_cluster_dict, reducer=reducer, category=category,
+                               save_path=save_path)
