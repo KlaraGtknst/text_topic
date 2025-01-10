@@ -81,7 +81,7 @@ class ClusterNamedEntities:
         self.client.clear_scroll(scroll_id=scroll_id)
         return named_entities, doc_map
 
-    def compute_embeddings(self, entities:list):
+    def compute_embeddings(self, entities: list):
         """
         Encode entities using SBERT model.
         :param entities: List of named entities to encode
@@ -91,7 +91,7 @@ class ClusterNamedEntities:
         embeddings = model.encode(entities, convert_to_tensor=False)
         return embeddings
 
-    def get_top_n_entities(self, named_entities:list):
+    def get_top_n_entities(self, named_entities: list):
         """
         Find the top-N most frequent named entities.
         :param named_entities: List of named entities
@@ -101,13 +101,13 @@ class ClusterNamedEntities:
         top_entities = [entity for entity, _ in counter.most_common(self.top_n)]
         return top_entities
 
-    def calculate_similarity_matrix(self, embeddings:list):
+    def calculate_similarity_matrix(self, embeddings: list):
         """
         Compute a symmetric similarity matrix for given embeddings.
         :param embeddings: List of embeddings
         :return: Symmetric similarity matrix as array
         """
-        return cosine_similarity(embeddings)    # pairwise cosine similarity
+        return cosine_similarity(embeddings)  # pairwise cosine similarity
 
     def cluster_named_entities(self, similarity_matrix):
         """
@@ -120,7 +120,7 @@ class ClusterNamedEntities:
         clusters = kmeans.fit_predict(similarity_matrix)
         return clusters
 
-    def save_results(self, clusters:list, top_n_entities:list, doc_map:dict, top_n_doc_maps:dict, embeddings:list):
+    def save_results(self, clusters: list, top_n_entities: list, doc_map: dict, top_n_doc_maps: dict, embeddings: list):
         """
         Save clustering results, embedding and entity-document mapping of the top N named entities to a JSON file.
         :param clusters: List of cluster assignments for each named entity

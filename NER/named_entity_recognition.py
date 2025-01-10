@@ -5,14 +5,19 @@ class NamedEntityRecognition:
     def __init__(self):
         self.nlp = spacy.load("en_core_web_sm")
 
-    def get_named_entities(self, text:str):
+    def get_named_entities(self, text: str):
+        """
+        Returns named entities from a text.
+        :param text: Text to analyze as string
+        :return: List of entities and their categories in the format (entity, category)
+        """
         doc = self.nlp(text)
         named_entities = []
         for ent in doc.ents:
             named_entities.append((ent.text, ent.label_))
         return named_entities
 
-    def get_named_entities_from_subset(self, text:str, subset_categories:list[str]):
+    def get_named_entities_from_subset(self, text: str, subset_categories: list[str]):
         """
         Returns named entities from a subset of named entity types.
         :param text: Text to analyze as string
@@ -26,7 +31,8 @@ class NamedEntityRecognition:
                 named_entities.append((ent.text, ent.label_))
         return named_entities
 
-    def get_entities_from_named_entity_list(self, named_entities:list[tuple[str,str]], subset_categories:list[str]=[]):
+    def get_entities_from_named_entity_list(self, named_entities: list[tuple[str, str]],
+                                            subset_categories: list[str] = []):
         """
         Returns a list of entities from a list of named entities.
         :param named_entities: List of named entities
@@ -36,7 +42,7 @@ class NamedEntityRecognition:
         return [ent[0] for ent in named_entities] if subset_categories == [] else \
             [ent[0] for ent in named_entities if ent[1] in subset_categories]
 
-    def get_categories_from_named_entity_list(self, named_entities:list[tuple[str,str]]):
+    def get_categories_from_named_entity_list(self, named_entities: list[tuple[str, str]]):
         """
         Returns a list of categories from a list of named entities.
         :param named_entities: List of named entities
@@ -44,7 +50,7 @@ class NamedEntityRecognition:
         """
         return [ent[1] for ent in named_entities]
 
-    def get_named_entities_dictionary(self, text:str):
+    def get_named_entities_dictionary(self, text: str):
         """
         Returns a dictionary of named entities.
         :param text: Text to analyze as string
