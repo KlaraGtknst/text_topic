@@ -63,7 +63,7 @@ def get_directory_content(client, directory: str):
     return texts
 
 
-def display_directory_content(client, directory: str, save_path=None):
+def display_directory_content(client, directory: str, save_path:str=None):
     '''
     Displays a wordcloud of the content of a given directory.
     If save_path is not None, saves the wordcloud as a .png file.
@@ -81,7 +81,7 @@ def display_directory_content(client, directory: str, save_path=None):
     plt.show()
 
 
-def scatter_dir_content(client, save_path=None):
+def scatter_dir_content(client, save_path:str=None):
     '''
     Displays a 2D scatter plot of the documents in the database.
     The documents are represented by their embeddings.
@@ -93,7 +93,7 @@ def scatter_dir_content(client, save_path=None):
     scatter_documents_2d(client, save_path=save_path)
 
 
-def get_named_entities_for_doc(client, nested_field_path, key_name, num_res: int = 10):
+def get_named_entities_for_doc(client, nested_field_path:str, key_name:str, num_res: int = 10):
     '''
     Returns ten first documents in the database.
     :param client: Elasticsearch client
