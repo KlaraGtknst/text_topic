@@ -95,7 +95,7 @@ def print_in_extents(ctx):
         print('%r %r' % (extent, intent))
 
 
-def ctx2fimi(ctx, path_to_file: str):
+def ctx2fimi(ctx, path_to_file: str, filename: str = "context_format_fimi"):
     """
     Convert a context to a file in the FIMI format.
     According to the FIMI format, each line represents an object.
@@ -104,9 +104,10 @@ def ctx2fimi(ctx, path_to_file: str):
      cf. https://fcalgs.sourceforge.net/pcbo-amai.html, https://fcalgs.sourceforge.net/format.html
     :param ctx: Context to convert
     :param path_to_file: Path to save the file including the '/' at the end
+    :param filename: Name of the file without type extension
     :return: -
     """
-    with open(path_to_file + "context_format_fimi.fimi", "x") as f:
+    with open(path_to_file + filename + ".fimi", "x") as f:
         for object_id in range(len(ctx.objects)):
             f.write(f"{' '.join(map(str, list(doc2topics(ctx, doc_ids=[object_id]))))}\n")
     f.close()

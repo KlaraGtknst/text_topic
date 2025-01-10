@@ -19,10 +19,10 @@ if __name__ == '__main__':
 
     # Load the doc-topic context
     doc_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=top_doc_filename)
-    ctx2fimi(doc_topic_ctx, path_to_file=incidence_save_path)
+    ctx2fimi(doc_topic_ctx, path_to_file=incidence_save_path, filename=f"doc_topic_fimi_{date}")
 
     # Load the term-topic context
     term_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=term_topic_filename)
-    ctx2fimi(term_topic_ctx, path_to_file=incidence_save_path)
+    ctx2fimi(term_topic_ctx, path_to_file=incidence_save_path, filename=f"term_topic_fimi_{date}")
 
     # TODO: obtain intents efficiently via pcbo (terminal)
