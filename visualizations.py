@@ -28,4 +28,4 @@ if __name__ == '__main__':
     # visualize named entity clusters
     path = "/norgay/bigstore/kgu/dev/text_topic/results/plots/server_080125/cluster_NER/cluster_NE_results_PERSON_01_10_25.json"
     ne_cluster_dict = files.load_dict_from_json(path=path)
-    display_NE_cluster(ne_results=ne_cluster_dict, reducer="PCA", category="PERSON", save=True)
+    display_NE_cluster(ne_results=ne_cluster_dict, reducer="PCA", category="PERSON", save_path=constants.SERVER_SAVE_PATH)
