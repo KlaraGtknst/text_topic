@@ -52,16 +52,18 @@ def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_pat
     transformed_embs = obtain_low_dim_embs(high_dim_embs=high_dim_embs, reducer=reducer)
 
     # plot the clusters
-    plt.figure(figsize=(10, 10))
+    fig = plt.figure(figsize=(12, 8))
 
     sns.scatterplot(x=transformed_embs[:, 0], y=transformed_embs[:, 1], hue=clusters, palette="viridis")
 
     # legend for the clusters (with named entity labels)
     handles, _ = plt.gca().get_legend_handles_labels()
     plt.legend(handles=handles, labels=list(format_labels(labels=labels, clusters=clusters).values()),
-               title='Named Entities')
+               title='Named Entities', loc="upper left", fontsize="9", fancybox=True, shadow=True, ncol=3,
+               bbox_to_anchor=(1.04, 1))
 
     plt.title(f"Named entity clusters (category: {category}, reducer: {reducer})")
+    fig.tight_layout()
     if save_path != "":
         if not save_path.endswith("/"):
             save_path += "/"
