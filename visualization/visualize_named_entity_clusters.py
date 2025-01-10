@@ -17,6 +17,23 @@ def extract_embs_clusters(ne_results: dict):
         print("The dictionary must have the keys 'top_n_embeddings' and 'clusters'.")
         raise e
 
+def format_labels(labels: list, clusters: list):
+    # Create a dictionary to hold the labels grouped by their cluster
+    grouped_labels = {}
+
+    # Group labels by their cluster
+    for label, cluster in zip(labels, clusters):
+        if cluster not in grouped_labels:
+            grouped_labels[cluster] = []
+        grouped_labels[cluster].append(label)
+
+    # Convert each group of labels to a string (e.g., comma-separated)
+    grouped_labels_strings = {
+        cluster: ", ".join(group) for cluster, group in grouped_labels.items()
+    }
+
+    return grouped_labels_strings
+
 
 def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_path=""):
     """
@@ -41,7 +58,7 @@ def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_pat
 
     # legend for the clusters (with named entity labels)
     handles, _ = plt.gca().get_legend_handles_labels()
-    plt.legend(handles=handles, labels=labels, title='Named Entities')
+    plt.legend(handles=handles, labels=list(format_labels(labels=labels).values()), title='Named Entities')
 
     plt.title(f"Named entity clusters (category: {category}, reducer: {reducer})")
     if save_path != "":
