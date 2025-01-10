@@ -1,6 +1,8 @@
 import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+from utils.os_manipulation import exists_or_create
 from visualization.plotting_utils import obtain_low_dim_embs
 
 
@@ -64,6 +66,8 @@ def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_pat
     if save_path != "":
         if not save_path.endswith("/"):
             save_path += "/"
+        save_path += f"{reducer}/"
+        exists_or_create(path=save_path)
         title = f"named_entity_clusters_{category}_{reducer}_{date}.svg"
         plt.savefig(save_path + title, format='svg', dpi=300, bbox_inches='tight')
         print(f"Plot saved to {save_path}{title}.")
