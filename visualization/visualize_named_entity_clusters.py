@@ -36,8 +36,8 @@ def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_pat
     # plot the clusters
     plt.figure(figsize=(10, 10))
 
-    plot = sns.scatterplot(x=transformed_embs[:, 0], y=transformed_embs[:, 1], hue=clusters, palette="viridis")
-    plot.legend.set_title(f"Named entity clusters (category: {category}, reducer: {reducer})")
+    sns.scatterplot(x=transformed_embs[:, 0], y=transformed_embs[:, 1], hue=clusters, palette="viridis")
+    plt.title(f"Named entity clusters (category: {category}, reducer: {reducer})")
     if save_path != "":
         if not save_path.endswith("/"):
             save_path += "/"
