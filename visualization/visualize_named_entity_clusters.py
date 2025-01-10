@@ -58,7 +58,8 @@ def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_pat
 
     # legend for the clusters (with named entity labels)
     handles, _ = plt.gca().get_legend_handles_labels()
-    plt.legend(handles=handles, labels=list(format_labels(labels=labels).values()), title='Named Entities')
+    plt.legend(handles=handles, labels=list(format_labels(labels=labels, clusters=clusters).values()),
+               title='Named Entities')
 
     plt.title(f"Named entity clusters (category: {category}, reducer: {reducer})")
     if save_path != "":
