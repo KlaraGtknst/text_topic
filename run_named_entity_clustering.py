@@ -6,7 +6,9 @@ if __name__ == '__main__':
     date = datetime.datetime.now().strftime('%x').replace('/', '_')
     print('File was run at: ', date)
     client = Elasticsearch(constants.CLIENT_ADDR, request_timeout=60)
-    clusterNamedEntities = ClusterNamedEntities(client=client, index=constants.DB_NAME, top_n=50, n_clusters=5)
+    top_n = 50
+    clusterNamedEntities = ClusterNamedEntities(client=client, index=constants.DB_NAME, top_n=top_n,
+                                                n_clusters=top_n // 10)
 
     # # Fetch the index mapping
     # mapping = client.indices.get_mapping(index=constants.DB_NAME)
