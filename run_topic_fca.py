@@ -18,11 +18,16 @@ if __name__ == '__main__':
         if on_server else "term_topic_incidence.csv"
 
     # Load the doc-topic context
+    print("Starting to load term-topic context as fimi to path: ", incidence_save_path)
     doc_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=top_doc_filename)
     ctx2fimi(doc_topic_ctx, path_to_file=incidence_save_path, filename=f"doc_topic_fimi_{date}")
+    print("Doc-topic context loaded and saved as fimi to path: ", incidence_save_path)
+    print("--------------------------")
 
     # Load the term-topic context
+    print("Starting to load term-topic context as fimi to path: ", incidence_save_path)
     term_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=term_topic_filename)
     ctx2fimi(term_topic_ctx, path_to_file=incidence_save_path, filename=f"term_topic_fimi_{date}")
+    print("Term-topic context loaded and saved as fimi to path: ", incidence_save_path)
 
     # TODO: obtain intents efficiently via pcbo (terminal)
