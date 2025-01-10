@@ -8,9 +8,9 @@ from visualization.plotting_utils import obtain_low_dim_embs
 
 def extract_embs_clusters(ne_results: dict):
     """
-    Extract the embeddings clusters from the dictionary.
+    Extract the named entities, embeddings and clusters from the dictionary.
     :param ne_results: Dictionary containing the embeddings clusters. Must have the keys "top_n_embeddings" and "clusters".
-    :return: Two lists containing keys (named entities), embeddings, clusters.
+    :return: Three lists containing keys (named entities), embeddings, clusters.
     """
     try:
         return (list(ne_results["top_n_embeddings"].keys()), list(ne_results["top_n_embeddings"].values()),
@@ -20,7 +20,13 @@ def extract_embs_clusters(ne_results: dict):
         raise e
 
 def format_labels(labels: list, clusters: list):
-    # Create a dictionary to hold the labels grouped by their cluster
+    """
+    Format the labels grouped by their cluster.
+    :param labels: A list of named entities used as labels.
+    :param clusters: A list of cluster assignments.
+    :return: A dictionary containing the labels grouped by their cluster. Each value is a string of labels.
+    """
+    # dictionary to hold the labels grouped by their cluster
     grouped_labels = {}
 
     # Group labels by their cluster
@@ -29,7 +35,7 @@ def format_labels(labels: list, clusters: list):
             grouped_labels[cluster] = []
         grouped_labels[cluster].append(label)
 
-    # Convert each group of labels to a string (e.g., comma-separated)
+    # Convert each group of labels to a string (comma-separated)
     grouped_labels_strings = {
         cluster: ", ".join(group) for cluster, group in grouped_labels.items()
     }
