@@ -98,13 +98,14 @@ class ClusterNamedEntities:
         clusters = kmeans.fit_predict(similarity_matrix)
         return clusters
 
-    def save_results(self, clusters, top_n_entities, doc_map, top_n_doc_maps):
+    def save_results(self, clusters, top_n_entities, doc_map, top_n_doc_maps, embeddings):
         """
         Save clustering results and entity-document mapping to a JSON file.
         """
         result = {
             "category": self.category,
             "clusters": {entity: int(cluster) for entity, cluster in zip(top_n_entities, clusters)},
+            "top_n_embeddings": {entity: emb.tolist() for entity, emb in zip(top_n_entities, embeddings)},
             "top_n_entity_document_mapping": top_n_doc_maps,
             # "entity_document_mapping": doc_map    # Uncomment to save the mapping for all entities; may be large!
         }
@@ -144,4 +145,5 @@ class ClusterNamedEntities:
         clusters = self.cluster_named_entities(similarity_matrix=similarity_matrix)
 
         # Step 5: Save Results
-        self.save_results(clusters=clusters, top_n_entities=top_n_entities, doc_map=doc_map, top_n_doc_maps=top_n_doc_maps)
+        self.save_results(clusters=clusters, top_n_entities=top_n_entities, doc_map=doc_map,
+                          top_n_doc_maps=top_n_doc_maps, embeddings=embeddings)
