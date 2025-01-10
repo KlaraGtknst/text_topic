@@ -63,7 +63,6 @@ def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_pat
                bbox_to_anchor=(1.04, 1))
 
     plt.title(f"Named entity clusters (category: {category}, reducer: {reducer})")
-    fig.tight_layout()
     if save_path != "":
         if not save_path.endswith("/"):
             save_path += "/"
