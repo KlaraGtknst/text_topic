@@ -5,7 +5,7 @@ from topic.topic_fca import *
 if __name__ == '__main__':
     on_server = True
     date = "01_08_25"
-    save_date = "01_14_25"
+    save_date = "01_14_25_02"
     path = constants.SERVER_PATH if on_server else "/Users/klara/Documents/uni/"
     dataset_path = constants.SERVER_PATH_TO_PROJECT + 'dataset/' if on_server else "../dataset/"
     model_path = constants.SERVER_PATH_TO_PROJECT + 'models/' if on_server else '../models/'
