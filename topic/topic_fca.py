@@ -30,7 +30,7 @@ def load_ctx_from_txt(load_path: str, filename: str = "context"):
         return Context.fromstring(read_string_context)
 
 
-def csv2ctx(path_to_file: str, filename: str):
+def csv2ctx(path_to_file: str, filename: str, prefix: str = "doc_"):
     """
     Load a context from a csv file.
     The entries in the csv file are expected to be 0 or 1.
@@ -41,11 +41,12 @@ def csv2ctx(path_to_file: str, filename: str):
 
     :param path_to_file: Path to the csv file including the '/' at the end
     :param filename: Complete filename of the csv file including the type extension
+    :param prefix: Prefix of the object ids; might be either "doc_" or "term_"
     :return: Formal context
     """
     df = pd.read_csv(path_to_file + filename, index_col=0)
     df = df.map(lambda x: True if x == 1 else False)
-    df.set_index(np.array(["doc_" + str(doc_id) for doc_id in df.index.tolist()]), inplace=True)
+    df.set_index(np.array([prefix + str(doc_id) for doc_id in df.index.tolist()]), inplace=True)
     df.columns = np.array(["topic_" + str(topic_id) for topic_id in df.columns.tolist()])
 
     new_filename = "read_context_" + filename.split(".")[0]
@@ -69,15 +70,16 @@ def topic2docs(ctx, topic_ids: list[int]):
     return ctx.extension(["topic_" + str(t_id) for t_id in topic_ids])
 
 
-def doc2topics(ctx, doc_ids: list[int]):
+def doc2topics(ctx, doc_ids: list[int], prefix: str = "doc_"):
     """
     Get the intent of a document.
     The intent of a document is the set of topics that are associated with the document.
     :param ctx: Formal context
     :param doc_ids: List of document ids
+    :param prefix: Prefix of the document ids; might be either "doc_" or "term_"
     :return:
     """
-    return ctx.intension(["doc_" + str(d_id) for d_id in doc_ids])
+    return ctx.intension([prefix + str(d_id) for d_id in doc_ids])
 
 
 def print_stats(ctx):
@@ -95,7 +97,7 @@ def print_in_extents(ctx):
         print('%r %r' % (extent, intent))
 
 
-def ctx2fimi(ctx, path_to_file: str, filename: str = "context_format_fimi"):
+def ctx2fimi(ctx, path_to_file: str, filename: str = "context_format_fimi", prefix: str = "doc_"):
     """
     Convert a context to a file in the FIMI format.
     According to the FIMI format, each line represents an object.
@@ -105,11 +107,14 @@ def ctx2fimi(ctx, path_to_file: str, filename: str = "context_format_fimi"):
     :param ctx: Context to convert
     :param path_to_file: Path to save the file including the '/' at the end
     :param filename: Name of the file without type extension
+    :param prefix: Prefix of the object ids; might be either "doc_" or "term_"
     :return: -
     """
+    # TODO: Works only for doc-topic context, NOT for term-topic context! Add this case.
+
     with open(path_to_file + filename + ".fimi", "x") as f:
         for object_id in range(len(ctx.objects)):
-            f.write(f"{' '.join(map(str, list(doc2topics(ctx, doc_ids=[object_id]))))}\n")
+            f.write(f"{' '.join(map(str, list(doc2topics(ctx, doc_ids=[object_id], prefix=prefix))))}\n")
     f.close()
     print("Context saved as FIMI file")
 
