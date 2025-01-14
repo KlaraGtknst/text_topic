@@ -31,4 +31,8 @@ if __name__ == '__main__':
     ctx2fimi(term_topic_ctx, path_to_file=incidence_save_path, filename=f"term_topic_fimi_{save_date}", prefix="term_")
     print("Term-topic context loaded and saved as fimi to path: ", incidence_save_path)
 
+    # convert term-topic fimi to rows of integers representing topics incl. mapping as edn file
+    path2fimi = incidence_save_path + f"term_topic_fimi_{save_date}"
+    topics2integers(path2fimi=path2fimi + ".fimi", save_path=path2fimi + "_topics_as_integers.fimi")
+
     # TODO: obtain intents efficiently via pcbo (terminal)

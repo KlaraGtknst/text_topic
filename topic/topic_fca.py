@@ -119,6 +119,50 @@ def ctx2fimi(ctx, path_to_file: str, filename: str = "context_format_fimi", pref
     print("Context saved as FIMI file")
 
 
+def topics2integers(path2fimi: str, save_path: str):
+    """
+    Convert the topics in a FIMI file to integers.
+    When converting the term-topic context to a FIMI file, the topics are saved as strings (without any numerical 
+    identifier).
+    Since pcbo stops with a segmentation fault, the topics need to be converted to strings.
+    :param path2fimi: Path to the FIMI file including the file ending .fimi
+    :param save_path: Path to the save the new FIMI file including the filename and file ending .fimi 
+    :return: -
+    """
+    # each line in the FIMI file represents an object
+    with open(path2fimi, "r") as f:
+        lines = f.readlines()
+    f.close()
+
+    topic2int_dict = {}  # mapping from topic to integer
+
+    def str_to_int(element: str):
+        """
+        Convert the element to an integer.
+        :param element: String element
+        :return: Integer element
+        """
+        # strip the newline or extra whitespace
+        element = element.strip()
+
+        if element not in topic2int_dict:
+            topic2int_dict[element] = len(topic2int_dict)
+        return topic2int_dict[element]
+
+    with open(save_path, "w") as f:
+        for line in lines:
+            # split the line into elements, map them to integers
+            converted_line = ' '.join(map(str, map(str_to_int, line.split())))
+            f.write(f"{converted_line}\n")
+    f.close()
+
+    # save the mapping to edn file
+    with open(save_path.removesuffix(".fimi") + "_mapping.edn", "w") as f:
+        f.write(str(topic2int_dict))
+
+    print("Topics converted to integers and saved as FIMI file")
+
+
 def intents_from_fimi(path_to_file: str, filename: str):
     """
     Load intents from a FIMI file.
@@ -171,31 +215,30 @@ def get_concept_lattice(ctx, intents):
 
     return [list(reconstruct_concept_from_intent(ctx, input_intent)) for input_intent in intents]
 
-#
-# if __name__ == '__main__':
-#     on_server = True
-#     date = "01_08_25"
-#     path = constants.SERVER_PATH if on_server else "/Users/klara/Documents/uni/"
-#     dataset_path = constants.SERVER_PATH_TO_PROJECT + 'dataset/' if on_server else "../dataset/"
-#     model_path = constants.SERVER_PATH_TO_PROJECT + 'models/' if on_server else '../models/'
-#     incidence_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/incidences/server_080125/' \
-#         if on_server else "../results/incidences/"
-#     plot_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/plots/server_080125/' \
-#         if on_server else "../results/plots/"
-#     top_doc_filename = f"thres_row_norm_doc_topic_incidence{date}.csv" \
-#         if on_server else "thres_row_norm_doc_topic_incidence.csv"
-#     term_topic_filename = f"term_topic_incidence{date}.csv" \
-#         if on_server else "term_topic_incidence.csv"
-#
-#     # Load the doc-topic context
-#     doc_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=top_doc_filename)
-#     ctx2fimi(doc_topic_ctx, path_to_file=incidence_save_path)
-#
-#     # Load the term-topic context
-#     term_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=term_topic_filename)
-#     ctx2fimi(term_topic_ctx, path_to_file=incidence_save_path)
-#
 
+# if __name__ == '__main__':
+    #     on_server = True
+    #     date = "01_08_25"
+    #     path = constants.SERVER_PATH if on_server else "/Users/klara/Documents/uni/"
+    #     dataset_path = constants.SERVER_PATH_TO_PROJECT + 'dataset/' if on_server else "../dataset/"
+    #     model_path = constants.SERVER_PATH_TO_PROJECT + 'models/' if on_server else '../models/'
+    #     incidence_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/incidences/server_080125/' \
+    #         if on_server else "../results/incidences/"
+    #     plot_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/plots/server_080125/' \
+    #         if on_server else "../results/plots/"
+    #     top_doc_filename = f"thres_row_norm_doc_topic_incidence{date}.csv" \
+    #         if on_server else "thres_row_norm_doc_topic_incidence.csv"
+    #     term_topic_filename = f"term_topic_incidence{date}.csv" \
+    #         if on_server else "term_topic_incidence.csv"
+    #
+    #     # Load the doc-topic context
+    #     doc_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=top_doc_filename)
+    #     ctx2fimi(doc_topic_ctx, path_to_file=incidence_save_path)
+    #
+    #     # Load the term-topic context
+    #     term_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=term_topic_filename)
+    #     ctx2fimi(term_topic_ctx, path_to_file=incidence_save_path)
+    #
 
     # Reconstruct the concept
     # top_doc_intents = intents_from_fimi(path_to_file=incidence_save_path, filename=f"doc_topic_intents_{date}.fimi")
@@ -223,3 +266,8 @@ def get_concept_lattice(ctx, intents):
     # print("Intent of doc 0: ", doc2topics(ctx=ctx, doc_ids=list(range(0,30))))
     #
     # print_stats(ctx)
+
+    # test fimi2int
+    # path2fimi = "/Users/klara/Developer/Uni/WiSe2425/text_topic/results/incidences/context_format_fimi.fimi"
+    # save_path = "/Users/klara/Developer/Uni/WiSe2425/text_topic/results/incidences/test.fimi"
+    # topics2integers(path2fimi, save_path)
