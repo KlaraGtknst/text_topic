@@ -19,7 +19,7 @@ if __name__ == '__main__':
         if on_server else "term_topic_incidence.csv"
 
     # Load the doc-topic context
-    print("Starting to load term-topic context as fimi to path: ", incidence_save_path)
+    print("Starting to load doc-topic context as fimi to path: ", incidence_save_path)
     doc_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=top_doc_filename, prefix="doc_")
     ctx2fimi(doc_topic_ctx, path_to_file=incidence_save_path, filename=f"doc_topic_fimi_{save_date}", prefix="doc_")
     print("Doc-topic context loaded and saved as fimi to path: ", incidence_save_path)
