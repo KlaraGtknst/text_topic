@@ -5,7 +5,7 @@ from transformers import AutoProcessor, AutoModelForCausalLM
 from PIL import Image
 
 
-# Example usage
+# https://huggingface.co/docs/transformers/main/tasks/image_captioning (15.01.2025)
 if __name__ == '__main__':
 
     # Load the processor and model
