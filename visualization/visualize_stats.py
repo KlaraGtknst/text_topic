@@ -14,7 +14,8 @@ def insert_linebreak(label: str, limit_len: int = 48):
     :param limit_len: The maximum length of the label before inserting a line break
     :return: A string with line breaks
     """
-    return '\n'.join(label[i:i + limit_len] for i in range(0, len(label), limit_len)) if len(label) > limit_len else label
+    return '\n'.join(label[i:i + limit_len] for i in range(0, len(label), limit_len)) if len(
+        label) > limit_len else label
 
 
 def stats_as_bar_charts(path2csv: str, save_path: str = "", unique_id_suffix: str = ""):
@@ -27,7 +28,8 @@ def stats_as_bar_charts(path2csv: str, save_path: str = "", unique_id_suffix: st
     df = pd.read_csv(path2csv)
     try:
         fig, ax = plt.subplots(figsize=(max(len(df['Value']) // 10, 10), 6))
-        ax.bar(df['Value'], df['Count'])
+        positions = np.arange(len(df['Value']))
+        ax.bar(positions, df['Count'])
         type_of_stat = path2csv.split('/')[-1].split('-')[0]
         ax.set_title(f"Statistics of {type_of_stat} (date: {unique_id_suffix})")
         ax.set_ylabel('Count')
@@ -49,9 +51,11 @@ def stats_as_bar_charts(path2csv: str, save_path: str = "", unique_id_suffix: st
     except KeyError as e:
         print(f"Error: {e}. Please check the columns in the csv file: {path2csv}.")
 
-if __name__ == '__main__':
-    date = datetime.datetime.now().strftime('%x').replace('/', '_')
 
-    stats_as_bar_charts(
-        path2csv="/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/file_name-stats.csv",
-        unique_id_suffix=date, save_path=constants.SAVE_PATH + 'plots/')
+# if __name__ == '__main__':
+#     date = datetime.datetime.now().strftime('%x').replace('/', '_')
+#
+#     stats_as_bar_charts(
+#         path2csv="/Users/klara/Downloads/len-stats.csv",
+#         #"/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/file_name-stats.csv",
+#         unique_id_suffix=date, save_path=constants.SAVE_PATH + 'plots/')
