@@ -1,12 +1,13 @@
 import glob
 import json
-
 import pypdf as pdf
 import hashlib
 import warnings
 import tqdm
 import logging
 import utils.os_manipulation as osm
+from pdf2image import convert_from_path
+from data.caption_images import ImageCaptioner
 
 # Suppress logging from pypdf
 logging.getLogger("pypdf").setLevel(logging.CRITICAL)
@@ -55,19 +56,23 @@ def extract_text_from_pdf(path: str):
     :param path: Path to the pdf file
     :return: List of text from the pdf file; each entry is the text of one page
     """
-    # creating a pdf reader object
     try:
         reader = pdf.PdfReader(path)
+        image_captioner = ImageCaptioner()
 
         text = []
-        for page in reader.pages:
+        for i, page in enumerate(reader.pages):
+
             try:
                 # Attempt to extract text
                 page_text = page.extract_text()
                 if page_text:
                     text.append(page_text)
                 else:
-                    text.append("Empty page.")
+                    # caption image of page
+                    dummy_save_path, image = pdf2png(pdf_path=path, png_path='', page_num=i)
+                    caption = image_captioner.caption_image(image)
+                    text.append(caption)
             except Exception as e:
                 text.append(f"Error extracting text from page: {e}")
         return " ".join(text), True
@@ -166,15 +171,42 @@ def save_df_to_csv(df, path, file_name):
     print(f"Dataframe saved to {path}")
 
 
+def pdf2png(pdf_path:str, png_path:str, page_num:int):
+    """
+    This function converts a pdf file to a png file.
+    :param pdf_path: Path to the pdf file
+    :param png_path: Path to save the png file, incl. / at the end
+    :param page_num: Number of page to convert (starting with 0)
+    :return: save_path: Path to the saved png file
+    """
+    try:
+        document_name = pdf_path.split('/')[-1].split('.')[0]
 
-# if __name__ == '__main__':
-#     path = '/Users/klara/Downloads/Exotic Weapons'
-#     num_successes = 0
-#     limit_num_docs = 10
-#     paths = get_files(path)[:limit_num_docs]
-#     for i in tqdm.tqdm(range(len(paths)), desc='Extracting text from pdfs'):
-#         path2file = paths[i]
-#         text, success = extract_text_from_pdf(path2file)
-#         print('NEW DOC', text)
-#         num_successes += success
-#     print(f"Number of successful extractions: {num_successes}/{len(get_files(path)[:limit_num_docs])}")
+        pages = convert_from_path(pdf_path, 500)
+        save_path = png_path + f'image_{document_name}_{page_num}.jpg'
+        if png_path != '':
+            osm.exists_or_create(png_path)
+            pages[page_num].save(save_path, 'JPEG')
+
+        return save_path, pages[page_num]
+
+    except Exception as e:
+        print(f"Error converting pdf to png: {e}")
+        pass
+
+
+
+if __name__ == '__main__':
+    path = '/Users/klara/Downloads/KDE_Projekt/sample_data_server'
+    num_successes = 0
+    limit_num_docs = 2
+    paths = get_files(path)[:limit_num_docs]
+    print('PATHS', paths)
+    for path2file in tqdm.tqdm(paths, desc='Extracting text from pdfs'):
+        text, success = extract_text_from_pdf(path2file)
+        # images = pdf2png(path2file, '/Users/klara/Downloads/', page_num=0)
+        # print(type(images[1]))
+
+        print('NEW DOC', text)
+        num_successes += success
+    print(f"Number of successful extractions: {num_successes}/{len(get_files(path)[:limit_num_docs])}")
