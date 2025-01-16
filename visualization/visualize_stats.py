@@ -25,8 +25,8 @@ def stats_as_bar_charts(path2csv: str, save_path: str = "", unique_id_suffix: st
     :param unique_id_suffix: str, unique identifier for the saved bar charts
     """
     df = pd.read_csv(path2csv)
-    fig, ax = plt.subplots(figsize=(max(len(df['Value'])//10, 10), 6))
     try:
+        fig, ax = plt.subplots(figsize=(max(len(df['Value']) // 10, 10), 6))
         ax.bar(df['Value'], df['Count'])
         type_of_stat = path2csv.split('/')[-1].split('-')[0]
         ax.set_title(f"Statistics of {type_of_stat} (date: {unique_id_suffix})")
