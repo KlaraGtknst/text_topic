@@ -24,7 +24,9 @@ def stats_as_bar_charts(path2csv: str, save_path: str = "", unique_id_suffix: st
         plt.tight_layout()
 
         if save_path != "":
-            plt.savefig(save_path + f"bar_chart_{type_of_stat}_{unique_id_suffix}.png")
+            save_path_with_suffix = save_path + f"bar_chart_{type_of_stat}_{unique_id_suffix}.png"
+            plt.savefig(save_path_with_suffix, dpi=300)
+            print(f"Bar chart saved at: {save_path_with_suffix}")
         plt.show()
     except KeyError as e:
         print(f"Error: {e}. Please check the columns in the csv file: {path2csv}.")
