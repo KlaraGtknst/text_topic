@@ -2,6 +2,7 @@ import datetime
 import matplotlib.pyplot as plt
 import pandas as pd
 import constants
+from utils.os_manipulation import exists_or_create
 
 
 def stats_as_bar_charts(path2csv: str, save_path: str = "", unique_id_suffix: str = ""):
@@ -24,6 +25,9 @@ def stats_as_bar_charts(path2csv: str, save_path: str = "", unique_id_suffix: st
         plt.tight_layout()
 
         if save_path != "":
+            if not save_path.endswith('/'):
+                save_path += '/'
+            exists_or_create(path=save_path)
             save_path_with_suffix = save_path + f"bar_chart_{type_of_stat}_{unique_id_suffix}.png"
             plt.savefig(save_path_with_suffix, dpi=300)
             print(f"Bar chart saved at: {save_path_with_suffix}")
