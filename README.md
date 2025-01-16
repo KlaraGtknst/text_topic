@@ -59,3 +59,9 @@ After that, you can run the following command to compute the intents (in the `pc
 ```bash
 ./pcbo -P4 /file/to/fimi/file.fimi /name/of/output/file.fimi
 ```
+
+
+## Supplementary Information
+Ensure that the transformers library version is == 4.48.0.
+As of 16.01.2025, using transformers == 4.45.0 will result in an error (on the server), since the processor used for the 
+image captioner could not be loaded.
