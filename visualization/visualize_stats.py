@@ -34,7 +34,7 @@ def stats_as_bar_charts(path2csv: str, save_path: str = "", unique_id_suffix: st
         ax.set_xlabel('Value')
         # if many values, reduce font size
         fontsize = 6 if len(df['Value']) < 20 else 3.5
-        labels = [insert_linebreak(label) for label in df['Value']] if len(df['Value']) < 20 else df['Value']
+        labels = [insert_linebreak(str(label)) for label in df['Value']] if len(df['Value']) < 20 else df['Value']
         plt.xticks(rotation=45, ha='right', fontsize=fontsize, labels=labels, ticks=np.arange(len(df['Value'])))
         plt.tight_layout()
 
