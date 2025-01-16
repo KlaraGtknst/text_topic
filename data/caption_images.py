@@ -1,3 +1,4 @@
+from utils.os_manipulation import exists_or_create
 import os
 from glob import glob
 from tqdm import tqdm
@@ -22,7 +23,7 @@ class ImageCaptioner:
                                                        use_fast=True, legacy=False)
         self.model = AutoModelForCausalLM.from_pretrained("microsoft/git-base")
 
-    def __call__(self, image_path: str) -> str:
+    def caption_image(self, image_path: str) -> str:
         """
         Generate a caption for the given image.
         :param image_path: A path to the image file including the file name and extension.
@@ -35,7 +36,18 @@ class ImageCaptioner:
         generated_ids = self.model.generate(pixel_values=pixel_values, max_length=50)
         return self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
 
-    # TODO: save results to a file
+    def save_caption_to_file(self, image_path: str, save_path: str):
+        """
+        Save the generated caption to a file.
+        :param image_path: A path to the image file including the file name and extension.
+        :param save_path: Path to save the caption file excluding the file name and extension.
+        """
+        caption = self.caption_image(image_path)
+        image_name = '_'.join(image_path.split('/')[-1].split('.')[:len(image_path.split('/')[-1].split('.')) - 1])
+        exists_or_create(path=save_path)
+        with open(os.path.join(save_path, f"{image_name}_caption.txt"), "w") as file:
+            file.write(caption)
+        # print('saved caption to file:', os.path.join(save_path, f"{image_name}_caption.txt"))
 
 
 if __name__ == '__main__':
@@ -46,6 +58,7 @@ if __name__ == '__main__':
     # Load and preprocess the image
     l_img_paths = sorted(glob(os.path.join('/Users/klara/Downloads/', "*.png")))
     for image_path in tqdm(l_img_paths):
-        print("start image", image_path)
-        caption = captioner(image_path)
-        print("Generated Caption:", caption)
+        # print("start image", image_path)
+        caption = captioner.caption_image(image_path)
+        captioner.save_caption_to_file(image_path, save_path="/Users/klara/Downloads/captions/")
+        # print("Generated Caption:", caption)
