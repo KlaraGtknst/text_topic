@@ -1,3 +1,4 @@
+import logging
 from utils.os_manipulation import exists_or_create
 import os
 from glob import glob
@@ -5,6 +6,8 @@ from tqdm import tqdm
 from transformers import AutoProcessor, AutoModelForCausalLM
 from PIL import Image
 
+
+logging.getLogger("transformers").setLevel(logging.CRITICAL)
 
 class ImageCaptioner:
 
@@ -29,7 +32,7 @@ class ImageCaptioner:
         :param image_path: A path to the image file including the file name and extension.
         :return: The generated caption for the image.
         """
-        image = Image.open(image_path).convert("RGB")
+        image = Image.open(image_path).convert("RGB") if type(image_path) == str else image_path
         pixel_values = self.processor(images=image, return_tensors="pt").pixel_values
 
         # Generate captions
