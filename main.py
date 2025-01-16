@@ -19,6 +19,8 @@ if __name__ == '__main__':
     date = datetime.datetime.now().strftime('%x').replace('/', '_')
     load_existing_topic_model = False
 
+    print(f"----{date}----\nrun main.py to initialize the database, extract text from pdfs, create a topic model, etc.\n")
+
     # elasticsearch client
     print('Path to the dataset: ', path)
     client = db.initialize_db(client_addr=constants.CLIENT_ADDR, create_db=True, src_path=constants.SERVER_PATH)
