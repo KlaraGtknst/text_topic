@@ -15,7 +15,8 @@ def stats_as_bar_charts(path2csv: str, save_path: str = "", unique_id_suffix: st
     fig, ax = plt.subplots()
     try:
         ax.bar(df['Value'], df['Count'])
-        ax.set_title(f"Statistics of the documents_{unique_id_suffix}")
+        type_of_stat = path2csv.split('/')[-1].split('-')[0]
+        ax.set_title(f"Statistics of {type_of_stat} (dataset date: {unique_id_suffix})")
         ax.set_ylabel('Count')
         ax.set_xlabel('Value')
         plt.xticks(fontsize=2)
@@ -23,15 +24,15 @@ def stats_as_bar_charts(path2csv: str, save_path: str = "", unique_id_suffix: st
         plt.tight_layout()
 
         if save_path != "":
-            plt.savefig(save_path + f"bar_chart_{unique_id_suffix}.png")
+            plt.savefig(save_path + f"bar_chart_{type_of_stat}_{unique_id_suffix}.png")
         plt.show()
     except KeyError as e:
         print(f"Error: {e}. Please check the columns in the csv file: {path2csv}.")
 
 
-# if __name__ == '__main__':
-#     date = datetime.datetime.now().strftime('%x').replace('/', '_')
-#
-#     stats_as_bar_charts(
-#         path2csv="/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/file_name-stats.csv",
-#         unique_id_suffix=date, save_path=constants.SAVE_PATH)
+if __name__ == '__main__':
+    date = datetime.datetime.now().strftime('%x').replace('/', '_')
+
+    stats_as_bar_charts(
+        path2csv="/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/file_name-stats.csv",
+        unique_id_suffix=date, save_path=constants.SAVE_PATH + 'plots/')
