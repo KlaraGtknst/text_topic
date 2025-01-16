@@ -14,7 +14,7 @@ if __name__ == '__main__':
     path = constants.SERVER_PATH
     dataset_path = constants.SERVER_PATH_TO_PROJECT + 'dataset/'
     model_path = constants.SERVER_PATH_TO_PROJECT + 'models/'
-    incidence_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/incidences/'
+    incidence_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/incidences/16_01_25/'
     plot_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/plots/'
     date = datetime.datetime.now().strftime('%x').replace('/', '_')
     load_existing_topic_model = False
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     doc_ids = list(range(start, start + len(sentences[start:start + duration]) - 1))
 
     doc_topic_incidence = model.get_document_topic_incidence(doc_ids=doc_ids)
-    save_df_to_csv(doc_topic_incidence, incidence_save_path, f"doc_topic_incidence{date}")
+    save_df_to_csv(df=doc_topic_incidence, path=incidence_save_path, file_name=f"doc_topic_incidence{date}")
     print("----obtained & saved doc-topic incidence----")
     print("first 5 doc-topic incidence:\n", doc_topic_incidence.head())
 
@@ -62,7 +62,7 @@ if __name__ == '__main__':
                                                                                      save_path=plot_save_path)
     print("optimal threshold: ", threshold)
     thres_row_norm_doc_topic_df = model.apply_threshold_doc_topic_incidence(row_norm_doc_topic_df, threshold=threshold)
-    save_df_to_csv(thres_row_norm_doc_topic_df, incidence_save_path, f"thres_row_norm_doc_topic_incidence{date}")
+    save_df_to_csv(df=thres_row_norm_doc_topic_df, path=incidence_save_path, file_name=f"thres_row_norm_doc_topic_incidence{date}")
     print("----obtained & saved thresholded doc-topic incidence----")
     print("first 5 thresholded doc-topic incidence:\n", thres_row_norm_doc_topic_df.head())
 
