@@ -53,15 +53,18 @@ class ImageCaptioner:
         # print('saved caption to file:', os.path.join(save_path, f"{image_name}_caption.txt"))
 
 
-if __name__ == '__main__':
-
-    # Load the processor and model
-    captioner = ImageCaptioner()
-
-    # Load and preprocess the image
-    l_img_paths = sorted(glob(os.path.join('/Users/klara/Downloads/', "*.png")))
-    for image_path in tqdm(l_img_paths):
-        # print("start image", image_path)
-        caption = captioner.caption_image(image_path)
-        captioner.save_caption_to_file(image_path, save_path="/Users/klara/Downloads/captions/")
-        # print("Generated Caption:", caption)
+# if __name__ == '__main__':
+#     local = False
+#     path2imgs = "/Users/klara/Downloads/" if local else '/norgay/bigstore/kgu/dev/text_topic/results/plots/'
+#     save_path = "/Users/klara/Downloads/captions/" if local else '/norgay/bigstore/kgu/dev/text_topic/results/captions/'
+#
+#     # Load the processor and model
+#     captioner = ImageCaptioner()
+#
+#     # Load and preprocess the image
+#     l_img_paths = sorted(glob(os.path.join(path2imgs, "*.png")))
+#     for image_path in tqdm(l_img_paths):
+#         # print("start image", image_path)
+#         caption = captioner.caption_image(image_path)
+#         captioner.save_caption_to_file(image_path, save_path=save_path)
+#         # print("Generated Caption:", caption)
