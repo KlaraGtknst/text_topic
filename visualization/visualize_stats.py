@@ -30,9 +30,9 @@ def stats_as_bar_charts(path2csv: str, save_path: str = "", unique_id_suffix: st
         print(f"Error: {e}. Please check the columns in the csv file: {path2csv}.")
 
 
-if __name__ == '__main__':
-    date = datetime.datetime.now().strftime('%x').replace('/', '_')
-
-    stats_as_bar_charts(
-        path2csv="/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/file_name-stats.csv",
-        unique_id_suffix=date, save_path=constants.SAVE_PATH + 'plots/')
+# if __name__ == '__main__':
+#     date = datetime.datetime.now().strftime('%x').replace('/', '_')
+#
+#     stats_as_bar_charts(
+#         path2csv="/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/file_name-stats.csv",
+#         unique_id_suffix=date, save_path=constants.SAVE_PATH + 'plots/')
