@@ -26,6 +26,7 @@ if __name__ == '__main__':
     csv_files = files.get_files(path=base_path2csv, file_type='csv')
     for i in tqdm.tqdm(range(len(csv_files)), desc='Producing bar charts of statistic files'):
         csv_file = csv_files[i]
+        print(f"Started with csv file: {csv_file}")
         stats_as_bar_charts(path2csv=csv_file, save_path=constants.SERVER_SAVE_PATH + '/16_01_25',
                             unique_id_suffix=date + '_' + str(i))
 
