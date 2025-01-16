@@ -17,22 +17,22 @@ if __name__ == '__main__':
     # scatter_documents_2d(client, save_path=constants.SERVER_SAVE_PATH, reducer='TSNE', unique_id_suffix=date)
     # scatter_documents_2d(client, save_path=constants.SERVER_SAVE_PATH, reducer='PCA', unique_id_suffix=date)
 
-    # # visualize data stats
-    # base_path2csv = constants.SERVER_STATS_PATH
-    # csv_files = files.get_files(path=base_path2csv, file_type='csv')
-    # for i in tqdm.tqdm(range(len(csv_files)), desc='Producing bar charts of statistic files'):
-    #     csv_file = csv_files[i]
-    #     stats_as_bar_charts(path2csv=csv_file, save_path=constants.SERVER_SAVE_PATH,
-    #                         unique_id_suffix=date + '_' + str(i))
+    # visualize data stats
+    base_path2csv = constants.SERVER_STATS_PATH
+    csv_files = files.get_files(path=base_path2csv, file_type='csv')
+    for i in tqdm.tqdm(range(len(csv_files)), desc='Producing bar charts of statistic files'):
+        csv_file = csv_files[i]
+        stats_as_bar_charts(path2csv=csv_file, save_path=constants.SERVER_SAVE_PATH + '/16_01_25',
+                            unique_id_suffix=date + '_' + str(i))
 
     # visualize named entity clusters
-    save_path = constants.SERVER_SAVE_PATH + "/cluster_NER/"
-    json_files = files.get_files(path=save_path, file_type='json')
-    for reducer in ['TSNE', 'PCA', 'UMAP']:
-        print(f"Started with reducer: {reducer}")
-        for i in tqdm.tqdm(range(len(json_files)), desc='Producing plots of NER cluster files'):
-            file_path = json_files[i]
-            category = file_path.split('/')[-1].split('_')[3]
-            ne_cluster_dict = files.load_dict_from_json(path=file_path)
-            display_NE_cluster(ne_results=ne_cluster_dict, reducer=reducer, category=category,
-                               save_path=save_path)
+    # save_path = constants.SERVER_SAVE_PATH + "/cluster_NER/"
+    # json_files = files.get_files(path=save_path, file_type='json')
+    # for reducer in ['TSNE', 'PCA', 'UMAP']:
+    #     print(f"Started with reducer: {reducer}")
+    #     for i in tqdm.tqdm(range(len(json_files)), desc='Producing plots of NER cluster files'):
+    #         file_path = json_files[i]
+    #         category = file_path.split('/')[-1].split('_')[3]
+    #         ne_cluster_dict = files.load_dict_from_json(path=file_path)
+    #         display_NE_cluster(ne_results=ne_cluster_dict, reducer=reducer, category=category,
+    #                            save_path=save_path)
