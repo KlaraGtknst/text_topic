@@ -186,16 +186,28 @@ def pdf2png(pdf_path: str, png_path: str, page_num: int):
     :param page_num: Number of page to convert (starting with 0)
     :return: save_path: Path to the saved png file
     """
+    pillow_pixel_limit = 89478485  # if the image has more pixels, warning of bomb DOS attack
+    default_dpi = 300
     try:
         document_name = pdf_path.split('/')[-1].split('.')[0]
 
-        pages = convert_from_path(pdf_path, 500)
+        images = convert_from_path(pdf_path, dpi=default_dpi)
+
+        # reduce dpi if number of pixels exceeds limit
+        width, height = images[0].size
+        total_pixels = width * height
+        if total_pixels > pillow_pixel_limit:
+            # Calculate new DPI based on pixel limit
+            scale_factor = (pillow_pixel_limit / total_pixels) ** 0.5
+            lower_dpi = int(default_dpi * scale_factor)
+            images = convert_from_path(pdf_path, dpi=lower_dpi)
+
         save_path = png_path + f'image_{document_name}_{page_num}.jpg'
         if png_path != '':
             osm.exists_or_create(png_path)
-            pages[page_num].save(save_path, 'JPEG')
+            images[page_num].save(save_path, 'JPEG')
 
-        return save_path, pages[page_num]
+        return save_path, images[page_num]
 
     except Exception as e:
         print(f"Error converting pdf to png: {e}")
