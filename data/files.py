@@ -12,6 +12,7 @@ from data.caption_images import ImageCaptioner
 # Suppress logging from pypdf
 logging.getLogger("pypdf").setLevel(logging.CRITICAL)
 
+
 def load_dict_from_json(path: str):
     """
     This function loads a dictionary from a json file.
@@ -25,6 +26,7 @@ def load_dict_from_json(path: str):
     except Exception as e:
         raise e
 
+
 def get_files(path: str = "/", file_type: str = 'pdf'):
     """
     This function returns a list of all file paths that end with 'pdf' in a directory.
@@ -35,6 +37,7 @@ def get_files(path: str = "/", file_type: str = 'pdf'):
     if not path.endswith("/"):
         path += "/"
     return [path for path in glob.glob(f"{path}/**", recursive=True) if path.endswith(file_type)]
+
 
 def extract_text_from_txt(path: str):
     """
@@ -48,6 +51,7 @@ def extract_text_from_txt(path: str):
         return text, True
     except Exception as e:  # all other errors
         return str(e), False
+
 
 def extract_text_from_pdf(path: str):
     """
@@ -78,12 +82,13 @@ def extract_text_from_pdf(path: str):
         return " ".join(text), True
     except pdf.errors.PdfStreamError as e:
         return str(e), False
-    except AttributeError as e:     # Document is encrypted
+    except AttributeError as e:  # Document is encrypted
         return str(e), False
-    except ValueError as e:         # negative seek value -1
+    except ValueError as e:  # negative seek value -1
         return str(e), False
     except Exception as e:  # all other errors
         return str(e), False
+
 
 def pdf_to_str(path: str) -> str:
     '''
@@ -108,23 +113,24 @@ def pdf_to_str(path: str) -> str:
             # TODO: fix missing EOF marker in pdf
             return ''
 
+
 def get_hash_file(path: str):
     '''
     :param path: path to the file
     :return: hash of the file
     '''
-    BLOCK_SIZE = 65536000 # The size of each read from the file
-    file_hash = hashlib.sha256() # Create the hash object, can use something other than `.sha256()` if you wish
-    with open(path, 'rb') as f: # Open the file to read its bytes, automatically closes file at end
-        fb = f.read(BLOCK_SIZE) # Read from the file. Take in the amount declared above
-        while len(fb) > 0: # While there is still data being read from the file
-            file_hash.update(fb) # Update the hash
+    BLOCK_SIZE = 65536000  # The size of each read from the file
+    file_hash = hashlib.sha256()  # Create the hash object, can use something other than `.sha256()` if you wish
+    with open(path, 'rb') as f:  # Open the file to read its bytes, automatically closes file at end
+        fb = f.read(BLOCK_SIZE)  # Read from the file. Take in the amount declared above
+        while len(fb) > 0:  # While there is still data being read from the file
+            file_hash.update(fb)  # Update the hash
             fb = f.read(BLOCK_SIZE)
     id = file_hash.hexdigest()
     return id
 
 
-def save_sentences_to_file(sentences, dataset_path, save_filename:str='sentences2.txt'):
+def save_sentences_to_file(sentences, dataset_path, save_filename: str = 'sentences2.txt'):
     """
     This function saves the sentences to a file.
     Each new sentence is preceded by the string 'NEWFILE'.
@@ -144,7 +150,8 @@ def save_sentences_to_file(sentences, dataset_path, save_filename:str='sentences
                 pass
     f.close()
 
-def load_sentences_from_file(dataset_path, filename:str='sentences1.txt'):
+
+def load_sentences_from_file(dataset_path, filename: str = 'sentences1.txt'):
     """
     This function loads the sentences from a file.
     File was created with save_sentences_to_file.
@@ -171,7 +178,7 @@ def save_df_to_csv(df, path, file_name):
     print(f"Dataframe saved to {path}")
 
 
-def pdf2png(pdf_path:str, png_path:str, page_num:int):
+def pdf2png(pdf_path: str, png_path: str, page_num: int):
     """
     This function converts a pdf file to a png file.
     :param pdf_path: Path to the pdf file
@@ -194,19 +201,18 @@ def pdf2png(pdf_path:str, png_path:str, page_num:int):
         print(f"Error converting pdf to png: {e}")
         pass
 
-
-
-if __name__ == '__main__':
-    path = '/Users/klara/Downloads/KDE_Projekt/sample_data_server'
-    num_successes = 0
-    limit_num_docs = 2
-    paths = get_files(path)[:limit_num_docs]
-    print('PATHS', paths)
-    for path2file in tqdm.tqdm(paths, desc='Extracting text from pdfs'):
-        text, success = extract_text_from_pdf(path2file)
-        # images = pdf2png(path2file, '/Users/klara/Downloads/', page_num=0)
-        # print(type(images[1]))
-
-        print('NEW DOC', text)
-        num_successes += success
-    print(f"Number of successful extractions: {num_successes}/{len(get_files(path)[:limit_num_docs])}")
+# if __name__ == '__main__':
+#     local = True
+#     path = '/Users/klara/Downloads/KDE_Projekt/sample_data_server' if local else '/norgay/bigstore/kgu/data/ETYNTKE/Workshop/'
+#     num_successes = 0
+#     limit_num_docs = 2
+#     paths = get_files(path)[:limit_num_docs]
+#     print('PATHS', paths)
+#     for path2file in tqdm.tqdm(paths, desc='Extracting text from pdfs'):
+#         text, success = extract_text_from_pdf(path2file)
+#         # images = pdf2png(path2file, '/Users/klara/Downloads/', page_num=0)
+#         # print(type(images[1]))
+#
+#         print('NEW DOC', text)
+#         num_successes += success
+#     print(f"Number of successful extractions: {num_successes}/{len(get_files(path)[:limit_num_docs])}")
