@@ -111,8 +111,10 @@ def insert_caption_texts(src_path: str, client_addr: str):
     image_captioner = ImageCaptioner()
 
     for path in scanRecurse(baseDir=src_path):
-        if path.endswith('.pdf') or path.endswith('.txt'):
-            text, success = extract_text_from_pdf(path) if path.endswith('.pdf') else extract_text_from_txt(path)
+        if path.endswith('.pdf'):
+            text, success = extract_text_from_pdf(path, use_captioner=True)
+        elif path.endswith('.txt'):
+            text, success = extract_text_from_txt(path)
         elif path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
             text = image_captioner.caption_image(path)  # generate caption for image
         else:  # any other file type
@@ -145,8 +147,10 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
 
     for path in scanRecurse(baseDir=src_path):
 
-        if path.endswith('.pdf') or path.endswith('.txt'):
-            text, success = extract_text_from_pdf(path) if path.endswith('.pdf') else extract_text_from_txt(path)
+        if path.endswith('.pdf'):
+            text, success = extract_text_from_pdf(path, use_captioner=False)
+        elif path.endswith('.txt'):
+            text, success = extract_text_from_txt(path)
         # elif path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
         #     text = image_captioner.caption_image(path)  # generate caption for image
         else:  # any other file type
