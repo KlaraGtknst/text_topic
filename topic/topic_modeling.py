@@ -1,5 +1,7 @@
 import datetime
 import glob
+import json
+
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 import io
@@ -137,10 +139,11 @@ class TopicModel():
 
         return document_topic_incidence
 
-    def get_term_topic_incidence(self, doc_ids: list):
+    def get_term_topic_incidence(self, doc_ids: list, save_path_topic_words: str = None):
         """
         This function returns the incidence of terms in topics.
         :param doc_ids: List of document ids
+        :param save_path_topic_words: Path to save the topics words including file name and json ending; if None, no saving
         :return: Incidence of terms in topics
         """
         num_topics = self.get_num_topics()
@@ -157,6 +160,13 @@ class TopicModel():
                                        if topic_index_per_doc[topic_num][doc_id] != -1
                                        for term in topics_words[doc_id][topic_index_per_doc[topic_num][doc_id]]}
                            for topic_num in range(num_topics)}
+
+        if save_path_topic_words:
+            if not save_path_topic_words.endswith('.json'):
+                save_path_topic_words += '.json'
+            # Save to JSON file
+            with open(save_path_topic_words, "w") as f:
+                json.dump(terms_per_topic, f, indent=4)
 
         print("obtained terms per topic")
         term_topic_columns = {term: [term in terms_per_topic[topic_num] for topic_num in range(num_topics)] for term in
