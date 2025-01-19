@@ -53,11 +53,13 @@ def extract_text_from_txt(path: str):
         return str(e), False
 
 
-def extract_text_from_pdf(path: str):
+def extract_text_from_pdf(path: str, use_captioner: bool = False):
     """
     This function extracts the text from a pdf file.
     If the pdf file is not readable, the function returns a list which contains the error message.
     :param path: Path to the pdf file
+    :param use_captioner: If True, the function uses the ImageCaptioner to caption the image of the pdf page,
+        if no text can be extracted
     :return: List of text from the pdf file; each entry is the text of one page
     """
     try:
@@ -72,11 +74,13 @@ def extract_text_from_pdf(path: str):
                 page_text = page.extract_text()
                 if page_text:
                     text.append(page_text)
-                else:
+                elif use_captioner:
                     # caption image of page
                     dummy_save_path, image = pdf2png(pdf_path=path, png_path='', page_num=i)
                     caption = image_captioner.caption_image(image)
                     text.append(caption)
+                else:
+                    text.append(f"Image/ Empty page.")
             except Exception as e:
                 text.append(f"Error extracting text from page: {e}")
         return " ".join(text), True
