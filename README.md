@@ -65,3 +65,6 @@ After that, you can run the following command to compute the intents (in the `pc
 Ensure that the transformers library version is == 4.48.0.
 As of 16.01.2025, using transformers == 4.45.0 will result in an error (on the server), since the processor used for the 
 image captioner could not be loaded.
+
+Make sure that the pretrained models are downloaded:
+```python -m spacy download en_core_web_sm```
