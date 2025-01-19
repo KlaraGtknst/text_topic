@@ -43,7 +43,7 @@ if __name__ == '__main__':
         model.load_model(path=model_path, filename='topic_model_01_05_25')
     else:
         model = tm.TopicModel(documents=sentences)
-        model.save_model(path=model_path + date)  # unique name with date
+        model.save_model(path=model_path)  # unique name with date
 
     print("----topic model created & saved----")
 
