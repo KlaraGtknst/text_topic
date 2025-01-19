@@ -143,7 +143,7 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
     print('started with insert_embeddings()')
     model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
     ner = named_entity_recognition.NamedEntityRecognition()
-    image_captioner = ImageCaptioner()
+    #image_captioner = ImageCaptioner()
 
     for path in scanRecurse(baseDir=src_path):
 
