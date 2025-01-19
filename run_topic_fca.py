@@ -1,4 +1,5 @@
 import constants
+from data.files import get_files
 from topic.topic_fca import *
 
 
@@ -41,8 +42,13 @@ if __name__ == '__main__':
     #
     # # TODO: obtain intents efficiently via pcbo (terminal)
 
-    model = tm.TopicModel(documents=None)
-    model.load_model(path=model_path, filename='01_16_25topic_model_01_17_25' if on_server else 'topic_model')
+    dataset_path = constants.SERVER_PATH_TO_PROJECT + 'dataset/' + 'sentences_ETYNTKE01_16_25.txt'
+    with open(dataset_path) as f:
+        sentences = f.read().splitlines()
+
+    model = tm.TopicModel(documents=sentences)
+    # FIXME: doesn't work (top2vec.Top2Vec is no module)
+    # model.load_model(path=model_path, filename='01_16_25topic_model_01_17_25' if on_server else 'topic_model')
     obtain_doc_topic_inc_per_subdir(parent_path=path,
                                     save_path='/norgay/bigstore/kgu/dev/text_topic/results/incidences/190125/' if on_server else '/Users/klara/Downloads/tmp_res',
                                     topic_model=model, date=date)
