@@ -96,6 +96,38 @@ def initialize_db(client_addr=CLIENT_ADDR, src_path="", create_db=True):
 
     return client
 
+def insert_caption_texts(src_path: str, client_addr: str):
+    """
+    Insert captions of images and texts of documents (.txt and .pdf) in the database.
+
+    :param src_path: Path to the directory containing the documents (.txt and .pdf)
+    :param client_addr: Elasticsearch client address
+    :return: -
+    """
+    # Create the client instance
+    client = Elasticsearch(client_addr)
+    print('finished creating client')
+    print('start with insert_caption_texts()')
+    image_captioner = ImageCaptioner()
+
+    for path in scanRecurse(baseDir=src_path):
+        if path.endswith('.pdf') or path.endswith('.txt'):
+            text, success = extract_text_from_pdf(path) if path.endswith('.pdf') else extract_text_from_txt(path)
+        elif path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
+            text = image_captioner.caption_image(path)  # generate caption for image
+        else:  # any other file type
+            text = path.split('/')[-1].split('.')[0]
+
+        id = get_hash_file(path)
+        update_doc = {'text': text}
+
+        try:
+            # insert document in database if it does not exist, else update it
+            client.update(index=DB_NAME, id=id, doc=update_doc, doc_as_upsert=True)
+
+        except Exception as e:
+            print('error in embedding: ', e)
+            continue
 
 def insert_embeddings(src_path: str, client: Elasticsearch):
     """
@@ -109,15 +141,14 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
     print('started with insert_embeddings()')
     model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
     ner = named_entity_recognition.NamedEntityRecognition()
-    # image_captioner = ImageCaptioner()
+    image_captioner = ImageCaptioner()
 
     for path in scanRecurse(baseDir=src_path):
 
         if path.endswith('.pdf') or path.endswith('.txt'):
             text, success = extract_text_from_pdf(path) if path.endswith('.pdf') else extract_text_from_txt(path)
-        elif path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
-            # text = image_captioner.caption_image(path)  # generate caption for image
-            text = 'image'
+        # elif path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
+        #     text = image_captioner.caption_image(path)  # generate caption for image
         else:  # any other file type
             text = path.split('/')[-1].split('.')[0]
 
