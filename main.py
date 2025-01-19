@@ -14,12 +14,13 @@ if __name__ == '__main__':
     path = constants.SERVER_PATH
     dataset_path = constants.SERVER_PATH_TO_PROJECT + 'dataset/'
     model_path = constants.SERVER_PATH_TO_PROJECT + 'models/'
-    incidence_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/incidences/16_01_25/'
+    incidence_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/incidences/190125/'
     plot_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/plots/'
     date = datetime.datetime.now().strftime('%x').replace('/', '_')
     load_existing_topic_model = False
 
     print(f"----{date}----\nrun main.py to initialize the database, extract text from pdfs, create a topic model, etc.\n")
+    print("in this case: Don't delete db prior & ignore text field to fill db quicker\n")
 
     # elasticsearch client
     print('Path to the dataset: ', path)
