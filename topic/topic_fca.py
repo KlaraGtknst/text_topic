@@ -1,9 +1,14 @@
+import os
+
 from fcapy.context import FormalContext
 from concepts import Context
 from fcapy.lattice import ConceptLattice
 import pandas as pd
 import numpy as np
 import constants
+from data.files import extract_text_from_pdf, save_df_to_csv
+from utils.os_manipulation import exists_or_create
+import topic.topic_modeling as tm
 
 
 def save_ctx_as_txt(ctx, save_path: str, filename: str = "context"):
@@ -216,58 +221,120 @@ def get_concept_lattice(ctx, intents):
     return [list(reconstruct_concept_from_intent(ctx, input_intent)) for input_intent in intents]
 
 
+def obtain_doc_topic_inc_per_subdir(parent_path: str, save_path: str, topic_model, date: str):
+    """
+    Obtain the document-topic incidence for each subdirectory in the parent directory.
+    If a Subdirectory contains a directory, the function is called recursively.
+    :param parent_path: Path to the uppermost directory regarded
+    :param save_path: Path to save the document-topic incidence, including the '/' at the end
+    :param topic_model: Topic model
+    :param date: Date of the incidence
+    :return:
+    """
+    print(f"----{parent_path}: start----")
+    # obtain all subdirectories
+    for current_directory, subdirectories, files in os.walk(parent_path):
+        print(f"----{current_directory}: start----")
+        for subdir in subdirectories:
+            obtain_doc_topic_inc_per_subdir(parent_path=parent_path + subdir + "/", save_path=save_path,
+                                            topic_model=topic_model, date=date)  # recursive call
+
+        exists_or_create(save_path + current_directory)
+        print(f"----{save_path + current_directory}: created----")
+
+        # obtain the document-topic incidence for the current directory
+        # obtain texts
+        text_files = [current_directory + path for path in files if
+                      (path.endswith(('.txt', '.pdf', '.png', '.jpg', '.jpeg')))]
+        texts = [extract_text_from_pdf(path, use_captioner=True)[0] for path in text_files]
+        print(f"----{current_directory}: obtained texts----")
+
+        doc_topic_incidence = topic_model.get_document_topic_incidence(doc_ids=np.arange(len(texts)))
+        save_df_to_csv(df=doc_topic_incidence, path=save_path + current_directory,
+                       file_name=f"{current_directory}_doc_topic_incidence_{date}")
+        print(f"----{current_directory}: obtained & saved doc-topic incidence----")
+
+        # determine optimal threshold for document-topic incidence
+        threshold, row_norm_doc_topic_df = topic_model.determine_threshold_doc_topic_threshold(doc_topic_incidence,
+                                                                                               opt_density=0.1,
+                                                                                               save_path=save_path + current_directory)
+        print("optimal threshold: ", threshold, " for ", current_directory)
+        thres_row_norm_doc_topic_df = topic_model.apply_threshold_doc_topic_incidence(row_norm_doc_topic_df,
+                                                                                      threshold=threshold)
+        save_df_to_csv(df=thres_row_norm_doc_topic_df, path=save_path + current_directory,
+                       file_name=f"{current_directory}_thres_row_norm_doc_topic_incidence_{date}")
+        print(f"----{current_directory}: obtained & saved thresholded doc-topic incidence----")
+
+        # translate docs IDs to document names
+        translated_thres_row_norm_doc_topic_incidence = thres_row_norm_doc_topic_df.rename(index={i: text_files[i] for i in range(len(text_files))})
+        save_df_to_csv(df=translated_thres_row_norm_doc_topic_incidence, path=save_path + current_directory,
+                       file_name=f"{current_directory}_translated_thres_row_norm_doc_topic_incidence_{date}")
+        print(f"----{current_directory}: translated doc IDs to document names (doc-topic incidence)----")
+
+        # term-topic incidence
+        term_topic_incidence = topic_model.get_term_topic_incidence(doc_ids=np.arange(len(texts)),
+                                             save_path=save_path + current_directory +
+                                                       f"/{current_directory}_topic2terms_{date}.json")
+        save_df_to_csv(term_topic_incidence, save_path + current_directory, f"{current_directory}_term_topic_incidence_{date}")
+        print(f"----{current_directory}: obtained & saved term-topic incidence----")
+
 # if __name__ == '__main__':
-    #     on_server = True
-    #     date = "01_08_25"
-    #     path = constants.SERVER_PATH if on_server else "/Users/klara/Documents/uni/"
-    #     dataset_path = constants.SERVER_PATH_TO_PROJECT + 'dataset/' if on_server else "../dataset/"
-    #     model_path = constants.SERVER_PATH_TO_PROJECT + 'models/' if on_server else '../models/'
-    #     incidence_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/incidences/server_080125/' \
-    #         if on_server else "../results/incidences/"
-    #     plot_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/plots/server_080125/' \
-    #         if on_server else "../results/plots/"
-    #     top_doc_filename = f"thres_row_norm_doc_topic_incidence{date}.csv" \
-    #         if on_server else "thres_row_norm_doc_topic_incidence.csv"
-    #     term_topic_filename = f"term_topic_incidence{date}.csv" \
-    #         if on_server else "term_topic_incidence.csv"
-    #
-    #     # Load the doc-topic context
-    #     doc_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=top_doc_filename)
-    #     ctx2fimi(doc_topic_ctx, path_to_file=incidence_save_path)
-    #
-    #     # Load the term-topic context
-    #     term_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=term_topic_filename)
-    #     ctx2fimi(term_topic_ctx, path_to_file=incidence_save_path)
-    #
+#     on_server = True
+#     date = "19_01_25"
+#     path = constants.SERVER_PATH + '/Vehicles/' if on_server else "/Users/klara/Downloads/KDE_Projekt/sample_data_server/"
+# #     dataset_path = constants.SERVER_PATH_TO_PROJECT + 'dataset/' if on_server else "../dataset/"
+#     model_path = constants.SERVER_PATH_TO_PROJECT + 'models/' if on_server else '../models/'
+#     incidence_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/incidences/server_080125/' \
+#         if on_server else "../results/incidences/"
+#     plot_save_path = constants.SERVER_PATH_TO_PROJECT + 'results/plots/server_080125/' \
+#         if on_server else "../results/plots/"
+#     top_doc_filename = f"thres_row_norm_doc_topic_incidence{date}.csv" \
+#         if on_server else "thres_row_norm_doc_topic_incidence.csv"
+#     term_topic_filename = f"term_topic_incidence{date}.csv" \
+#         if on_server else "term_topic_incidence.csv"
+#
+#     # Load the doc-topic context
+#     doc_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=top_doc_filename)
+#     ctx2fimi(doc_topic_ctx, path_to_file=incidence_save_path)
+#
+#     # Load the term-topic context
+#     term_topic_ctx = csv2ctx(path_to_file=incidence_save_path, filename=term_topic_filename)
+#     ctx2fimi(term_topic_ctx, path_to_file=incidence_save_path)
+#
+#     model = tm.TopicModel(documents=None)
+#     model.load_model(path=model_path, filename='01_16_25topic_model_01_17_25' if on_server else 'topic_model')
+#     obtain_doc_topic_inc_per_subdir(parent_path=path,
+#                                     save_path='/norgay/bigstore/kgu/dev/text_topic/results/incidences/190125/' if on_server else '/Users/klara/Downloads/tmp_res',
+#                                     topic_model=model, date=date)
 
-    # Reconstruct the concept
-    # top_doc_intents = intents_from_fimi(path_to_file=incidence_save_path, filename=f"doc_topic_intents_{date}.fimi")
-    # # print("Intents: ", intents)
-    # print("size of concept lattice: ", len(top_doc_intents))  # == 14476 if local
+# Reconstruct the concept
+# top_doc_intents = intents_from_fimi(path_to_file=incidence_save_path, filename=f"doc_topic_intents_{date}.fimi")
+# # print("Intents: ", intents)
+# print("size of concept lattice: ", len(top_doc_intents))  # == 14476 if local
 
-    # visualization
-    # for input_intent in input_intents[50:]:
-    #     extent, intent_closure = reconstruct_concept_from_intent(ctx, intents)
-    #
-    #     # Output
-    #     print(f"Given Intent: {input_intent}")
-    #     print(f"Reconstructed Extent: {extent}")
-    #     print(f"Reconstructed Intent Closure: {intent_closure}")
-    # concept_lattice = get_concept_lattice(ctx, intents[50:60])
-    # print("size of concept lattice: ", len(concept_lattice))  # should be 14476
-    # print("Concept lattice: ", concept_lattice)
+# visualization
+# for input_intent in input_intents[50:]:
+#     extent, intent_closure = reconstruct_concept_from_intent(ctx, intents)
+#
+#     # Output
+#     print(f"Given Intent: {input_intent}")
+#     print(f"Reconstructed Extent: {extent}")
+#     print(f"Reconstructed Intent Closure: {intent_closure}")
+# concept_lattice = get_concept_lattice(ctx, intents[50:60])
+# print("size of concept lattice: ", len(concept_lattice))  # should be 14476
+# print("Concept lattice: ", concept_lattice)
 
-    # print_in_extents(ctx=ctx)
+# print_in_extents(ctx=ctx)
 
-    # ctx.lattice.graphviz()
+# ctx.lattice.graphviz()
 
-    # print("Extent of topic 0: ", topic2docs(ctx=ctx, topic_ids=[0]))
-    #
-    # print("Intent of doc 0: ", doc2topics(ctx=ctx, doc_ids=list(range(0,30))))
-    #
-    # print_stats(ctx)
+# print("Extent of topic 0: ", topic2docs(ctx=ctx, topic_ids=[0]))
+#
+# print("Intent of doc 0: ", doc2topics(ctx=ctx, doc_ids=list(range(0,30))))
+#
+# print_stats(ctx)
 
-    # test fimi2int
-    # path2fimi = "/Users/klara/Developer/Uni/WiSe2425/text_topic/results/incidences/context_format_fimi.fimi"
-    # save_path = "/Users/klara/Developer/Uni/WiSe2425/text_topic/results/incidences/test.fimi"
-    # topics2integers(path2fimi, save_path)
+# test fimi2int
+# path2fimi = "/Users/klara/Developer/Uni/WiSe2425/text_topic/results/incidences/context_format_fimi.fimi"
+# save_path = "/Users/klara/Developer/Uni/WiSe2425/text_topic/results/incidences/test.fimi"
+# topics2integers(path2fimi, save_path)
