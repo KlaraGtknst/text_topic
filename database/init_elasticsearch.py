@@ -109,6 +109,7 @@ def insert_caption_texts(src_path: str, client_addr: str):
     print('finished creating client')
     print('start with insert_caption_texts()')
     image_captioner = ImageCaptioner()
+    ner = named_entity_recognition.NamedEntityRecognition()
 
     for path in scanRecurse(baseDir=src_path):
         if path.endswith('.pdf'):
@@ -121,7 +122,9 @@ def insert_caption_texts(src_path: str, client_addr: str):
             text = path.split('/')[-1].split('.')[0]
 
         id = get_hash_file(path)
-        update_doc = {'text': text}
+        limit = min(10 ** 6, len(text))  # nlp.max_length: https://spacy.io/api/language
+        named_entities = ner.get_named_entities_dictionary(text=text[:limit])
+        update_doc = {'text': text, 'named_entities': named_entities}
 
         try:
             # insert document in database if it does not exist, else update it
@@ -142,8 +145,8 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
     """
     print('started with insert_embeddings()')
     model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
-    ner = named_entity_recognition.NamedEntityRecognition()
-    #image_captioner = ImageCaptioner()
+    # ner = named_entity_recognition.NamedEntityRecognition()
+    # image_captioner = ImageCaptioner()
 
     for path in scanRecurse(baseDir=src_path):
 
@@ -157,12 +160,12 @@ def insert_embeddings(src_path: str, client: Elasticsearch):
             text = path.split('/')[-1].split('.')[0]
 
         id = get_hash_file(path)
-        limit = min(10 ** 6, len(text))  # nlp.max_length: https://spacy.io/api/language
-        named_entities = ner.get_named_entities_dictionary(text=text[:limit])
+        # limit = min(10 ** 6, len(text))  # nlp.max_length: https://spacy.io/api/language
+        # named_entities = ner.get_named_entities_dictionary(text=text[:limit])
 
         doc = {'embedding': model.encode(text), #'text': text,
                'path': path, 'file_name': os.path.basename(path),
-               'directory': os.path.dirname(path).split('/')[-1], 'named_entities': named_entities,
+               'directory': os.path.dirname(path).split('/')[-1], #'named_entities': named_entities,
                'file_type': path.split('.')[-1]}
 
         try:
