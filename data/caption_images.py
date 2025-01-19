@@ -33,12 +33,15 @@ class ImageCaptioner:
         :param image_path: A path to the image file including the file name and extension.
         :return: The generated caption for the image.
         """
-        image = Image.open(image_path).convert("RGB") if type(image_path) == str else image_path
-        pixel_values = self.processor(images=image, return_tensors="pt").pixel_values
+        try:
+            image = Image.open(image_path).convert("RGB") if type(image_path) == str else image_path
+            pixel_values = self.processor(images=image, return_tensors="pt").pixel_values
 
-        # Generate captions
-        generated_ids = self.model.generate(pixel_values=pixel_values, max_length=50)
-        return self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+            # Generate captions
+            generated_ids = self.model.generate(pixel_values=pixel_values, max_length=50)
+            return self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        except Exception as e:
+            return f"Error: {e}"
 
     def save_caption_to_file(self, image_path: str, save_path: str):
         """
