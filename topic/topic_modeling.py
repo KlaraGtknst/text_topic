@@ -1,23 +1,22 @@
 import datetime
-import glob
 import json
 
-from matplotlib import pyplot as plt
-from matplotlib.figure import Figure
-import io
-from top2vec import Top2Vec
-from scipy.special import softmax
-from wordcloud import WordCloud
-from matplotlib.backends.backend_agg import FigureCanvasAgg
-from PIL import Image
-import data.files as files
-import pandas as pd
 import numpy as np
-from data.files import save_sentences_to_file, load_sentences_from_file, save_df_to_csv
+import pandas as pd
 import tqdm
+from matplotlib import pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.figure import Figure
+from scipy.special import softmax
+from top2vec import Top2Vec
+from wordcloud import WordCloud
+
+import data.files as files
+from data.files import load_sentences_from_file
+from utils.os_manipulation import exists_or_create
 
 
-class TopicModel():
+class TopicModel:
 
     def __init__(self, documents: list):
         self.model = None
@@ -44,6 +43,7 @@ class TopicModel():
         :param path: Path to the file
         :return: -
         """
+        exists_or_create(path=path)
         self.model.save(path + "topic_model_" + datetime.datetime.now().strftime('%x').replace('/', '_'))
 
     def load_model(self, path: str = "models/", filename: str = "topic_model"):
@@ -55,10 +55,10 @@ class TopicModel():
         self.model = Top2Vec.load(path + filename)
 
     def get_num_topics(self):
-        '''
+        """
         This function returns the number of topics found in TopicModel.
         :return: Number of topics
-        '''
+        """
         return self.model.get_num_topics()
 
     def get_closest_topics(self, word: str, num_topics: int):
@@ -111,6 +111,7 @@ class TopicModel():
         """
         This function returns the topics of documents.
         :param doc_ids: List of document ids
+        :param num_topics: Number of topics to return
         :return: Topics of documents
         """
         topic_nums, topic_score, topics_words, word_scores = self.model.get_documents_topics(doc_ids=doc_ids,
@@ -162,6 +163,7 @@ class TopicModel():
                            for topic_num in range(num_topics)}
 
         if save_path_topic_words:
+            exists_or_create(path=''.join(save_path_topic_words.split('/')[:-1]))
             if not save_path_topic_words.endswith('.json'):
                 save_path_topic_words += '.json'
             # Save to JSON file
@@ -222,6 +224,7 @@ class TopicModel():
         plt.title(title)
         if save_path:
             date = datetime.datetime.now().strftime('%x').replace('/', '_')
+            exists_or_create(path=save_path)
             plt.savefig(save_path + title + date + '.svg', format='svg')
         plt.show()
         return densities, thresholds, opt_threshold
@@ -230,7 +233,8 @@ class TopicModel():
                                                 save_path: str = None):
         """
         This function displays the density of the document-topic incidence matrix for different thresholds.
-        :param normalized_doc_topic_incidence: Normalized document-topic incidence matrix
+        :param doc_topic_incidence: Document-topic incidence matrix
+        :param save_path: Path to save the plot; if None, no saving
         :param opt_density: Optimal density of the document-topic incidence matrix
         :return: Optimal density of the document-topic incidence matrix (proportion of weights above threshold),
                 Row normalized document-topic incidence matrix
@@ -257,6 +261,10 @@ class TopicModel():
             threshold, doc_topic_incidence = self.determine_threshold_doc_topic_threshold(doc_topic_incidence)
         return doc_topic_incidence.map(lambda x: 1 if x > threshold else 0)
 
+    @classmethod
+    def TopicModel(cls, documents):
+        pass
+
 
 if __name__ == '__main__':
     path = "/Users/klara/Documents/uni/"
@@ -272,7 +280,7 @@ if __name__ == '__main__':
     else:
         pdfs = files.get_files(path=path)
         sentences = []
-        for i in tqdm(range(len(pdfs)), desc='Extracting text from pdfs'):
+        for i in tqdm.tqdm(range(len(pdfs)), desc='Extracting text from pdfs'):
             pdf = pdfs[i]
             sentence = files.extract_text_from_pdf(pdf)
             if type(sentence) != str:

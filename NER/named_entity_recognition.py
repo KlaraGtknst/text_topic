@@ -1,8 +1,13 @@
+import logging
 import spacy
+import constants
+from utils.logging_utils import get_date, init_debug_config
+from utils.os_manipulation import exists_or_create
 
 
 class NamedEntityRecognition:
-    def __init__(self):
+    def __init__(self, on_server: bool = True):
+        init_debug_config(log_filename='named_entity_recognition_', on_server=on_server)
         self.nlp = spacy.load("en_core_web_sm")
 
     def get_named_entities(self, text: str):
@@ -15,6 +20,7 @@ class NamedEntityRecognition:
         named_entities = []
         for ent in doc.ents:
             named_entities.append((ent.text, ent.label_))
+        logging.info(f"Obtained named entities")
         return named_entities
 
     def get_named_entities_from_subset(self, text: str, subset_categories: list[str]):
@@ -63,6 +69,7 @@ class NamedEntityRecognition:
                 if ent.label_ not in named_entities:
                     named_entities[ent.label_] = []
                 named_entities[ent.label_].append(ent.text)
+            logging.info(f"Obtained named entities dictionary")
             return named_entities
         except Exception as e:  # eg. UnicodeEncodeError
             return str(e)

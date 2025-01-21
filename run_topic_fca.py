@@ -1,13 +1,17 @@
 import constants
 from data.files import get_files
 from topic.topic_fca import *
-
+from topic.topic_modeling import TopicModel
 
 if __name__ == '__main__':
     on_server = True
-    date = "19_01_25"
-    path = constants.SERVER_PATH + '/Vehicles/' if on_server else "/Users/klara/Downloads/KDE_Projekt/sample_data_server/"
-    model_path = constants.SERVER_PATH_TO_PROJECT + 'models/' if on_server else '../models/'
+    init_debug_config(log_filename='run_topic_fca_', on_server=on_server)
+    date = get_date()
+    path = constants.Paths.SERVER_DATA_PATH.value + '/Vehicles/' if on_server else (
+            constants.Paths.LOCAL_DATA_PATH.value + "/KDE_Projekt/sample_data_server/")
+    model_path = constants.Paths.SERVER_PATH_TO_PROJECT.value + 'models/' if on_server else '../models/'
+    incidence_save_path = constants.Paths.SERVER_INC_SAVE_PATH.value + '/' + date + '/' if on_server else (
+            constants.Paths.LOCAL_DATA_PATH.value + '/incidences/' + date + '/')
 
     # date = "01_08_25"
     # save_date = "01_14_25_02"
@@ -42,13 +46,12 @@ if __name__ == '__main__':
     #
     # # TODO: obtain intents efficiently via pcbo (terminal)
 
-    dataset_path = constants.SERVER_PATH_TO_PROJECT + 'dataset/' + 'sentences_ETYNTKE01_16_25.txt'
+    dataset_path = constants.Paths.SERVER_PATH_TO_PROJECT.value + 'dataset/' + 'sentences_ETYNTKE01_16_25.txt'
     with open(dataset_path) as f:
         sentences = f.read().splitlines()
 
-    model = tm.TopicModel(documents=sentences)
+    model = TopicModel(documents=sentences)
+    topic_fca = TopicFCA()
     # FIXME: doesn't work (top2vec.Top2Vec is no module)
     # model.load_model(path=model_path, filename='01_16_25topic_model_01_17_25' if on_server else 'topic_model')
-    obtain_doc_topic_inc_per_subdir(parent_path=path,
-                                    save_path='/norgay/bigstore/kgu/dev/text_topic/results/incidences/190125/' if on_server else '/Users/klara/Downloads/tmp_res',
-                                    topic_model=model, date=date)
+    topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path, save_path=incidence_save_path, topic_model=model)

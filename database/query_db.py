@@ -1,21 +1,22 @@
+from collections import defaultdict
+
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+
 import constants
 from constants import *
-from database.init_elasticsearch import initialize_db
-import topic.topic_modeling as tm
-from wordcloud import WordCloud
-import matplotlib.pyplot as plt
-from collections import Counter, defaultdict
-from visualization.two_d_display import scatter_documents_2d
 from utils.os_manipulation import save_or_not
+from visualization.two_d_display import scatter_documents_2d
 
 
 def search_db(client, num_res: int = 10):
-    '''
+    """
     Returns ten first documents in the database.
     :param client: Elasticsearch client
+    :param num_res: Number of results to return
     :return: result of the query
-    '''
-    res = client.search(index=DB_NAME, body={
+    """
+    res = client.search(index=DatabaseAddr.DB_NAME, body={
         'size': num_res,
         'query': {
             'match_all': {}
@@ -25,34 +26,35 @@ def search_db(client, num_res: int = 10):
 
 
 def get_num_indexed_documents(client):
-    '''
+    """
     Returns the number of documents in the database.
     :param client: Elasticsearch client
     :return: number of documents
-    '''
-    client.indices.refresh(index=DB_NAME)
-    count = int(client.cat.count(index=DB_NAME, format="json")[0]["count"])
+    """
+    client.indices.refresh(index=DatabaseAddr.DB_NAME)
+    count = int(client.cat.count(index=DatabaseAddr.DB_NAME, format="json")[0]["count"])
     return count
 
 
 def obtain_directories(client):
-    '''
+    """
     Returns a set of all directories in the database.
     :param client: Elasticsearch client
     :return: list of directories
-    '''
+    """
     count = get_num_indexed_documents(client)
     res = search_db(client, num_res=count)
     return set([r['_source']['directory'] for r in res['hits']['hits']])
 
 
 def get_directory_content(client, directory: str):
-    '''
+    """
     Returns a list of all texts in a given directory (only this directory and not its children).
     :param client: Elasticsearch client
+    :param directory: Directory to get content of
     :return: None
-    '''
-    res = client.search(index=DB_NAME, body={
+    """
+    res = client.search(index=DatabaseAddr.DB_NAME, body={
         '_source': ['text'],
         'size': get_num_indexed_documents(client),
         'query': {
@@ -66,12 +68,14 @@ def get_directory_content(client, directory: str):
 
 
 def display_directory_content(client, directory: str, save_path: str = None):
-    '''
+    """
     Displays a wordcloud of the content of a given directory.
     If save_path is not None, saves the wordcloud as a .png file.
     :param client: Elasticsearch client
+    :param directory: Directory to display content of
+    :param save_path: Path to save the wordcloud
     :return: None
-    '''
+    """
     sentences = get_directory_content(client, directory)
     text = ' '.join(sentences)
     wordcloud = WordCloud(max_font_size=40).generate(text)
@@ -84,27 +88,29 @@ def display_directory_content(client, directory: str, save_path: str = None):
 
 
 def scatter_dir_content(client, save_path: str = None):
-    '''
+    """
     Displays a 2D scatter plot of the documents in the database.
     The documents are represented by their embeddings.
     Each document is colored according to its parent directory.
     The plot is saved as a .png file if save_path is not None.
     :param client: Elasticsearch client
+    :param save_path: Path to save the scatter plot
     :return: None
-    '''
+    """
     scatter_documents_2d(client, save_path=save_path)
 
 
 # should work, since used in NER/clustering_NE.py
 def get_named_entities_for_docs(client, key_name: str, nested_field_path: str = "named_entities",
-                                es_request_limit: int = 10000, num_res: int = 10):
-    '''
+                                es_request_limit: int = 10000):
+    """
     Fetch named entities of the specified category using the scroll API for large datasets.
     :param client: Elasticsearch client
     :param nested_field_path: Path to the nested field (e.g., "parent.child").
     :param key_name: The specific key to retrieve values for.
+    :param es_request_limit: Number of documents to fetch in each Elasticsearch request at a time.
     :return: result of the query, a map of named entities to documents
-    '''
+    """
     named_entities = []
     doc_map = defaultdict(list)  # Map named entities to documents
 
@@ -124,7 +130,7 @@ def get_named_entities_for_docs(client, key_name: str, nested_field_path: str = 
         }
     }
 
-    response = client.search(index=constants.DB_NAME, body=query, scroll="2m")
+    response = client.search(index=constants.DatabaseAddr.DB_NAME, body=query, scroll="2m")
     scroll_id = response["_scroll_id"]
 
     # Process the first batch of results
@@ -148,28 +154,22 @@ def get_named_entities_for_docs(client, key_name: str, nested_field_path: str = 
     return named_entities, doc_map
 
 
-if __name__ == '__main__':
-    #args = arguments()
-    src_path = TEST_TRAINING_PATH  #args.directory
-    save_dir = SAVE_PATH + '/plots/'
-
-    # get client of existing database
-    client = initialize_db(src_path=src_path, client_addr=CLIENT_ADDR, create_db=False)
-
-    # search for documents in database
-    #res = search_db(client)
-    #print('result: ', res)
-
-    # obtain directories & display content
-    # display_directory_content(client, directory='SozNet', save_path=save_dir)
-    #
-    # # scatter plot of documents highlighting directories
-    # scatter_dir_content(client, save_path=save_dir)
-
-    # get named entities for documents
-    nested_field_path = "named_entities"
-    key_name = "GPE"  #"ORG"
-    named_entities = get_named_entities_for_docs(client, nested_field_path, key_name)
-    print(f"Named entities for key '{key_name}': {named_entities}")
-
-    print('finished')
+# if __name__ == '__main__':
+#     es_db = db.Database()
+#
+#     # get client of existing database
+#     client = es_db.get_client()
+#
+#     # obtain directories & display content
+#     display_directory_content(client, directory='Weapons', save_path=Paths.SERVER_PLOTS_SAVE_PATH)
+#
+#     # scatter plot of documents highlighting directories
+#     scatter_dir_content(client, save_path=Paths.SERVER_PLOTS_SAVE_PATH)
+#
+#     # get named entities for documents
+#     nested_field_path = "named_entities"
+#     key_name = "GPE"  #"ORG"
+#     named_entities = get_named_entities_for_docs(client, nested_field_path, key_name)
+#     print(f"Named entities for key '{key_name}': {named_entities}")
+#
+#     print('finished')

@@ -1,17 +1,25 @@
+import logging
 import tqdm
 import data.files as files
+from constants import *
+from utils.logging_utils import get_date, init_debug_config
+from utils.os_manipulation import exists_or_create
 
+logger = logging.getLogger(__name__)
 
 if __name__ == '__main__':
-    local = False
-    path = '/Users/klara/Downloads/KDE_Projekt/sample_data_server' if local else '/norgay/bigstore/kgu/data/ETYNTKE/Workshop/'
+    on_server = False
+    init_debug_config(log_filename='run_captioning_', on_server=on_server)
+
+    path = Paths.LOCAL_DATA_PATH.value + '/KDE_Projekt/sample_data_server' if (not on_server) \
+        else Paths.SERVER_DATA_PATH.value + '/Workshop/'
     num_successes = 0
     limit_num_docs = 2
     paths = files.get_files(path)
-    print('PATHS', paths)
+    logging.info('Obtained list of paths')
     for path2file in tqdm.tqdm(paths, desc='Extracting text from pdfs'):
         text, success = files.extract_text_from_pdf(path2file)
-
-        print('NEW DOC', text)
         num_successes += success
-    print(f"Number of successful extractions: {num_successes}/{len(files.get_files(path))}")
+
+    logging.info(f"Number of successful extractions: {num_successes}/{len(files.get_files(path))}")
+

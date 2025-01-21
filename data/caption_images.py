@@ -1,4 +1,6 @@
 import logging
+
+from constants import Paths
 from utils.os_manipulation import exists_or_create
 import os
 from glob import glob
@@ -34,7 +36,7 @@ class ImageCaptioner:
         :return: The generated caption for the image.
         """
         try:
-            image = Image.open(image_path).convert("RGB") if type(image_path) == str else image_path
+            image = Image.open(image_path).convert("RGB") if isinstance(image_path) == str else image_path
             pixel_values = self.processor(images=image, return_tensors="pt").pixel_values
 
             # Generate captions
@@ -57,18 +59,18 @@ class ImageCaptioner:
         # print('saved caption to file:', os.path.join(save_path, f"{image_name}_caption.txt"))
 
 
-# if __name__ == '__main__':
-#     local = False
-#     path2imgs = "/Users/klara/Downloads/" if local else '/norgay/bigstore/kgu/dev/text_topic/results/plots/'
-#     save_path = "/Users/klara/Downloads/captions/" if local else '/norgay/bigstore/kgu/dev/text_topic/results/captions/'
-#
-#     # Load the processor and model
-#     captioner = ImageCaptioner()
-#
-#     # Load and preprocess the image
-#     l_img_paths = sorted(glob(os.path.join(path2imgs, "*.png")))
-#     for image_path in tqdm(l_img_paths):
-#         # print("start image", image_path)
-#         caption = captioner.caption_image(image_path)
-#         captioner.save_caption_to_file(image_path, save_path=save_path)
-#         # print("Generated Caption:", caption)
+if __name__ == '__main__':
+    local = True
+    path2imgs = Paths.LOCAL_DATA_PATH.value if local else Paths.SERVER_PLOTS_SAVE_PATH.value
+    save_path = Paths.LOCAL_DATA_PATH.value + "/captions/" if local else Paths.LOCAL_RESULTS_SAVE_PATH.value + '/captions/'
+
+    # Load the processor and model
+    captioner = ImageCaptioner()
+
+    # Load and preprocess the image
+    l_img_paths = sorted(glob(os.path.join(path2imgs, "*.png")))
+    for image_path in tqdm(l_img_paths):
+        # print("start image", image_path)
+        caption = captioner.caption_image(image_path)
+        captioner.save_caption_to_file(image_path, save_path=save_path)
+        # print("Generated Caption:", caption)

@@ -1,26 +1,34 @@
+import logging
+
+import constants
 from NER.clustering_NE import *
 import tqdm
 
+from constants import Paths
+from database.init_elasticsearch import ESDatabase
+from utils.logging_utils import get_date
 
 if __name__ == '__main__':
-    date = datetime.datetime.now().strftime('%x').replace('/', '_')
-    print('File was run at: ', date)
-    client = Elasticsearch(constants.CLIENT_ADDR, request_timeout=60)
+    on_server = True
+    init_debug_config(log_filename='run_named_entity_clustering_', on_server=on_server)
+
+    es_db = ESDatabase()
+    client = es_db.get_es_client()
     top_n = 50
-    clusterNamedEntities = ClusterNamedEntities(client=client, index=constants.DB_NAME, top_n=top_n,
+    clusterNamedEntities = ClusterNamedEntities(client=client, index=constants.DatabaseAddr.DB_NAME.value, top_n=top_n,
                                                 n_clusters=top_n // 10)
 
     # Fetch the index mapping
-    mapping = client.indices.get_mapping(index=constants.DB_NAME)
-    named_entities_mapping = mapping[constants.DB_NAME]["mappings"]["properties"]["named_entities"]["properties"]
+    mapping = client.indices.get_mapping(index=constants.DatabaseAddr.DB_NAME.value)
+    named_entities_mapping = mapping[constants.DatabaseAddr.DB_NAME.value]["mappings"]["properties"]["named_entities"]["properties"]
 
     # Extract the keys (categories)
     categories = list(named_entities_mapping.keys())
-    print("All categories of the nested field 'named_entities': ", categories)
+    logging.info(f'All categories of the nested field "named_entities": {categories}')
 
     for i in tqdm.tqdm(range(len(categories)), desc='Obtaining named entities clustering for each category'):
         category = categories[i]
-        print('--------------------------')
+        logging.info(f'Processing category: {category}')
         clusterNamedEntities.process_category(category=category)
 
     # print('--------------------------')

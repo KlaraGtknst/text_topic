@@ -53,12 +53,12 @@ def extract_text_from_txt(path: str):
         return str(e), False
 
 
-def extract_text_from_pdf(path: str, use_captioner: bool = False):
+def extract_text_from_pdf(path: str, find_caption: bool = False):
     """
     This function extracts the text from a pdf file.
     If the pdf file is not readable, the function returns a list which contains the error message.
     :param path: Path to the pdf file
-    :param use_captioner: If True, the function uses the ImageCaptioner to caption the image of the pdf page,
+    :param find_caption: If True, the function uses the ImageCaptioner to caption the image of the pdf page,
         if no text can be extracted
     :return: List of text from the pdf file; each entry is the text of one page
     """
@@ -74,7 +74,7 @@ def extract_text_from_pdf(path: str, use_captioner: bool = False):
                 page_text = page.extract_text()
                 if page_text:
                     text.append(page_text)
-                elif use_captioner:
+                elif find_caption:
                     # caption image of page
                     dummy_save_path, image = pdf2png(pdf_path=path, png_path='', page_num=i)
                     caption = image_captioner.caption_image(image)
@@ -95,13 +95,13 @@ def extract_text_from_pdf(path: str, use_captioner: bool = False):
 
 
 def pdf_to_str(path: str) -> str:
-    '''
+    """
     :param path: path to pdf file
     :return: text from pdf file
 
     This function extracts the text from a pdf file.
     cf. https://pypi.org/project/PyPDF2/
-    '''
+    """
     #warnings.filterwarnings("ignore", category=urllib3.exceptions.NotOpenSSLWarning)
     with warnings.catch_warnings(action="ignore"):
         warnings.simplefilter("ignore")  # Ignore all warnings
@@ -119,17 +119,17 @@ def pdf_to_str(path: str) -> str:
 
 
 def get_hash_file(path: str):
-    '''
+    """
     :param path: path to the file
     :return: hash of the file
-    '''
-    BLOCK_SIZE = 65536000  # The size of each read from the file
+    """
+    block_size = 65536000  # The size of each read from the file
     file_hash = hashlib.sha256()  # Create the hash object, can use something other than `.sha256()` if you wish
     with open(path, 'rb') as f:  # Open the file to read its bytes, automatically closes file at end
-        fb = f.read(BLOCK_SIZE)  # Read from the file. Take in the amount declared above
+        fb = f.read(block_size)  # Read from the file. Take in the amount declared above
         while len(fb) > 0:  # While there is still data being read from the file
             file_hash.update(fb)  # Update the hash
-            fb = f.read(BLOCK_SIZE)
+            fb = f.read(block_size)
     id = file_hash.hexdigest()
     return id
 
@@ -178,6 +178,7 @@ def save_df_to_csv(df, path, file_name):
     :param file_name: Name of the file, without file ending
     :return: -
     """
+    osm.exists_or_create(path=path)
     df.to_csv(path + file_name + '.csv', index=True)
     print(f"Dataframe saved to {path}")
 
