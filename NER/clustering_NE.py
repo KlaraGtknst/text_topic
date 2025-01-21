@@ -146,7 +146,7 @@ class ClusterNamedEntities:
             # "entity_document_mapping": doc_map    # Uncomment to save the mapping for all entities; may be large!
         }
 
-        output_file = (constants.Paths.SERVER_PLOTS_SAVE_PATH.value + "/cluster_NER/" +
+        output_file = (constants.Paths.SERVER_PLOTS_SAVE_PATH.value + "cluster_NER/" +
                        f"cluster_NE_results_{self.category}_{datetime.datetime.now().strftime('%x').replace('/', '_')}.json") \
             if self.output_file == "" else self.output_file
 
