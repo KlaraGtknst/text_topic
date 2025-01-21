@@ -1,9 +1,20 @@
-CLIENT_ADDR = "http://localhost:9200"
-PUMBAA_CLIENT_ADDR = "http://watzmann:9200"
-DB_NAME = "txt_db"
-TEST_TRAINING_PATH = '/Users/klara/Downloads'   #"/Users/klara/Documents/uni/"#
-SERVER_PATH = '/norgay/bigstore/kgu/data/ETYNTKE'   #Exotic Weapons' /Physics
-SERVER_PATH_TO_PROJECT = '/norgay/bigstore/kgu/dev/text_topic/'
-SAVE_PATH = '/Users/klara/Developer/Uni/WiSe2425/text_topic/results/'
-SERVER_SAVE_PATH = '/norgay/bigstore/kgu/dev/text_topic/results/plots/'
-SERVER_STATS_PATH = '/norgay/bigstore/kgu/dev/clj_exploration_leaks/results/'
+from enum import Enum
+
+
+class DatabaseAddr(Enum):
+    CLIENT_ADDR: str = "http://localhost:9200"
+    PUMBAA_CLIENT_ADDR: str = "http://watzmann:9200"
+    DB_NAME: str = "txt_db"
+
+
+class Paths(Enum):
+    TEST_TRAINING_PATH: str = "/Users/klara/Downloads"
+    LOCAL_DATA_PATH: str = "/Users/klara/Downloads"
+    SERVER_DATA_PATH: str = "/norgay/bigstore/kgu/data/ETYNTKE"
+    SERVER_PATH_TO_PROJECT: str = "/norgay/bigstore/kgu/dev/text_topic/"
+    LOCAL_RESULTS_SAVE_PATH: str = "/Users/klara/Developer/Uni/WiSe2425/text_topic/results/"
+    SERVER_PLOTS_SAVE_PATH: str = "/norgay/bigstore/kgu/dev/text_topic/results/plots/"
+    SERVER_INC_SAVE_PATH: str = "/norgay/bigstore/kgu/dev/text_topic/results/plots/results/incidences/"
+    SERVER_CLJ_RESULTS_PATH: str = "/norgay/bigstore/kgu/dev/clj_exploration_leaks/results/"
+    LOCAL_LOGGING_PATH: str = "/Users/klara/Downloads/logs/"
+    SERVER_LOGGING_PATH: str = "/norgay/bigstore/kgu/logs/text_topic/"
