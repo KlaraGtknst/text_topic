@@ -16,5 +16,6 @@ class Paths(Enum):
     SERVER_PLOTS_SAVE_PATH: str = "/norgay/bigstore/kgu/dev/text_topic/results/plots/"
     SERVER_INC_SAVE_PATH: str = "/norgay/bigstore/kgu/dev/text_topic/results/plots/results/incidences/"
     SERVER_CLJ_RESULTS_PATH: str = "/norgay/bigstore/kgu/dev/clj_exploration_leaks/results/"
+    LOCAL_CLJ_RESULTS_PATH: str = "/Users/klara/Developer/Uni/WiSe2425/text_topic/results/"
     LOCAL_LOGGING_PATH: str = "/Users/klara/Downloads/logs/"
     SERVER_LOGGING_PATH: str = "/norgay/bigstore/kgu/logs/text_topic/"

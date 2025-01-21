@@ -26,7 +26,8 @@ if __name__ == '__main__':
     # scatter_documents_2d(client, save_path=constants.Paths.SERVER_PLOTS_SAVE_PATH.value + get_date(), reducer='PCA', unique_id_suffix=date)
 
     # visualize data stats
-    base_path2csv = constants.Paths.SERVER_CLJ_RESULTS_PATH.value
+    base_path2csv = constants.Paths.SERVER_CLJ_RESULTS_PATH.value if on_server \
+        else constants.Paths.LOCAL_CLJ_RESULTS_PATH.value
     csv_files = files.get_files(path=base_path2csv, file_type='csv')
     for i in tqdm.tqdm(range(len(csv_files)), desc='Producing bar charts of statistic files'):
         csv_file = csv_files[i]
