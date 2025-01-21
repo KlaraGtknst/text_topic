@@ -56,13 +56,16 @@ class NamedEntityRecognition:
         :param text: Text to analyze as string
         :return: Dictionary of named entities
         """
-        doc = self.nlp(text)
-        named_entities = {}
-        for ent in doc.ents:
-            if ent.label_ not in named_entities:
-                named_entities[ent.label_] = []
-            named_entities[ent.label_].append(ent.text)
-        return named_entities
+        try:
+            doc = self.nlp(text)
+            named_entities = {}
+            for ent in doc.ents:
+                if ent.label_ not in named_entities:
+                    named_entities[ent.label_] = []
+                named_entities[ent.label_].append(ent.text)
+            return named_entities
+        except Exception as e:  # eg. UnicodeEncodeError
+            return str(e)
 
 # if __name__ == "__main__":
 #     ner = NamedEntityRecognition()
