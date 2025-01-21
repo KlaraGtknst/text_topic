@@ -147,7 +147,7 @@ class ClusterNamedEntities:
         }
 
         output_file = (constants.Paths.SERVER_PLOTS_SAVE_PATH.value + "cluster_NER/" +
-                       f"cluster_NE_results_{self.category}_{datetime.datetime.now().strftime('%x').replace('/', '_')}.json") \
+                       f"cluster_NE_results_{self.category}_{get_date()}.json") \
             if self.output_file == "" else self.output_file
 
         exists_or_create(path=constants.Paths.SERVER_PLOTS_SAVE_PATH.value + "/cluster_NER/")
