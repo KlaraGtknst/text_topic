@@ -1,11 +1,9 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
-from elasticsearch import Elasticsearch
-from constants import *
-import pandas as pd
-from utils.os_manipulation import save_or_not
-import numpy as np
 import re
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+import constants
+from utils.os_manipulation import save_or_not
 from visualization.plotting_utils import obtain_low_dim_embs
 
 
@@ -64,7 +62,7 @@ def process_directory_names(dir_list: list, max_num_alphabetic: int = 4, num_thr
 
 def scatter_documents_2d(client, save_path=None, on_server=False, reducer='PCA', preprocess_dirs=True,
                          unique_id_suffix=""):
-    '''
+    """
     This function creates a 2D scatter plot of the documents.
     The documents are represented by their embeddings.
     Each document is colored according to its parent directory.
@@ -79,14 +77,13 @@ def scatter_documents_2d(client, save_path=None, on_server=False, reducer='PCA',
     and replace similar names with a common base name
     :param unique_id_suffix: unique id suffix for the file name; default is empty string (hence, no suffix)
     :return -
-    '''
+    """
     # obtain results from elastic search
     upper_request_limit = 10000
-    client.indices.refresh(index=DB_NAME)
-    count = int(client.cat.count(index=DB_NAME, format="json")[0]["count"])
+    client.indices.refresh(index=constants.DatabaseAddr.DB_NAME.value)
     results = []
 
-    res = client.search(index=DB_NAME, body={
+    res = client.search(index=constants.DatabaseAddr.DB_NAME.value, body={
         'size': upper_request_limit,  # Number of documents to fetch
         'query': {
             'match_all': {}
@@ -136,7 +133,3 @@ def scatter_documents_2d(client, save_path=None, on_server=False, reducer='PCA',
     save_or_not(plt, file_name=f'{reducer}_scatter_documents_dir_2d_{unique_id_suffix}.svg',
                 save_path=save_path, format='svg')
     plt.show()
-
-# if __name__ == '__main__':
-#     client = Elasticsearch(CLIENT_ADDR)
-#     scatter_documents_2d(client, save_path=SERVER_SAVE_PATH)

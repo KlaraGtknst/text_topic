@@ -19,6 +19,7 @@ def extract_embs_clusters(ne_results: dict):
         print("The dictionary must have the keys 'top_n_embeddings' and 'clusters'.")
         raise e
 
+
 def format_labels(labels: list, clusters: list):
     """
     Format the labels grouped by their cluster.
@@ -78,6 +79,3 @@ def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_pat
         plt.savefig(save_path + title, format='svg', dpi=300, bbox_inches='tight')
         print(f"Plot saved to {save_path}{title}.")
     plt.show()
-
-
-

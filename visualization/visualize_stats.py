@@ -1,8 +1,6 @@
-import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import constants
 from utils.os_manipulation import exists_or_create
 
 
@@ -50,12 +48,3 @@ def stats_as_bar_charts(path2csv: str, save_path: str = "", unique_id_suffix: st
         plt.show()
     except KeyError as e:
         print(f"Error: {e}. Please check the columns in the csv file: {path2csv}.")
-
-
-# if __name__ == '__main__':
-#     date = datetime.datetime.now().strftime('%x').replace('/', '_')
-#
-#     stats_as_bar_charts(
-#         path2csv="/Users/klara/Downloads/len-stats.csv",
-#         #"/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/file_name-stats.csv",
-#         unique_id_suffix=date, save_path=constants.SAVE_PATH + 'plots/')
