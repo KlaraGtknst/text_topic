@@ -127,7 +127,7 @@ class ClusterNamedEntities:
         logging.info(f"Performed clustering with {self.n_clusters} clusters.")
         return clusters
 
-    def save_results(self, clusters: list, top_n_entities: list, top_n_doc_maps: dict, embeddings: list):
+    def save_results(self, clusters: list, top_n_entities: list, top_n_doc_maps: dict, embeddings: list, doc_map: dict):
         """
         Save clustering results, embedding and entity-document mapping of the top N named entities to a JSON file.
         :param clusters: List of cluster assignments for each named entity
@@ -135,6 +135,7 @@ class ClusterNamedEntities:
         :param top_n_doc_maps: Mapping of top-N named entities to documents
             (i.e. for each entity in top-N all documents that contain it)
         :param embeddings: List of embeddings for top-N named entities
+        :param doc_map: Mapping of named entities to documents; currently not saved because of large size
         :return: None
         """
         result = {
