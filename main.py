@@ -23,7 +23,9 @@ if __name__ == '__main__':
     load_existing_topic_model = False
 
     es_db = db.ESDatabase()
-    logging.info('Obtained Elasticsearch client')
+    es_db.insert_metadata(src_path=data_path)
+    logging.info('Obtained Elasticsearch client and inserted metadata')
+
 
     # texts
     pdfs = files.get_files(path=data_path)
