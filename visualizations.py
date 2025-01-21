@@ -41,3 +41,5 @@ if __name__ == '__main__':
             ne_cluster_dict = files.load_dict_from_json(path=file_path)
             display_NE_cluster(ne_results=ne_cluster_dict, reducer=reducer, category=category,
                                save_path=save_path)
+
+    logging.info('Finished visualizations')
