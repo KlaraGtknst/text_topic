@@ -2,9 +2,11 @@ import datetime
 import json
 import logging
 from collections import Counter, defaultdict
+import gensim
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import cosine_similarity
+from gensim.models import Word2Vec
 import constants
 from utils.logging_utils import *
 from utils.os_manipulation import exists_or_create
@@ -91,7 +93,11 @@ class ClusterNamedEntities:
         :param entities: List of named entities to encode
         :return: List of encoded embeddings
         """
-        model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
+        model = gensim.models.Word2Vec.load("word2vec.model")
+        # memory-friendly version if not retraining the model
+        # https://stackoverflow.com/questions/39549248/how-to-load-a-pre-trained-word2vec-model-file-and-reuse-it (22.01.2025)
+        model.init_sims(replace=True)
+        # model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
         embeddings = model.encode(entities, convert_to_tensor=False)
         logging.info(f"Computed embeddings for {len(entities)} named entities.")
         return embeddings
