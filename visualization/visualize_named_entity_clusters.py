@@ -1,5 +1,6 @@
 import datetime
 import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
 
 from utils.os_manipulation import exists_or_create
@@ -56,6 +57,10 @@ def display_NE_cluster(ne_results: dict, reducer="PCA", category="ORG", save_pat
     """
     date = datetime.datetime.now().strftime('%x').replace('/', '_')
     labels, high_dim_embs, clusters = extract_embs_clusters(ne_results)
+    # omit NaN values to avoid segmentation fault
+    high_dim_embs = np.array(high_dim_embs)
+    high_dim_embs[np.isnan(high_dim_embs)] = 0
+    high_dim_embs = high_dim_embs.tolist()
 
     # reduce dimensionality to 2D
     transformed_embs = obtain_low_dim_embs(high_dim_embs=high_dim_embs, reducer=reducer)

@@ -13,7 +13,7 @@ def obtain_low_dim_embs(high_dim_embs: list, reducer: str = 'PCA'):
     :return: Transformed embeddings in 2D using the specified dimensionality reduction technique.
     """
     if reducer == 'TSNE':
-        tsne = TSNE(n_components=2)
+        tsne = TSNE(n_components=2, n_jobs=1)
         transformed_embs = tsne.fit_transform(np.array(high_dim_embs))
     elif reducer == 'UMAP':
         umap_reducer = umap.UMAP(n_components=2)
