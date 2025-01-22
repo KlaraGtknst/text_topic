@@ -7,6 +7,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import cosine_similarity
 from gensim.models import Word2Vec
+import gensim.downloader as api
 import constants
 from utils.logging_utils import *
 from utils.os_manipulation import exists_or_create
@@ -94,7 +95,8 @@ class ClusterNamedEntities:
         :return: List of encoded embeddings
         """
         # https://github.com/piskvorky/gensim-data (22.01.2025)
-        model = gensim.models.Word2Vec.load("glove-twitter-100")
+        #model = gensim.models.Word2Vec.load("glove-twitter-100")
+        model = api.load("glove-twitter-25")
         # memory-friendly version if not retraining the model
         # https://stackoverflow.com/questions/39549248/how-to-load-a-pre-trained-word2vec-model-file-and-reuse-it (22.01.2025)
         model.init_sims(replace=True)
