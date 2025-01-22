@@ -182,7 +182,7 @@ def get_texts_from_docs(client, es_request_limit: int = 10000):
             break
 
         for doc in hits:
-            texts.append(doc['_source']['text'])
+            texts.append(doc['_source'])    #['text']
 
         # Fetch the next batch of results
         response = client.scroll(scroll_id=scroll_id, scroll="2m")
