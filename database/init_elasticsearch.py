@@ -157,6 +157,7 @@ class ESDatabase:
         model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
 
         actions = []  # List to hold bulk actions
+        logging.info('created empty actions list')
 
         for path in scan_recurse(base_directory=src_path):
             try:
@@ -181,6 +182,7 @@ class ESDatabase:
                 logger.error(f'Error processing file {path}: {e}')
                 continue
 
+        logging.info('finished creating actions list')
         # Execute bulk update
         try:
             success, failed = bulk(self.client, actions, chunk_size=500)
