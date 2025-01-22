@@ -3,6 +3,7 @@ import json
 import logging
 from collections import Counter, defaultdict
 import gensim
+import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import cosine_similarity
@@ -96,12 +97,13 @@ class ClusterNamedEntities:
         """
         # https://github.com/piskvorky/gensim-data (22.01.2025)
         #model = gensim.models.Word2Vec.load("glove-twitter-100")
-        model = api.load("glove-twitter-25")
+        model = api.load("word2vec-google-news-300")
         # memory-friendly version if not retraining the model
         # https://stackoverflow.com/questions/39549248/how-to-load-a-pre-trained-word2vec-model-file-and-reuse-it (22.01.2025)
         model.init_sims(replace=True)
         # model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
-        embeddings = [model.get_vector(entity) for entity in entities]
+        embeddings = [model.get_vector(entity) if entity in model.key_to_index else np.zeros(model.vector_size)
+                      for entity in entities]
         # embeddings = model.encode(entities, convert_to_tensor=False)
         logging.info(f"Computed embeddings for {len(entities)} named entities.")
         return embeddings
