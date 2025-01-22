@@ -89,22 +89,31 @@ class ClusterNamedEntities:
         self.client.clear_scroll(scroll_id=scroll_id)
         return named_entities, doc_map
 
-    def compute_embeddings(self, entities: list):
+    def compute_embeddings(self, entities: list, encoder: str = "Word2Vec"):
         """
         Encode entities using SBERT model.
         :param entities: List of named entities to encode
+        :param encoder: Encoder to use for encoding the entities; should be one of the available models: SBERT, Word2Vec
         :return: List of encoded embeddings
         """
-        # https://github.com/piskvorky/gensim-data (22.01.2025)
-        #model = gensim.models.Word2Vec.load("glove-twitter-100")
-        model = api.load("word2vec-google-news-300")
-        # memory-friendly version if not retraining the model
-        # https://stackoverflow.com/questions/39549248/how-to-load-a-pre-trained-word2vec-model-file-and-reuse-it (22.01.2025)
-        model.init_sims(replace=True)
-        # model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
-        embeddings = [model.get_vector(entity) if entity in model.key_to_index else np.zeros(model.vector_size)
-                      for entity in entities]
-        # embeddings = model.encode(entities, convert_to_tensor=False)
+        assert encoder in ["SBERT", "Word2Vec"], "Invalid encoder specified. Choose from: SBERT, Word2Vec"
+        logging.info(f"Computing embeddings for {len(entities)} named entities using {encoder} encoder.")
+
+        if encoder == "SBERT":
+            model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
+            embeddings = model.encode(entities, convert_to_tensor=False)
+
+        else:
+            # https://github.com/piskvorky/gensim-data (22.01.2025)
+            model = api.load("word2vec-google-news-300")
+
+            # memory-friendly version if not retraining the model
+            # https://stackoverflow.com/questions/39549248/how-to-load-a-pre-trained-word2vec-model-file-and-reuse-it (22.01.2025)
+            model.init_sims(replace=True)
+
+            embeddings = [model.get_vector(entity) if entity in model.key_to_index else np.zeros(model.vector_size)
+                          for entity in entities]
+
         logging.info(f"Computed embeddings for {len(entities)} named entities.")
         return embeddings
 
@@ -184,11 +193,12 @@ class ClusterNamedEntities:
             logging.warning(f"No named entities found for category: {self.category}")
             return
 
-        # Step 2: Compute SBERT Embeddings
+        # Step 2: Compute Word2Vec Embeddings
         top_n_entities = self.get_top_n_entities(named_entities=named_entities)
         top_n_doc_maps = {entity: doc_map[entity] for entity in top_n_entities}
-        embeddings = self.compute_embeddings(entities=top_n_entities)
-        logging.info(f"Computed embeddings for {len(top_n_entities)} named entities.")
+        encoder = "Word2Vec"
+        embeddings = self.compute_embeddings(entities=top_n_entities, encoder=encoder)
+        logging.info(f"Computed embeddings for {len(top_n_entities)} named entities using {encoder}.")
 
         # Step 3: Compute Similarity Matrix
         similarity_matrix = self.calculate_similarity_matrix(embeddings=embeddings)
