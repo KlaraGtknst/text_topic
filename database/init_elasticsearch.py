@@ -1,6 +1,6 @@
 import logging
 import os
-
+from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
 from sentence_transformers import SentenceTransformer
 
@@ -124,14 +124,7 @@ class ESDatabase:
         model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
 
         for path in scan_recurse(base_directory=src_path):
-            if path.endswith('.pdf'):
-                text, success = extract_text_from_pdf(path, find_caption=True)
-            elif path.endswith('.txt'):
-                text, success = extract_text_from_txt(path)
-            elif path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
-                text = image_captioner.caption_image(path)  # generate caption for image
-            else:  # any other file type
-                text = path.split('/')[-1].split('.')[0]
+            text = self.obtain_text_from_file(image_captioner, path)
 
             id = get_hash_file(path)
             limit = min(10 ** 6, len(text))  # nlp.max_length: https://spacy.io/api/language
@@ -146,6 +139,67 @@ class ESDatabase:
             except Exception as e:
                 logging.error('error in embedding: ', e)
                 continue
+
+    def insert_text_related_fields_bulk(self, src_path: str):
+        """
+        Insert captions of images and texts of documents (.txt and .pdf) in the database.
+        Since text is used for the embeddings and named entities, these are also updated in the database.
+        The embeddings are generated using a SentenceTransformer (SBERT).
+        For more information: https://www.sbert.net/ (21.01.2025)
+
+        :param src_path: Path to the directory containing the documents (.txt and .pdf)
+        :return: -
+        """
+        logger.info('start with insert_text_related_fields_bulk()')
+
+        image_captioner = ImageCaptioner()
+        ner = named_entity_recognition.NamedEntityRecognition()
+        model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
+
+        actions = []  # List to hold bulk actions
+
+        for path in scan_recurse(base_directory=src_path):
+            try:
+                text = self.obtain_text_from_file(image_captioner, path)
+
+                id = get_hash_file(path)
+                limit = min(10 ** 6, len(text))  # nlp.max_length: https://spacy.io/api/language
+                named_entities = ner.get_named_entities_dictionary(text=text[:limit])
+
+                # Prepare the action for bulk
+                update_doc = {
+                    '_op_type': 'update',
+                    '_index': DatabaseAddr.DB_NAME.value,
+                    '_id': id,
+                    'doc': {'text': text, 'named_entities': named_entities, 'embedding': model.encode(text)},
+                    'doc_as_upsert': True,
+                }
+
+                actions.append(update_doc)
+
+            except Exception as e:
+                logger.error(f'Error processing file {path}: {e}')
+                continue
+
+        # Execute bulk update
+        try:
+            success, failed = bulk(self.client, actions, chunk_size=500)
+            logger.info(f"Successfully executed {success} actions.")
+            if failed:
+                logger.warning(f"Failed actions: {failed}")
+        except Exception as e:
+            logger.error(f"Bulk operation failed: {e}")
+
+    def obtain_text_from_file(self, image_captioner, path:str):
+        if path.endswith('.pdf'):
+            text, success = extract_text_from_pdf(path, find_caption=True)
+        elif path.endswith('.txt'):
+            text, success = extract_text_from_txt(path)
+        elif path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
+            text = image_captioner.caption_image(path)  # generate caption for image
+        else:  # any other file type
+            text = path.split('/')[-1].split('.')[0]
+        return text
 
     def insert_metadata(self, src_path: str):
         """
