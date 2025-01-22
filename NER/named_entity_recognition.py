@@ -23,6 +23,21 @@ class NamedEntityRecognition:
         logging.info(f"Obtained named entities")
         return named_entities
 
+    def get_named_entities_batch(self, texts: list):
+        """
+        Returns named entities from a batch of texts using spaCy's nlp.pipe for efficient processing.
+        :param texts: List of texts to analyze
+        :return: List of dictionaries where each dictionary contains the text and its named entities
+        """
+        # ensure all texts are no longer than limit: nlp.max_length: https://spacy.io/api/language
+        shorter_texts = [text[:min(10 ** 6, len(text))] for text in texts]
+
+        named_entities_bulk = []
+        for doc in self.nlp.pipe(shorter_texts, batch_size=50):  # Batch processing with optional batch size
+            named_entities = [(ent.text, ent.label_) for ent in doc.ents]
+            named_entities_bulk.append(named_entities)
+        return named_entities_bulk
+
     def get_named_entities_from_subset(self, text: str, subset_categories: list[str]):
         """
         Returns named entities from a subset of named entity types.

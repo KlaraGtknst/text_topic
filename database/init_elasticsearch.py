@@ -156,32 +156,27 @@ class ESDatabase:
         ner = named_entity_recognition.NamedEntityRecognition()
         model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
 
+        paths = scan_recurse(base_directory=src_path)
+        texts = [self.obtain_text_from_file(image_captioner, path) for path in paths]
+        named_entities_bulk = ner.get_named_entities_batch(texts)
+
         actions = []  # List to hold bulk actions
         logging.info('created empty actions list')
 
-        for path in scan_recurse(base_directory=src_path):
-            try:
-                text = self.obtain_text_from_file(image_captioner, path)
-
-                id = get_hash_file(path)
-                limit = min(10 ** 6, len(text))  # nlp.max_length: https://spacy.io/api/language
-                named_entities = ner.get_named_entities_dictionary(text=text[:limit])
-
-                # Prepare the action for bulk
-                update_doc = {
-                    '_op_type': 'update',
-                    '_index': DatabaseAddr.DB_NAME.value,
-                    '_id': id,
-                    'doc': {'text': text, 'named_entities': named_entities, 'embedding': model.encode(text)},
-                    'doc_as_upsert': True,
-                }
-
-                actions.append(update_doc)
-
-            except Exception as e:
-                logger.error(f'Error processing file {path}: {e}')
-                continue
-
+        for idx, named_entities in enumerate(named_entities_bulk):
+            id = get_hash_file(paths[idx])  # Assuming paths is the list of file paths
+            update_doc = {
+                '_op_type': 'update',
+                '_index': DatabaseAddr.DB_NAME.value,
+                '_id': id,
+                'doc': {
+                    'text': texts[idx],
+                    'named_entities': named_entities,
+                    'embedding': model.encode(texts[idx]),
+                },
+                'doc_as_upsert': True,
+            }
+            actions.append(update_doc)
         logging.info('finished creating actions list')
         # Execute bulk update
         try:
@@ -192,16 +187,25 @@ class ESDatabase:
         except Exception as e:
             logger.error(f"Bulk operation failed: {e}")
 
-    def obtain_text_from_file(self, image_captioner, path:str):
-        if path.endswith('.pdf'):
-            text, success = extract_text_from_pdf(path, find_caption=True)
-        elif path.endswith('.txt'):
-            text, success = extract_text_from_txt(path)
-        elif path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
-            text = image_captioner.caption_image(path)  # generate caption for image
-        else:  # any other file type
-            text = path.split('/')[-1].split('.')[0]
-        return text
+    def obtain_text_from_file(self, image_captioner, path: str):
+        """
+        Function to obtain the text from a file.
+        :param image_captioner: Instance of the ImageCaptioner class
+        :param path: Path to the file
+        :return: text (string)
+        """
+        try:
+            if path.endswith('.pdf'):
+                text, success = extract_text_from_pdf(path, find_caption=True)
+            elif path.endswith('.txt'):
+                text, success = extract_text_from_txt(path)
+            elif path.endswith('.png') or path.endswith('.jpg') or path.endswith('.jpeg'):
+                text = image_captioner.caption_image(path)  # generate caption for image
+            else:  # any other file type
+                text = path.split('/')[-1].split('.')[0]
+            return text
+        except Exception as e:
+            return str(e)
 
     def insert_metadata(self, src_path: str):
         """
