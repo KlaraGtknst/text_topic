@@ -3,6 +3,8 @@ from data.files import get_files
 from topic.topic_fca import *
 from topic.topic_modeling import TopicModel
 
+logger = logging.getLogger(__name__)
+
 if __name__ == '__main__':
     on_server = True
     init_debug_config(log_filename='run_topic_fca_', on_server=on_server)
@@ -50,8 +52,15 @@ if __name__ == '__main__':
     with open(dataset_path) as f:
         sentences = f.read().splitlines()
 
+    logging.info(f"Loaded {len(sentences)} sentences.")
+
     model = TopicModel(documents=sentences)
+    logging.info("Obtained topic model")
+
     topic_fca = TopicFCA()
+    logging.info("Obtained topic fca instance")
     # FIXME: doesn't work (top2vec.Top2Vec is no module)
     # model.load_model(path=model_path, filename='01_16_25topic_model_01_17_25' if on_server else 'topic_model')
     topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path, save_path=incidence_save_path, topic_model=model)
+
+    logging.info("The end")
