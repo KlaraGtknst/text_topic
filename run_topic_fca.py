@@ -11,10 +11,10 @@ if __name__ == '__main__':
     on_server = True
     init_debug_config(log_filename='run_topic_fca_', on_server=on_server)
     date = get_date()
-    path = constants.Paths.SERVER_DATA_PATH.value + '/Vehicles/' if on_server else (
+    path = constants.Paths.SERVER_DATA_PATH.value + '/Vehicles/' if on_server else (    # TODO: omit later
             constants.Paths.LOCAL_DATA_PATH.value + "/KDE_Projekt/sample_data_server/")
     model_path = constants.Paths.SERVER_PATH_TO_PROJECT.value + 'models/' if on_server else '../models/'
-    incidence_save_path = constants.Paths.SERVER_INC_SAVE_PATH.value + '/' + date + '/' if on_server else (
+    incidence_save_path = constants.Paths.SERVER_INC_SAVE_PATH.value + date + '/' if on_server else (
             constants.Paths.LOCAL_DATA_PATH.value + '/incidences/' + date + '/')
 
     # date = "01_08_25"
@@ -50,19 +50,18 @@ if __name__ == '__main__':
     #
     # # TODO: obtain intents efficiently via pcbo (terminal)
 
-    es_db = db.ESDatabase()
+    # run on pumbaa bc captioner
+    es_db = db.ESDatabase(client_addr=constants.DatabaseAddr.PUMBAA_CLIENT_ADDR.value)
     logging.info("Obtained Elasticsearch client")
 
     sentences = get_texts_from_docs(client=es_db.get_es_client())
     logging.info(f"Loaded {len(sentences)} sentences.")
 
-    model = TopicModel(documents=sentences)
+    model = TopicModel(documents=sentences[:500])   # TODO: omit later
     logging.info("Obtained topic model")
 
     topic_fca = TopicFCA()
     logging.info("Obtained topic fca instance")
-    # FIXME: doesn't work (top2vec.Top2Vec is no module)
-    # model.load_model(path=model_path, filename='01_16_25topic_model_01_17_25' if on_server else 'topic_model')
     topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path, save_path=incidence_save_path, topic_model=model)
 
     logging.info("The end")
