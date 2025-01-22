@@ -130,7 +130,7 @@ def get_named_entities_for_docs(client, key_name: str, nested_field_path: str = 
         }
     }
 
-    response = client.search(index=constants.DatabaseAddr.DB_NAME, body=query, scroll="2m")
+    response = client.search(index=constants.DatabaseAddr.DB_NAME.value, body=query, scroll="2m")
     scroll_id = response["_scroll_id"]
 
     # Process the first batch of results
@@ -172,7 +172,7 @@ def get_texts_from_docs(client, es_request_limit: int = 10000):
         }
     }
 
-    response = client.search(index=constants.DatabaseAddr.DB_NAME, body=query, scroll="2m")
+    response = client.search(index=constants.DatabaseAddr.DB_NAME.value, body=query, scroll="2m")
     scroll_id = response["_scroll_id"]
 
     # Process the first batch of results

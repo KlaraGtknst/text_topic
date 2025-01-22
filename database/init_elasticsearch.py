@@ -41,7 +41,7 @@ class ESDatabase:
         """
         logger.info('Started creating index')
 
-        self.client.indices.create(index=DatabaseAddr.DB_NAME, body={
+        self.client.indices.create(index=DatabaseAddr.DB_NAME.value, body={
             "mappings": {
                 "properties": {
                     "embedding": {
@@ -90,7 +90,7 @@ class ESDatabase:
 
         # delete old index and create new one
         if delete_old_index:
-            self.client.options(ignore_status=[400, 404]).indices.delete(index=DatabaseAddr.DB_NAME)
+            self.client.options(ignore_status=[400, 404]).indices.delete(index=DatabaseAddr.DB_NAME.value)
             self.init_db()
             logger.info('deleted old index and created new one')
 
