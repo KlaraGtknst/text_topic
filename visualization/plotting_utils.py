@@ -13,7 +13,8 @@ def obtain_low_dim_embs(high_dim_embs: list, reducer: str = 'PCA'):
     :return: Transformed embeddings in 2D using the specified dimensionality reduction technique.
     """
     if reducer == 'TSNE':
-        tsne = TSNE(n_components=2, n_jobs=1)
+        tsne = TSNE(n_components=2)
+        assert np.std(high_dim_embs[:, 0]) > 0, "The first dimension has no variance."
         transformed_embs = tsne.fit_transform(np.array(high_dim_embs))
     elif reducer == 'UMAP':
         umap_reducer = umap.UMAP(n_components=2)
