@@ -55,7 +55,6 @@ if __name__ == '__main__':
 
     sentences = get_texts_from_docs(client=es_db.get_es_client())
     logging.info(f"Loaded {len(sentences)} sentences.")
-    logging.info(sentences[:5])
 
     model = TopicModel(documents=sentences)
     logging.info("Obtained topic model")
