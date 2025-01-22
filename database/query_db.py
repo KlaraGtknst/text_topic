@@ -154,6 +154,44 @@ def get_named_entities_for_docs(client, key_name: str, nested_field_path: str = 
     return named_entities, doc_map
 
 
+def get_texts_from_docs(client, es_request_limit: int = 10000):
+    """
+    Fetch named entities of the specified category using the scroll API for large datasets.
+    :param client: Elasticsearch client
+    :param es_request_limit: Number of documents to fetch in each Elasticsearch request at a time.
+    :return: result of the query, a map of named entities to documents
+    """
+
+    texts = []
+
+    query = {
+        "size": es_request_limit,
+        '_source': ['text'],
+        'query': {
+            'match_all': {}
+        }
+    }
+
+    response = client.search(index=constants.DatabaseAddr.DB_NAME, body=query, scroll="2m")
+    scroll_id = response["_scroll_id"]
+
+    # Process the first batch of results
+    while True:
+        hits = response["hits"]["hits"]
+        if not hits:
+            break
+
+        for doc in hits:
+            texts.append(doc['_source']['text'])
+
+        # Fetch the next batch of results
+        response = client.scroll(scroll_id=scroll_id, scroll="2m")
+
+    # Clear the scroll context to free resources on the server
+    client.clear_scroll(scroll_id=scroll_id)
+    return texts
+
+
 # if __name__ == '__main__':
 #     es_db = db.Database()
 #

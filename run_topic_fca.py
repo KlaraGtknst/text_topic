@@ -1,7 +1,9 @@
 import constants
 from data.files import get_files
+from database.query_db import get_texts_from_docs
 from topic.topic_fca import *
 from topic.topic_modeling import TopicModel
+import database.init_elasticsearch as db
 
 logger = logging.getLogger(__name__)
 
@@ -48,10 +50,10 @@ if __name__ == '__main__':
     #
     # # TODO: obtain intents efficiently via pcbo (terminal)
 
-    dataset_path = constants.Paths.SERVER_PATH_TO_PROJECT.value + 'dataset/' + 'sentences_ETYNTKE01_16_25.txt'
-    with open(dataset_path) as f:
-        sentences = f.read().splitlines()
+    es_db = db.ESDatabase()
+    logging.info("Obtained Elasticsearch client")
 
+    sentences = get_texts_from_docs(client=es_db.get_es_client())
     logging.info(f"Loaded {len(sentences)} sentences.")
 
     model = TopicModel(documents=sentences)
