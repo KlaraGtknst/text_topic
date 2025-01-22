@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     # visualize named entity clusters
     save_path = constants.Paths.SERVER_PLOTS_SAVE_PATH.value + get_date() + "/cluster_NER/"
-    json_files = files.get_files(path=save_path, file_type='json')
+    json_files = files.get_files(path=constants.Paths.SERVER_PLOTS_SAVE_PATH.value + "/cluster_NER/", file_type='json')
     for reducer in ['TSNE', 'PCA', 'UMAP']:
         logging.info(f"Started with reducer: {reducer}")
         for file_path in tqdm.tqdm(json_files, desc='Producing plots of NER cluster files'):
