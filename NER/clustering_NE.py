@@ -101,7 +101,8 @@ class ClusterNamedEntities:
         # https://stackoverflow.com/questions/39549248/how-to-load-a-pre-trained-word2vec-model-file-and-reuse-it (22.01.2025)
         model.init_sims(replace=True)
         # model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
-        embeddings = model.encode(entities, convert_to_tensor=False)
+        embeddings = [model.get_vector(entity) for entity in entities]
+        # embeddings = model.encode(entities, convert_to_tensor=False)
         logging.info(f"Computed embeddings for {len(entities)} named entities.")
         return embeddings
 
