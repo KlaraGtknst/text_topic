@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class ESDatabase:
     def __init__(self, client_addr: str = DatabaseAddr.CLIENT_ADDR.value):
-        self.client = Elasticsearch(client_addr, request_timeout=60)
+        self.client = Elasticsearch(client_addr, request_timeout=100)
         init_debug_config(log_filename='init_elasticsearch_', on_server=True)
 
     def get_es_client(self):
