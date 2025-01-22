@@ -93,7 +93,8 @@ class ClusterNamedEntities:
         :param entities: List of named entities to encode
         :return: List of encoded embeddings
         """
-        model = gensim.models.Word2Vec.load("word2vec.model")
+        # https://github.com/piskvorky/gensim-data (22.01.2025)
+        model = gensim.models.Word2Vec.load("glove-twitter-100")
         # memory-friendly version if not retraining the model
         # https://stackoverflow.com/questions/39549248/how-to-load-a-pre-trained-word2vec-model-file-and-reuse-it (22.01.2025)
         model.init_sims(replace=True)
