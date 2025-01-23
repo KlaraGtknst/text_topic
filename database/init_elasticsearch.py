@@ -150,15 +150,19 @@ class ESDatabase:
         :param src_path: Path to the directory containing the documents (.txt and .pdf)
         :return: -
         """
-        logger.info('start with insert_text_related_fields_bulk()')
+        logging.info('start with insert_text_related_fields_bulk()')
 
         image_captioner = ImageCaptioner()
         ner = named_entity_recognition.NamedEntityRecognition()
+        logging.info('created image_captioner and ner instance')
         model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L-12-v3')
+        logging.info('created embedding model instance')
 
         paths = scan_recurse(base_directory=src_path)
         texts = [self.obtain_text_from_file(image_captioner, path) for path in paths]
+        logging.info('obtained texts')
         named_entities_bulk = ner.get_named_entities_batch(texts)
+        logging.info('obtained named entities bulk')
 
         actions = []  # List to hold bulk actions
         logging.info('created empty actions list')
