@@ -11,7 +11,7 @@ if __name__ == '__main__':
     on_server = True
     init_debug_config(log_filename='run_topic_fca_', on_server=on_server)
     date = get_date()
-    path = constants.Paths.SERVER_DATA_PATH.value + '/Vehicles/' if on_server else (    # TODO: omit later
+    path = constants.Paths.SERVER_DATA_PATH.value if on_server else (    # TODO: omit later: + '/Vehicles/'
             constants.Paths.LOCAL_DATA_PATH.value + "/KDE_Projekt/sample_data_server/")
     model_path = constants.Paths.SERVER_PATH_TO_PROJECT.value + 'models/' if on_server else '../models/'
     incidence_save_path = constants.Paths.SERVER_INC_SAVE_PATH.value + date + '/' if on_server else (
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     sentences = get_texts_from_docs(client=es_db.get_es_client())
     logging.info(f"Loaded {len(sentences)} sentences.")
 
-    model = TopicModel(documents=sentences[:500])   # TODO: omit later
+    model = TopicModel(documents=sentences)   # TODO: omit later [:500]
     logging.info("Obtained topic model")
 
     topic_fca = TopicFCA()
