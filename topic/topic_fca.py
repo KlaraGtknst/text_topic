@@ -235,7 +235,9 @@ class TopicFCA:
         # obtain all subdirectories
         for current_directory, subdirectories, files in os.walk(parent_path):
             logging.info(f"iteration: current_directory: {current_directory}, subdirectories: {subdirectories}, files: {files}")
-            parent_dir_name = current_directory.split("/")[-1] if "/" in current_directory else current_directory
+
+            parent_dir_name = current_directory.split("/")[-2] \
+                if "/" in current_directory and current_directory.endswith("/") else current_directory
             logging.info(f"Current directory: {parent_dir_name}; starting now")
             for subdir in subdirectories:
                 self.obtain_doc_topic_inc_per_subdir(parent_path=parent_path + subdir + "/", save_path=save_path,
@@ -246,8 +248,8 @@ class TopicFCA:
 
             # obtain the document-topic incidence for the current directory
             # obtain texts
-            text_files = [current_directory + path for path in files if
-                          (path.endswith(('.txt', '.pdf', '.png', '.jpg', '.jpeg')))]
+            text_files = [current_directory + file for file in files if
+                          (file.endswith(('.txt', '.pdf', '.png', '.jpg', '.jpeg')))]
             texts = [extract_text_from_pdf(path, find_caption=True)[0] for path in text_files]
             logging.info(f"Obtained texts for {parent_dir_name}")
 
