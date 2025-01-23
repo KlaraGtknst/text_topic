@@ -253,10 +253,12 @@ class TopicFCA:
             texts = [extract_text_from_pdf(path, find_caption=True)[0] for path in text_files]
             logging.info(f"Obtained texts for {parent_dir_name}")
 
+            incidence_save_path = save_path + parent_dir_name + '/'
+
             doc_topic_incidence = topic_model.get_document_topic_incidence(doc_ids=np.arange(len(texts)))
-            save_df_to_csv(df=doc_topic_incidence, path=save_path + parent_dir_name,
+            save_df_to_csv(df=doc_topic_incidence, path=incidence_save_path,
                            file_name=f"{parent_dir_name}_doc_topic_incidence_{date}")
-            logging.info(f"Obtained & saved doc-topic incidence for {parent_dir_name}")
+            logging.info(f"Obtained & saved doc-topic incidence for {parent_dir_name}: saved under path: {incidence_save_path}{parent_dir_name}_doc_topic_incidence_{date}")
 
             # determine optimal threshold for document-topic incidence
             threshold, row_norm_doc_topic_df = topic_model.determine_threshold_doc_topic_threshold(doc_topic_incidence,
@@ -265,24 +267,24 @@ class TopicFCA:
             logging.info(f"Optimal threshold for {parent_dir_name}: {threshold}")
             thres_row_norm_doc_topic_df = topic_model.apply_threshold_doc_topic_incidence(row_norm_doc_topic_df,
                                                                                           threshold=threshold)
-            save_df_to_csv(df=thres_row_norm_doc_topic_df, path=save_path + parent_dir_name,
+            save_df_to_csv(df=thres_row_norm_doc_topic_df, path=incidence_save_path,
                            file_name=f"{parent_dir_name}_thres_row_norm_doc_topic_incidence_{date}")
-            logging.info(f"Obtained & saved thresholded doc-topic incidence for {parent_dir_name} under path: {save_path + parent_dir_name}{parent_dir_name}_thres_row_norm_doc_topic_incidence_{date}")
+            logging.info(f"Obtained & saved thresholded doc-topic incidence for {parent_dir_name} under path: {incidence_save_path}{parent_dir_name}_thres_row_norm_doc_topic_incidence_{date}")
 
             # translate docs IDs to document names
             translated_thres_row_norm_doc_topic_incidence = thres_row_norm_doc_topic_df.rename(
                 index={i: text_files[i] for i in range(len(text_files))})
-            save_df_to_csv(df=translated_thres_row_norm_doc_topic_incidence, path=save_path + parent_dir_name,
+            save_df_to_csv(df=translated_thres_row_norm_doc_topic_incidence, path=incidence_save_path,
                            file_name=f"{parent_dir_name}_translated_thres_row_norm_doc_topic_incidence_{date}")
-            logging.info(f"Translated doc IDs to document names for {parent_dir_name}.\nSaved under path: {save_path + parent_dir_name}{parent_dir_name}_translated_thres_row_norm_doc_topic_incidence_{date}")
+            logging.info(f"Translated doc IDs to document names for {parent_dir_name}.\nSaved under path: {incidence_save_path}{parent_dir_name}_translated_thres_row_norm_doc_topic_incidence_{date}")
 
             # term-topic incidence
-            save_path_topic_words = save_path + parent_dir_name + f"/{parent_dir_name}_topic2terms_{date}.json"
+            save_path_topic_words = incidence_save_path + f"{parent_dir_name}_topic2terms_{date}.json"
             term_topic_incidence = topic_model.get_term_topic_incidence(doc_ids=np.arange(len(texts)),
                                                                         save_path_topic_words=save_path_topic_words)
-            save_df_to_csv(term_topic_incidence, save_path + parent_dir_name,
-                           f"{parent_dir_name}_term_topic_incidence_{date}")
-            logging.info(f"Obtained & saved term-topic incidence for {parent_dir_name} under path: {save_path_topic_words}")
+            save_df_to_csv(df=term_topic_incidence, path=incidence_save_path,
+                           file_name=f"{parent_dir_name}_term_topic_incidence_{date}")
+            logging.info(f"Obtained & saved term-topic incidence for {parent_dir_name} under path: {incidence_save_path}")
             logging.info(f"Finished {parent_dir_name}")
 
 # if __name__ == '__main__':
