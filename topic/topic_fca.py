@@ -230,15 +230,21 @@ class TopicFCA:
         :return:
         """
         logging.info(f"Parent directory: {parent_path}")
+        if not parent_path.endswith("/"):
+            parent_path += "/"
         date = get_date()
 
         # obtain all subdirectories
         for current_directory, subdirectories, files in os.walk(parent_path):
             logging.info(f"iteration: current_directory: {current_directory}, subdirectories: {subdirectories}, files: {files}")
 
-            parent_dir_name = current_directory.split("/")[-2] \
-                if "/" in current_directory and current_directory.endswith("/") else current_directory
+            if '/' in current_directory:
+                parent_dir_name = current_directory.split("/")[-2] \
+                    if current_directory.endswith("/") else current_directory.split("/")[-1]
+            else:
+                parent_dir_name = current_directory
             logging.info(f"Current directory: {parent_dir_name}; starting now")
+
             for subdir in subdirectories:
                 self.obtain_doc_topic_inc_per_subdir(parent_path=parent_path + subdir + "/", save_path=save_path,
                                                      topic_model=topic_model)  # recursive call
@@ -254,6 +260,7 @@ class TopicFCA:
             logging.info(f"Obtained texts for {parent_dir_name}")
 
             incidence_save_path = save_path + parent_dir_name + '/'
+            logging.info(f"Incidence save path is: {incidence_save_path}")
 
             doc_topic_incidence = topic_model.get_document_topic_incidence(doc_ids=np.arange(len(texts)))
             save_df_to_csv(df=doc_topic_incidence, path=incidence_save_path,
