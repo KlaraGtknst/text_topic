@@ -234,7 +234,7 @@ class TopicFCA:
 
         # obtain all subdirectories
         for current_directory, subdirectories, files in os.walk(parent_path):
-            parent_dir_name = current_directory.split("/")[-1]
+            parent_dir_name = current_directory.split("/")[-1] if "/" in current_directory else current_directory
             logging.info(f"Current directory: {parent_dir_name}; starting now")
             for subdir in subdirectories:
                 self.obtain_doc_topic_inc_per_subdir(parent_path=parent_path + subdir + "/", save_path=save_path,
@@ -264,22 +264,22 @@ class TopicFCA:
                                                                                           threshold=threshold)
             save_df_to_csv(df=thres_row_norm_doc_topic_df, path=save_path + parent_dir_name,
                            file_name=f"{parent_dir_name}_thres_row_norm_doc_topic_incidence_{date}")
-            logging.info(f"Obtained & saved thresholded doc-topic incidence for {parent_dir_name}")
+            logging.info(f"Obtained & saved thresholded doc-topic incidence for {parent_dir_name} under path: {save_path + parent_dir_name}{parent_dir_name}_thres_row_norm_doc_topic_incidence_{date}")
 
             # translate docs IDs to document names
             translated_thres_row_norm_doc_topic_incidence = thres_row_norm_doc_topic_df.rename(
                 index={i: text_files[i] for i in range(len(text_files))})
             save_df_to_csv(df=translated_thres_row_norm_doc_topic_incidence, path=save_path + parent_dir_name,
                            file_name=f"{parent_dir_name}_translated_thres_row_norm_doc_topic_incidence_{date}")
-            logging.info(f"Translated doc IDs to document names for {parent_dir_name}")
+            logging.info(f"Translated doc IDs to document names for {parent_dir_name}.\nSaved under path: {save_path + parent_dir_name}{parent_dir_name}_translated_thres_row_norm_doc_topic_incidence_{date}")
 
             # term-topic incidence
+            save_path_topic_words = save_path + parent_dir_name + f"/{parent_dir_name}_topic2terms_{date}.json"
             term_topic_incidence = topic_model.get_term_topic_incidence(doc_ids=np.arange(len(texts)),
-                                                                        save_path=save_path + parent_dir_name +
-                                                                                  f"/{parent_dir_name}_topic2terms_{date}.json")
+                                                                        save_path_topic_words=save_path_topic_words)
             save_df_to_csv(term_topic_incidence, save_path + parent_dir_name,
                            f"{parent_dir_name}_term_topic_incidence_{date}")
-            logging.info(f"Obtained & saved term-topic incidence for {parent_dir_name}")
+            logging.info(f"Obtained & saved term-topic incidence for {parent_dir_name} under path: {save_path_topic_words}")
             logging.info(f"Finished {parent_dir_name}")
 
 # if __name__ == '__main__':
