@@ -234,6 +234,7 @@ class TopicFCA:
 
         # obtain all subdirectories
         for current_directory, subdirectories, files in os.walk(parent_path):
+            logging.info(f"iteration: current_directory: {current_directory}, subdirectories: {subdirectories}, files: {files}")
             parent_dir_name = current_directory.split("/")[-1] if "/" in current_directory else current_directory
             logging.info(f"Current directory: {parent_dir_name}; starting now")
             for subdir in subdirectories:
