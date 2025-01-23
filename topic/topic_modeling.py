@@ -1,6 +1,6 @@
 import datetime
 import json
-
+import logging
 import numpy as np
 import pandas as pd
 import tqdm
@@ -163,12 +163,21 @@ class TopicModel:
                            for topic_num in range(num_topics)}
 
         if save_path_topic_words:
-            exists_or_create(path=''.join(save_path_topic_words.split('/')[:-1]))
+            exists_or_create(path='/'.join(save_path_topic_words.split('/')[:-1]))
             if not save_path_topic_words.endswith('.json'):
                 save_path_topic_words += '.json'
+
+            # Convert sets to lists
+            terms_per_topic_serializable = {
+                topic_num: list(terms)
+                for topic_num, terms in terms_per_topic.items()
+            }
+            print("Made terms per topic serializable")
+
             # Save to JSON file
             with open(save_path_topic_words, "w") as f:
-                json.dump(terms_per_topic, f, indent=4)
+                json.dump(terms_per_topic_serializable, f, indent=4)
+            print(f"Saved terms per topic to {save_path_topic_words}")
 
         print("obtained terms per topic")
         term_topic_columns = {term: [term in terms_per_topic[topic_num] for topic_num in range(num_topics)] for term in
