@@ -16,6 +16,8 @@ if __name__ == '__main__':
     model_path = constants.Paths.SERVER_PATH_TO_PROJECT.value + 'models/' if on_server else '../models/'
     incidence_save_path = constants.Paths.SERVER_INC_SAVE_PATH.value + date + '/' if on_server else (
             constants.Paths.LOCAL_DATA_PATH.value + '/incidences/' + date + '/')
+    fca_save_path = constants.Paths.SERVER_FCA_SAVE_PATH.value + date + '/' if on_server else (
+            constants.Paths.LOCAL_DATA_PATH.value + '/fca_res/' + date + '/')
 
     # date = "01_08_25"
     # save_date = "01_14_25_02"
@@ -62,6 +64,6 @@ if __name__ == '__main__':
 
     topic_fca = TopicFCA()
     logging.info("Obtained topic fca instance")
-    topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path, save_path=incidence_save_path, topic_model=model)
+    topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path, save_path=fca_save_path, topic_model=model)
 
     logging.info("The end")
