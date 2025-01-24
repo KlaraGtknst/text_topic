@@ -11,7 +11,7 @@ if __name__ == '__main__':
     on_server = True
     init_debug_config(log_filename='run_topic_fca_', on_server=on_server)
     date = get_date()
-    path = constants.Paths.SERVER_DATA_PATH.value + '/Firearms/' if on_server else (    # TODO: omit later: + '/Vehicles/'
+    path = constants.Paths.SERVER_DATA_PATH.value if on_server else (    # TODO: omit later: + '/Vehicles/'  + '/Firearms/'
             constants.Paths.LOCAL_DATA_PATH.value + "/KDE_Projekt/sample_data_server/")
     model_path = constants.Paths.SERVER_PATH_TO_PROJECT.value + 'models/' if on_server else '../models/'
     incidence_save_path = constants.Paths.SERVER_INC_SAVE_PATH.value + date + '/' if on_server else (
@@ -64,6 +64,14 @@ if __name__ == '__main__':
 
     topic_fca = TopicFCA()
     logging.info("Obtained topic fca instance")
-    topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path, save_path=fca_save_path, topic_model=model, recursive=False)
+
+    if not path.endswith('/'):
+        path = path + '/'
+
+    for current_directory, subdirectories, files in os.walk(path):
+        for sub_dir in subdirectories:
+            logging.info(f"Starting to obtain doc-topic incidence for subdirectory {sub_dir}")
+            topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path + sub_dir + '/', save_path=fca_save_path,
+                                                      topic_model=model, recursive=True)
 
     logging.info("The end")
