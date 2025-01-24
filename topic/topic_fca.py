@@ -220,13 +220,14 @@ class TopicFCA:
 
         return [list(self.reconstruct_concept_from_intent(ctx, input_intent)) for input_intent in intents]
 
-    def obtain_doc_topic_inc_per_subdir(self, parent_path: str, save_path: str, topic_model):
+    def obtain_doc_topic_inc_per_subdir(self, parent_path: str, save_path: str, topic_model, recursive: bool = True):
         """
         Obtain the document-topic incidence for each subdirectory in the parent directory.
         If a Subdirectory contains a directory, the function is called recursively.
         :param parent_path: Path to the uppermost directory regarded
         :param save_path: Path to save the document-topic incidence, including the '/' at the end
         :param topic_model: Topic model
+        :param recursive: If True, the function is called recursively for each subdirectory
         :return:
         """
         logging.info(f"Parent directory: {parent_path}")
@@ -245,9 +246,10 @@ class TopicFCA:
                 parent_dir_name = current_directory
             logging.info(f"Current directory: {parent_dir_name}; starting now")
 
-            for subdir in subdirectories:
-                self.obtain_doc_topic_inc_per_subdir(parent_path=parent_path + subdir + "/", save_path=save_path,
-                                                     topic_model=topic_model)  # recursive call
+            if recursive:
+                for subdir in subdirectories:
+                    self.obtain_doc_topic_inc_per_subdir(parent_path=parent_path + subdir + "/", save_path=save_path,
+                                                         topic_model=topic_model, recursive=recursive)  # recursive call
 
             exists_or_create(save_path + parent_dir_name)
             logging.info(f"Created: {save_path + parent_dir_name}")
