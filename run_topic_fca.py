@@ -71,7 +71,10 @@ if __name__ == '__main__':
     for current_directory, subdirectories, files in os.walk(path):
         for sub_dir in subdirectories:
             logging.info(f"Starting to obtain doc-topic incidence for subdirectory {sub_dir}")
+            if sub_dir in ['Firearm Manuals', 'Law (re Firearms)', 'Machine Guns']: #'Firearms', exists, but always kills
+                continue
             topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path + sub_dir + '/', save_path=fca_save_path,
                                                       topic_model=model, recursive=True)
+            logging.info(f"Finished obtaining doc-topic incidence for subdirectory {sub_dir}")
 
     logging.info("The end")
