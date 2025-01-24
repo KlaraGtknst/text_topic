@@ -64,6 +64,6 @@ if __name__ == '__main__':
 
     topic_fca = TopicFCA()
     logging.info("Obtained topic fca instance")
-    topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path, save_path=fca_save_path, topic_model=model)
+    topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path, save_path=fca_save_path, topic_model=model, recursive=False)
 
     logging.info("The end")
