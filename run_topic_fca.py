@@ -11,7 +11,7 @@ if __name__ == '__main__':
     on_server = True
     init_debug_config(log_filename='run_topic_fca_', on_server=on_server)
     date = get_date()
-    path = constants.Paths.SERVER_DATA_PATH.value + 'Firearms' if on_server else (    # TODO: omit later: + '/Vehicles/'
+    path = constants.Paths.SERVER_DATA_PATH.value + '/Firearms/' if on_server else (    # TODO: omit later: + '/Vehicles/'
             constants.Paths.LOCAL_DATA_PATH.value + "/KDE_Projekt/sample_data_server/")
     model_path = constants.Paths.SERVER_PATH_TO_PROJECT.value + 'models/' if on_server else '../models/'
     incidence_save_path = constants.Paths.SERVER_INC_SAVE_PATH.value + date + '/' if on_server else (
