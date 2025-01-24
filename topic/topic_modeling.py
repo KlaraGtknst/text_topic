@@ -232,9 +232,11 @@ class TopicModel:
         plt.legend()
         plt.title(title)
         if save_path:
+            if not save_path.endswith('/'):
+                save_path += '/'
             date = datetime.datetime.now().strftime('%x').replace('/', '_')
             exists_or_create(path=save_path)
-            plt.savefig(save_path + title + date + '.svg', format='svg')
+            plt.savefig(save_path + title + '_' + date + '.svg', format='svg')
         plt.show()
         return densities, thresholds, opt_threshold
 
