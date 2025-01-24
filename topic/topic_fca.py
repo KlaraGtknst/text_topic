@@ -270,7 +270,7 @@ class TopicFCA:
             # determine optimal threshold for document-topic incidence
             threshold, row_norm_doc_topic_df = topic_model.determine_threshold_doc_topic_threshold(doc_topic_incidence,
                                                                                                    opt_density=0.1,
-                                                                                                   save_path=save_path + parent_dir_name)
+                                                                                                   save_path=incidence_save_path)
             logging.info(f"Optimal threshold for {parent_dir_name}: {threshold}")
             thres_row_norm_doc_topic_df = topic_model.apply_threshold_doc_topic_incidence(row_norm_doc_topic_df,
                                                                                           threshold=threshold)
