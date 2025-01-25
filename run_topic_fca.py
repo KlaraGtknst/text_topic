@@ -71,7 +71,7 @@ if __name__ == '__main__':
     for current_directory, subdirectories, files in os.walk(path):
         for sub_dir in subdirectories:
             logging.info(f"Starting to obtain doc-topic incidence for subdirectory {sub_dir}")
-            if sub_dir in ['Firearm Manuals', 'Law (re Firearms)', 'Machine Guns', 'Firearms']:
+            if sub_dir in ['Firearm Manuals', 'Law (re Firearms)', 'Machine Guns', 'Firearms', '12-volt Guide - Junk Science', 'Camouflage and Concealment', 'Home Power Magazine', 'Marksmanship and Sniping', 'Energy and Fuel', 'Issues 1 - 42', 'Robotics', 'Exotic Weapons', 'ng & Caching', 'Knives, Swords']:
                 continue
             topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path + sub_dir + '/', save_path=fca_save_path,
                                                       topic_model=model, recursive=False)
