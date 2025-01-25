@@ -43,7 +43,18 @@ class TopicFCA:
             logging.info(f"loaded context from txt file")
             return Context.fromstring(read_string_context)
 
-    def csv2ctx(self, path_to_file: str, filename: str, prefix: str = "doc_"):
+    def _apply_prefix_action(self, original:str, prefix:str, strip_prefix:bool=False):
+        """
+        Apply the prefix action.
+        :param original: Original string
+        :param prefix: Prefix to add if strip_prefix is False
+        :param strip_prefix: If True, the prefix is stripped from the objects and attributes.
+            This is useful when the goal is to reduce the size of context diagram.
+        :return: Modified string
+        """
+        return original.split("_")[-1] if strip_prefix else prefix + original
+
+    def csv2ctx(self, path_to_file: str, filename: str, prefix: str = "doc_", strip_prefix: bool = False):
         """
         Load a context from a csv file.
         The entries in the csv file are expected to be 0 or 1.
@@ -55,12 +66,16 @@ class TopicFCA:
         :param path_to_file: Path to the csv file including the '/' at the end
         :param filename: Complete filename of the csv file including the type extension
         :param prefix: Prefix of the object ids; might be either "doc_" or "term_"
+        :param strip_prefix: If True, the prefix is stripped from the objects and attributes.
+            This is useful when the goal is to reduce the size of context diagram.
         :return: Formal context
         """
         df = pd.read_csv(path_to_file + filename, index_col=0)
         df = df.map(lambda x: True if x == 1 else False)
-        df.set_index(np.array([prefix + str(doc_id) for doc_id in df.index.tolist()]), inplace=True)
-        df.columns = np.array(["topic_" + str(topic_id) for topic_id in df.columns.tolist()])
+        df.set_index(np.array([self._apply_prefix_action(original=str(doc_id), prefix=prefix, strip_prefix=strip_prefix)
+                               for doc_id in df.index.tolist()]), inplace=True)
+        df.columns = np.array([self._apply_prefix_action(original=str(topic_id), prefix="topic_",
+                                                         strip_prefix=strip_prefix) for topic_id in df.columns.tolist()])
 
         new_filename = "read_context_" + filename.split(".")[0]
         ctx_version1 = FormalContext.from_pandas(df)
