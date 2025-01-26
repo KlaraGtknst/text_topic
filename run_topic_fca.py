@@ -16,7 +16,7 @@ if __name__ == '__main__':
     model_path = constants.Paths.SERVER_PATH_TO_PROJECT.value + 'models/' if on_server else '../models/'
     incidence_save_path = constants.Paths.SERVER_INC_SAVE_PATH.value + date + '/' if on_server else (
             constants.Paths.LOCAL_DATA_PATH.value + '/incidences/' + date + '/')
-    incidence_save_path_yesterday = constants.Paths.SERVER_INC_SAVE_PATH.value + '01_24_25/' if on_server else (
+    incidence_save_path_yesterday = constants.Paths.SERVER_INC_SAVE_PATH.value + '01_25_25/' if on_server else (
             constants.Paths.LOCAL_DATA_PATH.value + '/incidences/' + date + '/')
     fca_save_path = constants.Paths.SERVER_FCA_SAVE_PATH.value + date + '/' if on_server else (
             constants.Paths.LOCAL_DATA_PATH.value + '/fca_res/' + date + '/')
