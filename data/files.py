@@ -1,5 +1,7 @@
 import glob
 import json
+
+import pandas as pd
 import pypdf as pdf
 import hashlib
 import warnings
@@ -217,6 +219,38 @@ def pdf2png(pdf_path: str, png_path: str, page_num: int):
     except Exception as e:
         print(f"Error converting pdf to png: {e}")
         pass
+
+def csv_to_fca_json(csv_file:str, output_file:str):
+    """
+    This function converts a CSV file to a JSON file in the format required for the FCA visualization
+    using https://latviz.loria.fr/ (26.01.2025).
+    :param csv_file: Path to the CSV file
+    :param output_file: Path to save the JSON file
+    :return: -
+    """
+    # Load CSV into a DataFrame
+    df = pd.read_csv(csv_file, index_col=0)
+
+    # Extract object names and attribute names
+    obj_names = df.index.tolist()
+    attr_names = df.columns.tolist()
+
+    # Prepare the Data list
+    data_list = []
+    for attr_index, attr_name in enumerate(attr_names):
+        inds = df.index[df[attr_name] == 1].tolist()  # Indices of rows where the attribute is 1
+        data_list.append({"Count": len(inds), "Inds": inds})
+
+    # Create the JSON structure
+    fca_json = [
+        {"ObjNames": obj_names, "Params": {"AttrNames": attr_names}},
+        {"Count": len(obj_names), "Data": data_list}
+    ]
+
+    # Save to JSON
+    with open(output_file, "w") as f:
+        json.dump(fca_json, f, indent=4)
+    print(f"FCA JSON saved to {output_file}")
 
 # if __name__ == '__main__':
 #     local = True
