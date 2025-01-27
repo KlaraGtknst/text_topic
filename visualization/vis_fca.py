@@ -9,15 +9,16 @@ from topic.topic_fca import TopicFCA
 logger = logging.getLogger(__name__)
 
 
-def display_context(path2csv: str, save_path: str, filename_of_csv: str):
+def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_server: bool = False):
     """
     This function displays the context as a graph and saves it.
     :param path2csv: Path to the csv file that contains the context
     :param save_path: Path to the directory where the graph should be saved. Should end with '/'
     :param filename_of_csv: Filename of the csv file that contains the context
+    :param on_server: Boolean indicating whether the code is running on the server or locally
     :return: -
     """
-    topic_fca = TopicFCA(on_server=False)
+    topic_fca = TopicFCA(on_server=on_server)
     osm.exists_or_create(path=save_path)
 
     # Load the context
