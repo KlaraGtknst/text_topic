@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # display_context(path2csv=path2across_dir_csv, save_path=save_path, filename_of_csv=filename_of_csv, on_server=on_server)
 
     # single-dir-incidence-matrix
-    use_translated = True
+    use_translated = False
     fca_single_dir_save_path = save_path + 'single_dir_contexts/'
     if use_translated:
         fca_single_dir_save_path += 'translated/'
