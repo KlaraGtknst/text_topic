@@ -9,17 +9,22 @@ from topic.topic_fca import TopicFCA
 logger = logging.getLogger(__name__)
 
 
-def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_server: bool = False):
+def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_server: bool = False,
+                    translated: bool = False):
     """
     This function displays the context as a graph and saves it.
     :param path2csv: Path to the csv file that contains the context
     :param save_path: Path to the directory where the graph should be saved. Should end with '/'
     :param filename_of_csv: Filename of the csv file that contains the context
     :param on_server: Boolean indicating whether the code is running on the server or locally
+    :param translated: Boolean indicating whether the document/ directory names should translated in the graph
+        (i.e. not IDs)
     :return: -
     """
     if "thres" in filename_of_csv:
-        if ("translated" in filename_of_csv) or ("term" in filename_of_csv):
+        if ((("translated" in filename_of_csv) and (not translated))  # use translated document/ directory names
+                or ((not "translated" in filename_of_csv) and translated)  # use IDs
+                or ("term" in filename_of_csv)):
             return
 
         if not save_path.endswith('/'):
@@ -31,12 +36,15 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
         # else -> likely to be single-dir-incidence-matrix -> no need to strip prefix
         ctx = topic_fca.csv2ctx(path_to_file=path2csv, filename=filename_of_csv, strip_prefix=(not on_server))
         if ctx:
-            print(save_path)
+
             osm.exists_or_create(path=save_path)
             add_id = filename_of_csv.split("_")[0] if on_server else "across_dirs"
-            print(add_id)
+            filename = f"fca_graph_{add_id}_{logging_utils.get_date()}"
+            if translated:
+                filename += "_translated"
+
             ctx.lattice.graphviz(view=(not on_server), render=True,
-                                 filename=save_path + f"fca_graph_{add_id}_{logging_utils.get_date()}", format='svg',
+                                 filename=save_path + filename, format='svg',
                                  directory=save_path)
 
 # if __name__ == "__main__":

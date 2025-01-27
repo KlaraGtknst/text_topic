@@ -62,7 +62,7 @@ if __name__ == '__main__':
         for dir in files.get_files(path=path2single_csv, file_type='csv', recursive=on_server):
             logging.info(f"Started with dir: {dir}")
             display_context(path2csv='/'.join(dir.split('/')[:-1]), save_path=save_path + 'single_dir_contexts/',
-                            filename_of_csv=dir.split('/')[-1], on_server=on_server)
+                            filename_of_csv=dir.split('/')[-1], on_server=on_server, translated=True)
             logging.info(f"Finished with dir: {dir}")
 
     logging.info('Finished visualizations')
