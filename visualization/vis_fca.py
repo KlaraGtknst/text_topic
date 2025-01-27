@@ -31,8 +31,10 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
         # else -> likely to be single-dir-incidence-matrix -> no need to strip prefix
         ctx = topic_fca.csv2ctx(path_to_file=path2csv, filename=filename_of_csv, strip_prefix=(not on_server))
         if ctx:
+            print(save_path)
             osm.exists_or_create(path=save_path)
             add_id = filename_of_csv.split("_")[0] if on_server else "across_dirs"
+            print(add_id)
             ctx.lattice.graphviz(view=(not on_server), filename=save_path + f"fca_graph_{add_id}_{logging_utils.get_date()}", format='svg',
                              directory=save_path)
 
