@@ -21,6 +21,9 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
     if "thres" in filename_of_csv:
         if ("translated" in filename_of_csv) or ("term" in filename_of_csv):
             return
+
+        if not save_path.endswith('/'):
+            save_path = save_path + '/'
         topic_fca = TopicFCA(on_server=on_server)
         osm.exists_or_create(path=save_path)
 
