@@ -57,9 +57,12 @@ if __name__ == '__main__':
     # single-dir-incidence-matrix
     osm.exists_or_create(path=save_path + 'single_dir_contexts/')
     if on_server:
-        path2single_csv = "/norgay/bigstore/kgu/dev/text_topic/results/fca/01_27_25/"
+        path2single_csv = f"/norgay/bigstore/kgu/dev/text_topic/results/fca/{date}/"
+        logging.info(f"Path to single csv files: {path2single_csv}")
         for dir in files.get_files(path=path2single_csv, file_type='csv', recursive=False):
+            logging.info(f"Started with dir: {dir}")
             display_context(path2csv=dir, save_path=save_path + 'single_dir_contexts/',
                             filename_of_csv=dir.split('/')[-1], on_server=on_server)
+            logging.info(f"Finished with dir: {dir}")
 
     logging.info('Finished visualizations')
