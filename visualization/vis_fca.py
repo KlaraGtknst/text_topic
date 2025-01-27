@@ -1,6 +1,9 @@
 import logging
+
+import constants
 import utils.logging_utils as logging_utils
 import utils.os_manipulation as osm
+import data.files as files
 from topic.topic_fca import TopicFCA
 
 logger = logging.getLogger(__name__)
@@ -27,7 +30,21 @@ if __name__ == "__main__":
     on_server = False
     date = logging_utils.get_date()
     # logging_utils.init_debug_config(log_filename='vis_fca_', on_server=on_server)
-    path2csv = "/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/fca-dir-concepts/across-dir/"
-    save_path = f"/Users/klara/Developer/Uni/WiSe2425/text_topic/results/fca/{date}/"
+    path2across_dir_csv = "/norgay/bigstore/kgu/dev/clj_exploration_leaks/results/fca-dir-concepts/across-dir/" if (
+        on_server) else "/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/fca-dir-concepts/across-dir/"
+    save_path = constants.Paths.SERVER_FCA_SAVE_PATH.value + date + '/' if on_server else \
+        f"/Users/klara/Developer/Uni/WiSe2425/text_topic/results/fca/{date}/"
     filename_of_csv = "server-across-dir-incidence-matrix.csv"  # "across-dir-incidence-matrix.csv"
-    display_context(path2csv=path2csv, save_path=save_path, filename_of_csv=filename_of_csv)
+
+    # across-dir-incidence-matrix
+    osm.exists_or_create(path=save_path)
+    display_context(path2csv=path2across_dir_csv, save_path=save_path, filename_of_csv=filename_of_csv)
+
+    # single-dir-incidence-matrix
+    osm.exists_or_create(path=save_path + 'single_dir_contexts/')
+    if on_server:
+        path2single_csv = "/norgay/bigstore/kgu/dev/text_topic/results/fca/01_27_25/"
+        for dir in files.get_files(path=path2single_csv, file_type='csv', recursive=False):
+            display_context(path2csv=dir, save_path=save_path + 'single_dir_contexts/',
+                            filename_of_csv=dir.split('/')[-1])
+
