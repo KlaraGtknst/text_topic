@@ -18,13 +18,16 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
     :param on_server: Boolean indicating whether the code is running on the server or locally
     :return: -
     """
-    topic_fca = TopicFCA(on_server=on_server)
-    osm.exists_or_create(path=save_path)
+    if "thres" in filename_of_csv:
+        if ("translated" in filename_of_csv) or ("term" in filename_of_csv):
+            return
+        topic_fca = TopicFCA(on_server=on_server)
+        osm.exists_or_create(path=save_path)
 
-    # Load the context
-    ctx = topic_fca.csv2ctx(path_to_file=path2csv, filename=filename_of_csv, strip_prefix=True)
-    ctx.lattice.graphviz(view=True, filename=save_path + f"fca_graph_{logging_utils.get_date()}", format='svg',
-                         directory=save_path)
+        # Load the context
+        ctx = topic_fca.csv2ctx(path_to_file=path2csv, filename=filename_of_csv, strip_prefix=True)
+        ctx.lattice.graphviz(view=True, filename=save_path + f"fca_graph_{logging_utils.get_date()}", format='svg',
+                             directory=save_path)
 
 
 # if __name__ == "__main__":
