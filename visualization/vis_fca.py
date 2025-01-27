@@ -35,9 +35,9 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
             osm.exists_or_create(path=save_path)
             add_id = filename_of_csv.split("_")[0] if on_server else "across_dirs"
             print(add_id)
-            ctx.lattice.graphviz(view=(not on_server), filename=save_path + f"fca_graph_{add_id}_{logging_utils.get_date()}", format='svg',
-                             directory=save_path)
-
+            ctx.lattice.graphviz(view=(not on_server), render=True,
+                                 filename=save_path + f"fca_graph_{add_id}_{logging_utils.get_date()}", format='svg',
+                                 directory=save_path)
 
 # if __name__ == "__main__":
 #     on_server = False
@@ -60,4 +60,3 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
 #         for dir in files.get_files(path=path2single_csv, file_type='csv', recursive=False):
 #             display_context(path2csv=dir, save_path=save_path + 'single_dir_contexts/',
 #                             filename_of_csv=dir.split('/')[-1])
-
