@@ -29,16 +29,17 @@ def load_dict_from_json(path: str):
         raise e
 
 
-def get_files(path: str = "/", file_type: str = 'pdf'):
+def get_files(path: str = "/", file_type: str = 'pdf', recursive: bool = True):
     """
     This function returns a list of all file paths that end with 'pdf' in a directory.
     :param path: Path to the directory; if no path is given, the function returns all pdf files in the current directory.
     :param file_type: Type of files to return; default is 'pdf'
+    :param recursive: If True, the function returns all files in the directory and its subdirectories
     :return: List of file paths
     """
     if not path.endswith("/"):
         path += "/"
-    return [path for path in glob.glob(f"{path}/**", recursive=True) if path.endswith(file_type)]
+    return [path for path in glob.glob(f"{path}/**", recursive=recursive) if path.endswith(file_type)]
 
 
 def extract_text_from_txt(path: str):
