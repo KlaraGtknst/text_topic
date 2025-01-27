@@ -80,13 +80,17 @@ class TopicFCA:
                                                          strip_prefix=strip_prefix) for topic_id in df.columns.tolist()])
 
         new_filename = "read_context_" + filename.split(".")[0]
-        ctx_version1 = FormalContext.from_pandas(df)
+        try:
+            ctx_version1 = FormalContext.from_pandas(df)
 
-        self.save_ctx_as_txt(ctx_version1.print_data(ctx_version1.n_objects, ctx_version1.n_attributes),
-                             save_path=path_to_file, filename=new_filename)
-        ctx = self.load_ctx_from_txt(load_path=path_to_file, filename=new_filename)
+            self.save_ctx_as_txt(ctx_version1.print_data(ctx_version1.n_objects, ctx_version1.n_attributes),
+                                 save_path=path_to_file, filename=new_filename)
+            ctx = self.load_ctx_from_txt(load_path=path_to_file, filename=new_filename)
 
-        return ctx
+            return ctx
+        except Exception as e:
+            logging.error(f"Error loading context: {e}")
+            return False
 
     def topic2docs(self, ctx, topic_ids: list[int]):
         """
