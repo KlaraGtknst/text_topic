@@ -70,6 +70,8 @@ class TopicFCA:
             This is useful when the goal is to reduce the size of context diagram.
         :return: Formal context
         """
+        if not path_to_file.endswith("/"):
+            path_to_file += "/"
         df = pd.read_csv(path_to_file + filename, index_col=0)
         df = df.map(lambda x: True if x == 1 else False)
         df.set_index(np.array([self._apply_prefix_action(original=str(doc_id), prefix=prefix, strip_prefix=strip_prefix)
