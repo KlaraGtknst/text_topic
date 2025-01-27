@@ -31,7 +31,7 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
         # if not on server -> likely to be across-dir-incidence-matrix -> needs space, hence strip prefix
         # else -> likely to be single-dir-incidence-matrix -> no need to strip prefix
         ctx = topic_fca.csv2ctx(path_to_file=path2csv, filename=filename_of_csv, strip_prefix=(not on_server))
-        ctx.lattice.graphviz(view=True, filename=save_path + f"fca_graph_{logging_utils.get_date()}", format='svg',
+        ctx.lattice.graphviz(view=(not on_server), filename=save_path + f"fca_graph_{logging_utils.get_date()}", format='svg',
                              directory=save_path)
 
 
