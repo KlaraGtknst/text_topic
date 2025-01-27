@@ -1,12 +1,11 @@
 from collections import defaultdict
-
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
-
 import constants
 from constants import *
-from utils.os_manipulation import save_or_not
+from utils.os_manipulation import save_or_not, exists_or_create
 from visualization.two_d_display import scatter_documents_2d
+from elasticsearch import Elasticsearch
 
 
 def search_db(client, num_res: int = 10):
@@ -47,24 +46,48 @@ def obtain_directories(client):
     return set([r['_source']['directory'] for r in res['hits']['hits']])
 
 
-def get_directory_content(client, directory: str):
+def get_directory_content(client, index: str, directory: str, scroll: str = "2m", batch_size: int = 1000):
     """
     Returns a list of all texts in a given directory (only this directory and not its children).
     :param client: Elasticsearch client
-    :param directory: Directory to get content of
-    :return: None
+    :param index: Name of the Elasticsearch index
+    :param directory: Directory to get content from
+    :param scroll: Scroll duration (default: 2 minutes)
+    :param batch_size: Number of documents fetched per scroll request
+    :return: List of all texts in the directory
     """
-    res = client.search(index=DatabaseAddr.DB_NAME, body={
-        '_source': ['text'],
-        'size': get_num_indexed_documents(client),
+    # Initialize the query to fetch documents in the specified directory
+    query = {
+        "_source": ["text"],  # Only fetch the "text" field
+        "size": batch_size,
         'query': {
             'match': {
                 'directory': directory
             }
         }
-    })
-    texts = [r['_source']['text'] for r in res['hits']['hits']]
+    }
+
+    # Perform the initial scroll search
+    response = client.search(index=index, body=query, scroll=scroll)
+    scroll_id = response["_scroll_id"]
+    texts = []
+
+    # Continue fetching results until no more documents are returned
+    while True:
+        hits = response["hits"]["hits"]
+        if not hits:
+            break
+
+        texts.extend([hit["_source"]["text"] for hit in hits if "text" in hit["_source"] and hit["_source"]["text"]])
+
+        # Fetch the next batch of results
+        response = client.scroll(scroll_id=scroll_id, scroll="2m")
+
+    # Clear the scroll context to free up resources
+    client.clear_scroll(scroll_id=scroll_id)
+
     return texts
+
 
 
 def display_directory_content(client, directory: str, save_path: str = None):
@@ -76,15 +99,16 @@ def display_directory_content(client, directory: str, save_path: str = None):
     :param save_path: Path to save the wordcloud
     :return: None
     """
-    sentences = get_directory_content(client, directory)
+    sentences = get_directory_content(client=client, directory=directory, index=constants.DatabaseAddr.DB_NAME.value)
     text = ' '.join(sentences)
     wordcloud = WordCloud(max_font_size=40).generate(text)
     plt.figure()
     plt.title('Wordcloud of directory: ' + directory)
     plt.imshow(wordcloud, interpolation="bilinear")
     plt.axis("off")
+    exists_or_create(path=save_path)
     save_or_not(plt, file_name='wordcloud_' + directory + '.svg', save_path=save_path, format='svg')
-    plt.show()
+    #plt.show()
 
 
 def scatter_dir_content(client, save_path: str = None):
@@ -193,22 +217,71 @@ def get_texts_from_docs(client, es_request_limit: int = 10000):
     return texts
 
 
-# if __name__ == '__main__':
-#     es_db = db.Database()
-#
-#     # get client of existing database
-#     client = es_db.get_client()
-#
-#     # obtain directories & display content
-#     display_directory_content(client, directory='Weapons', save_path=Paths.SERVER_PLOTS_SAVE_PATH)
-#
-#     # scatter plot of documents highlighting directories
-#     scatter_dir_content(client, save_path=Paths.SERVER_PLOTS_SAVE_PATH)
-#
-#     # get named entities for documents
-#     nested_field_path = "named_entities"
-#     key_name = "GPE"  #"ORG"
-#     named_entities = get_named_entities_for_docs(client, nested_field_path, key_name)
-#     print(f"Named entities for key '{key_name}': {named_entities}")
-#
-#     print('finished')
+def get_column_values_scroll(client, index: str, column: str, scroll_time: str = "2m", batch_size: int = 1000):
+    """
+    Retrieves all values from a specific column in an Elasticsearch index using a scroll query.
+
+    :param client: Elasticsearch client
+    :param index: Name of the Elasticsearch index
+    :param column: Column (field) to fetch values from
+    :param scroll_time: Time to keep the scroll context alive (default: 2 minutes)
+    :param batch_size: Number of documents to retrieve per batch (default: 1000)
+    :return: List of all values from the specified column
+    """
+    # Initialize an empty list to store values
+    values = []
+
+    # Initial search to start the scroll
+    response = client.search(
+        index=index,
+        body={
+            "size": batch_size,
+            "_source": [column],  # Retrieve only the specified column
+            "query": {"match_all": {}}  # Fetch all documents
+        },
+        scroll=scroll_time,
+    )
+
+    # Extract the scroll ID and hits
+    scroll_id = response["_scroll_id"]
+    hits = response["hits"]["hits"]
+
+    # Process the initial batch
+    values.extend([hit["_source"][column] for hit in hits if column in hit["_source"]])
+
+    # Continue scrolling until no hits are left
+    while len(hits) > 0:
+
+        scroll_id = response["_scroll_id"]
+        hits = response["hits"]["hits"]
+        values.extend([hit["_source"][column] for hit in hits if column in hit["_source"]])
+        response = client.scroll(scroll_id=scroll_id, scroll=scroll_time)
+
+    # Clear the scroll context
+    client.clear_scroll(scroll_id=scroll_id)
+
+    # Return the collected values
+    return values
+
+
+if __name__ == '__main__':
+    client = Elasticsearch(constants.DatabaseAddr.CLIENT_ADDR.value, request_timeout=100)
+
+
+    # obtain directories & display content
+    directories = get_column_values_scroll(client=client, index=constants.DatabaseAddr.DB_NAME.value, column="directory")
+
+    for dir in directories:
+        display_directory_content(client=client, directory=dir, save_path=constants.Paths.LOCAL_RESULTS_SAVE_PATH.value + 'wordclouds/')
+    #display_directory_content(client=client, directory='Weapons', save_path=constants.Paths.LOCAL_RESULTS_SAVE_PATH.value)
+
+    # # scatter plot of documents highlighting directories
+    # scatter_dir_content(client, save_path=constants.Paths.LOCAL_RESULTS_SAVE_PATH.value)
+    #
+    # # get named entities for documents
+    # nested_field_path = "named_entities"
+    # key_name = "GPE"  #"ORG"
+    # named_entities = get_named_entities_for_docs(client, nested_field_path, key_name)
+    # print(f"Named entities for key '{key_name}': {named_entities}")
+
+    print('finished')
