@@ -21,7 +21,7 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
         (i.e. not IDs)
     :return: -
     """
-    if "thres" in filename_of_csv:
+    if ("thres" in filename_of_csv) or ("server-across-dir" in filename_of_csv):
         if ((("translated" in filename_of_csv) and (not translated))  # use translated document/ directory names
                 or ((not "translated" in filename_of_csv) and translated)  # use IDs
                 or ("term" in filename_of_csv)):
@@ -36,7 +36,6 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
         # else -> likely to be single-dir-incidence-matrix -> no need to strip prefix
         ctx = topic_fca.csv2ctx(path_to_file=path2csv, filename=filename_of_csv, strip_prefix=(not on_server))
         if ctx:
-
             osm.exists_or_create(path=save_path)
             add_id = filename_of_csv.split("_")[0] if on_server else "across_dirs"
             filename = f"fca_graph_{add_id}_{logging_utils.get_date()}"
@@ -59,12 +58,5 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
 #
 #     # across-dir-incidence-matrix
 #     osm.exists_or_create(path=save_path)
-#     display_context(path2csv=path2across_dir_csv, save_path=save_path, filename_of_csv=filename_of_csv)
-#
-#     # single-dir-incidence-matrix
-#     osm.exists_or_create(path=save_path + 'single_dir_contexts/')
-#     if on_server:
-#         path2single_csv = "/norgay/bigstore/kgu/dev/text_topic/results/fca/01_27_25/"
-#         for dir in files.get_files(path=path2single_csv, file_type='csv', recursive=False):
-#             display_context(path2csv=dir, save_path=save_path + 'single_dir_contexts/',
-#                             filename_of_csv=dir.split('/')[-1])
+#     print("Displaying context...")
+#     display_context(path2csv=path2across_dir_csv, save_path=save_path, filename_of_csv=filename_of_csv, translated=False, on_server=on_server)
