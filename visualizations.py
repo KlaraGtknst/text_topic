@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     # across-dir-incidence-matrix
     osm.exists_or_create(path=save_path)
-    display_context(path2csv=path2across_dir_csv, save_path=save_path, filename_of_csv=filename_of_csv)
+    display_context(path2csv=path2across_dir_csv, save_path=save_path, filename_of_csv=filename_of_csv, on_server=on_server)
 
     # single-dir-incidence-matrix
     osm.exists_or_create(path=save_path + 'single_dir_contexts/')
@@ -60,6 +60,6 @@ if __name__ == '__main__':
         path2single_csv = "/norgay/bigstore/kgu/dev/text_topic/results/fca/01_27_25/"
         for dir in files.get_files(path=path2single_csv, file_type='csv', recursive=False):
             display_context(path2csv=dir, save_path=save_path + 'single_dir_contexts/',
-                            filename_of_csv=dir.split('/')[-1])
+                            filename_of_csv=dir.split('/')[-1], on_server=on_server)
 
     logging.info('Finished visualizations')
