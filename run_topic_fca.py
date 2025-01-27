@@ -70,16 +70,125 @@ if __name__ == '__main__':
     if not path.endswith('/'):
         path = path + '/'
 
-    for current_directory, subdirectories, files in os.walk(path):
-        for sub_dir in subdirectories:
-            logging.info(f"Starting to obtain doc-topic incidence for subdirectory {sub_dir}")
-            if sub_dir in ['Firearm Manuals', 'Law (re Firearms)', 'Machine Guns', 'Firearms', '12-volt Guide - Junk Science', 'Camouflage and Concealment', 'Home Power Magazine', 'Marksmanship and Sniping', 'Energy and Fuel', 'Issues 1 - 42', 'Robotics', 'Exotic Weapons', 'ng & Caching', 'Knives, Swords']:
-                continue
-            if os.path.exists(incidence_save_path + sub_dir + '/') or os.path.exists(incidence_save_path_yesterday + sub_dir + '/'):
-                logging.info(f"Skipping subdirectory {sub_dir} because it already exists in the save path")
-                continue
-            topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path + sub_dir + '/', save_path=fca_save_path,
-                                                      topic_model=model, recursive=False)
-            logging.info(f"Finished obtaining doc-topic incidence for subdirectory {sub_dir}")
+    # for current_directory, subdirectories, files in os.walk(path):
+    #     for sub_dir in subdirectories:
+    #         logging.info(f"Starting to obtain doc-topic incidence for subdirectory {sub_dir}")
+    #         if sub_dir in ['Firearm Manuals', 'Law (re Firearms)', 'Machine Guns', 'Firearms', '12-volt Guide - Junk Science', 'Camouflage and Concealment', 'Home Power Magazine', 'Marksmanship and Sniping', 'Energy and Fuel', 'Issues 1 - 42', 'Robotics', 'Exotic Weapons', 'ng & Caching', 'Knives, Swords']:
+    #             continue
+    #         if os.path.exists(incidence_save_path + sub_dir + '/') or os.path.exists(incidence_save_path_yesterday + sub_dir + '/'):
+    #             logging.info(f"Skipping subdirectory {sub_dir} because it already exists in the save path")
+    #             continue
+    #         topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path + sub_dir + '/', save_path=fca_save_path,
+    #                                                   topic_model=model, recursive=False)
+    #         logging.info(f"Finished obtaining doc-topic incidence for subdirectory {sub_dir}")
+
+    # run from list
+    directories = [
+        "4chan",
+        "Advice",
+        "Anatomy",
+        "Animals",
+        "Architecture",
+        "Art and Drawing",
+        "Astronomy",
+        "Audio Books",
+        "Banned Books and Conspiracy Theories",
+        "Boobytraps",
+        "Business",
+        "Camouflage and Concealment",
+        "Carding",
+        "Chemistry",
+        "Combat",
+        "Computers",
+        "Cooking",
+        "Counterfeiting",
+        "Countries",
+        "Dictionaries",
+        "Do it Yourself",
+        "Drugs",
+        "Economics",
+        "Electronics and Communications",
+        "Energy and Fuel",
+        "Engineering, Counter-Mobility, Transportation, Logistics",
+        "Entertainment",
+        "Environmental Operations",
+        "Exotic Weapons",
+        "Explosives",
+        "Facts",
+        "Fashion",
+        "Firearms",
+        "Fitness",
+        "Foods",
+        "Forensics and Investigation",
+        "Gear",
+        "Government and Politics",
+        "Guerrilla Warfare, Terrorism",
+        "Gunnery",
+        "Gunsmithing",
+        "Health",
+        "History",
+        "How-To",
+        "Humor",
+        "Hunting, Trapping",
+        "Intelligence, Counter-Intelligence, Recon",
+        "Internet",
+        "Interrogation, Psychology",
+        "Language",
+        "Law and Law Enforcement",
+        "Literature",
+        "Magical Library (UNORGANIZED)",
+        "Marksmanship and Sniping",
+        "Martial Arts",
+        "Math",
+        "Medical",
+        "Military",
+        "Music",
+        "Nanotechnology",
+        "NBC",
+        "Nonfiction",
+        "Paranormal",
+        "PDF Library",
+        "Periodic tables",
+        "Philosophy",
+        "Photoshop And Colors",
+        "Physics",
+        "Piracy",
+        "Political and Government",
+        "Psycology",
+        "Religion & Occult",
+        "Revenge, Anarchy",
+        "Robotics",
+        "Rocketry",
+        "Sciences and Mathematics",
+        "Sex",
+        "Smuggling & Caching",
+        "Spytech",
+        "Stoner's Guide",
+        "Survival",
+        "Technology",
+        "The Anarchist Library",
+        "The Enlightened Man's Book Collection",
+        "The World",
+        "Thieves",
+        "Tracking and Evasion",
+        "Training and Fitness",
+        "Travel, History",
+        "Troll",
+        "Unauthorized Entry and Physical Security",
+        "Vehicles",
+        "Video Games and Gaming",
+        "Weapons and Military",
+        "Wikipedia",
+        "Workshop"
+    ]
+    for sub_dir in directories:
+        logging.info(f"Starting to obtain doc-topic incidence for subdirectory {sub_dir}")
+
+        if os.path.exists(incidence_save_path + sub_dir + '/'):
+            logging.info(f"Skipping subdirectory {sub_dir} because it already exists in the save path")
+            continue
+        topic_fca.obtain_doc_topic_inc_per_subdir(parent_path=path + sub_dir + '/', save_path=fca_save_path,
+                                                  topic_model=model, recursive=False)
+        logging.info(f"Finished obtaining doc-topic incidence for subdirectory {sub_dir}")
 
     logging.info("The end")
