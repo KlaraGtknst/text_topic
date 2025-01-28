@@ -2,7 +2,9 @@ import logging
 import tqdm
 import constants
 from data import files
+from elasticsearch import Elasticsearch
 from database.init_elasticsearch import ESDatabase
+from database.query_db import get_column_values_scroll, display_directory_content
 from utils.logging_utils import get_date, init_debug_config
 import utils.os_manipulation as osm
 from visualization.two_d_display import scatter_documents_2d
@@ -55,18 +57,30 @@ if __name__ == '__main__':
     # display_context(path2csv=path2across_dir_csv, save_path=save_path, filename_of_csv=filename_of_csv, on_server=on_server)
 
     # single-dir-incidence-matrix
-    use_translated = False
-    fca_single_dir_save_path = save_path + 'single_dir_contexts/'
-    if use_translated:
-        fca_single_dir_save_path += 'translated/'
-    osm.exists_or_create(path=fca_single_dir_save_path)
-    if on_server:
-        path2single_csv = f"/norgay/bigstore/kgu/dev/text_topic/results/fca/{date}/"
-        logging.info(f"Path to single csv files: {path2single_csv}")
-        for dir in files.get_files(path=path2single_csv, file_type='csv', recursive=on_server):
-            logging.info(f"Started with dir: {dir}")
-            display_context(path2csv='/'.join(dir.split('/')[:-1]), save_path=fca_single_dir_save_path,
-                            filename_of_csv=dir.split('/')[-1], on_server=on_server, translated=use_translated)
-            logging.info(f"Finished with dir: {dir}")
+    # use_translated = False
+    # fca_single_dir_save_path = save_path + 'single_dir_contexts/'
+    # if use_translated:
+    #     fca_single_dir_save_path += 'translated/'
+    # osm.exists_or_create(path=fca_single_dir_save_path)
+    # if on_server:
+    #     path2single_csv = f"/norgay/bigstore/kgu/dev/text_topic/results/fca/{date}/"
+    #     logging.info(f"Path to single csv files: {path2single_csv}")
+    #     for dir in files.get_files(path=path2single_csv, file_type='csv', recursive=on_server):
+    #         logging.info(f"Started with dir: {dir}")
+    #         display_context(path2csv='/'.join(dir.split('/')[:-1]), save_path=fca_single_dir_save_path,
+    #                         filename_of_csv=dir.split('/')[-1], on_server=on_server, translated=use_translated)
+    #         logging.info(f"Finished with dir: {dir}")
+
+
+    # wordclouds
+    client = Elasticsearch(constants.DatabaseAddr.CLIENT_ADDR.value, request_timeout=100)
+
+    # obtain directories & display content
+    directories = get_column_values_scroll(client=client, index=constants.DatabaseAddr.DB_NAME.value,
+                                           column="directory")
+
+    for dir in directories:
+        display_directory_content(client=client, directory=dir,
+                                  save_path=constants.Paths.SERVER_PLOTS_SAVE_PATH.value + 'wordclouds/')
 
     logging.info('Finished visualizations')

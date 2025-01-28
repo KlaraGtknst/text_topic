@@ -109,6 +109,7 @@ def display_directory_content(client, directory: str, save_path: str = None):
     exists_or_create(path=save_path)
     save_or_not(plt, file_name='wordcloud_' + directory + '.svg', save_path=save_path, format='svg')
     #plt.show()
+    plt.close()
 
 
 def scatter_dir_content(client, save_path: str = None):
@@ -264,24 +265,25 @@ def get_column_values_scroll(client, index: str, column: str, scroll_time: str =
     return values
 
 
-if __name__ == '__main__':
-    client = Elasticsearch(constants.DatabaseAddr.CLIENT_ADDR.value, request_timeout=100)
-
-
-    # obtain directories & display content
-    directories = get_column_values_scroll(client=client, index=constants.DatabaseAddr.DB_NAME.value, column="directory")
-
-    for dir in directories:
-        display_directory_content(client=client, directory=dir, save_path=constants.Paths.LOCAL_RESULTS_SAVE_PATH.value + 'wordclouds/')
-    #display_directory_content(client=client, directory='Weapons', save_path=constants.Paths.LOCAL_RESULTS_SAVE_PATH.value)
-
-    # # scatter plot of documents highlighting directories
-    # scatter_dir_content(client, save_path=constants.Paths.LOCAL_RESULTS_SAVE_PATH.value)
-    #
-    # # get named entities for documents
-    # nested_field_path = "named_entities"
-    # key_name = "GPE"  #"ORG"
-    # named_entities = get_named_entities_for_docs(client, nested_field_path, key_name)
-    # print(f"Named entities for key '{key_name}': {named_entities}")
-
-    print('finished')
+# if __name__ == '__main__':
+#     client = Elasticsearch(constants.DatabaseAddr.CLIENT_ADDR.value, request_timeout=100)
+#
+#
+#     # obtain directories & display content
+#     directories = get_column_values_scroll(client=client, index=constants.DatabaseAddr.DB_NAME.value, column="directory")
+#     directories = ['Weapons', 'Firearms']
+#
+#     for dir in directories:
+#         display_directory_content(client=client, directory=dir, save_path=constants.Paths.LOCAL_RESULTS_SAVE_PATH.value + 'wordclouds/')
+#     #display_directory_content(client=client, directory='Weapons', save_path=constants.Paths.LOCAL_RESULTS_SAVE_PATH.value)
+#
+#     # # scatter plot of documents highlighting directories
+#     # scatter_dir_content(client, save_path=constants.Paths.LOCAL_RESULTS_SAVE_PATH.value)
+#     #
+#     # # get named entities for documents
+#     # nested_field_path = "named_entities"
+#     # key_name = "GPE"  #"ORG"
+#     # named_entities = get_named_entities_for_docs(client, nested_field_path, key_name)
+#     # print(f"Named entities for key '{key_name}': {named_entities}")
+#
+#     print('finished')
