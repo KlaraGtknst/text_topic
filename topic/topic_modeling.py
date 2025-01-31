@@ -10,6 +10,7 @@ from matplotlib.figure import Figure
 from scipy.special import softmax
 from top2vec import Top2Vec
 from wordcloud import WordCloud
+from evaluate import load
 
 import constants
 from elasticsearch import Elasticsearch
@@ -23,6 +24,7 @@ class TopicModel:
     def __init__(self, documents: list):
         self.model = None
         self.documents = documents
+        self.bertscore = load("bertscore")
         # pretrained models: universal-sentence-encoder, sentence-transformers
         # model trains own model: doc2vec
         if documents is not None:
@@ -273,6 +275,62 @@ class TopicModel:
             threshold, doc_topic_incidence = self.determine_threshold_doc_topic_threshold(doc_topic_incidence)
         return doc_topic_incidence.map(lambda x: 1 if x > threshold else 0)
 
+    def _eval_topic_bertscore(self, candidates: list, references: list):
+        """
+        Evalutes topic coherence and how representative topics are for documents that have them.
+        :param candidates: List of (top) document texts that have topic.
+        :param references: List of (top) words that describe the topic.
+        :return: BERTScore for topic: precision, recall, f1, hashcode of library
+
+        For more information see: https://huggingface.co/spaces/evaluate-metric/bertscore (31.01.2025)
+        """
+        return self.bertscore.compute(predictions=candidates, references=references, lang="en", idf=True)
+
+    def evaluate_topic_model(self, doc_topic_incidence_path: str, save_path_topic_words: str, save_df_path: str):
+
+        # load data
+        # first column is document id
+        # first row is topic id
+        doc_topic_incidence = pd.read_csv(doc_topic_incidence_path, index_col=0)
+
+        # Convert to NumPy array for fast operations
+        data = doc_topic_incidence.to_numpy()
+
+        # Iterate over topics (columns) and get document indices where topic is present
+        topic_indices = {
+            topic: np.where(data[:, i] == 1)[0] for i, topic in enumerate(doc_topic_incidence.columns)
+        }
+
+        # Load JSON file into a dictionary
+        with open(save_path_topic_words, "r") as f:
+            terms_per_topic = json.load(f)
+
+        bertscore_df = pd.DataFrame(columns=['topic_id', 'precision', 'recall', 'f1', 'hashcode'])
+        bertscore_df.set_index('topic_id')
+        # iterate over topics
+        for topic_id in doc_topic_incidence.columns:
+            candidates = [self.documents[i] for i in topic_indices[topic_id]]
+            res = self._eval_topic_bertscore(candidates=candidates, references=terms_per_topic[topic_id])
+            bertscore_df[topic_id] = {'precision': res['precision'], 'recall': res['recall'], 'f1': res['f1'],
+                            'hashcode': res['hashcode']}
+
+        # save dataframe
+        # Convert sets to lists
+        # terms_per_topic_serializable = {
+        #     topic_num: list(terms)
+        #     for topic_num, terms in terms_per_topic.items()
+        # }
+        print("Made terms per topic serializable")
+        with open(save_df_path, "w") as f:
+            json.dump(bertscore_df, f, indent=4)
+        print(f"Saved terms per topic to {save_df_path}")
+
+        # compute average as result
+        average_precision = np.mean(bertscore_df['precision'])
+        average_recall = np.mean(bertscore_df['recall'])
+
+        return average_precision, average_recall
+
     @classmethod
     def TopicModel(cls, documents):
         pass
@@ -285,49 +343,49 @@ class TopicModel:
 #     incidence_save_path = "../results/incidences/"
 #     plot_save_path = "../results/plots/"
 
-    # texts
-    # if dataset_path:
-    #     sentences = load_sentences_from_file(dataset_path)
-    #     sentences = sentences.split('NEWFILE')
-    # else:
-    #     pdfs = files.get_files(path=path)
-    #     sentences = []
-    #     for i in tqdm.tqdm(range(len(pdfs)), desc='Extracting text from pdfs'):
-    #         pdf = pdfs[i]
-    #         sentence = files.extract_text_from_pdf(pdf)
-    #         if type(sentence) != str:
-    #             sentence = str(sentence)
-    #         sentences.extend([sentence])
-    #     #save_sentences_to_file(sentences, dataset_path)
-    #
-    # if model_path:
-    #     model = TopicModel(None)
-    #     model.load_model(path=model_path)
-    #
-    # else:
-    #     model = TopicModel(documents=sentences)
-    #     model.save_model(path=model_path)  # unique name with date
-    #
-    # # document-topic incidence
-    # start = 0
-    # duration = len(sentences)
-    # doc_ids = list(range(start, start + len(sentences[start:start + duration]) - 1))
-    # #print(doc_ids)
-    #
-    # doc_topic_incidence = model.get_document_topic_incidence(doc_ids=doc_ids)
-    # #save_df_to_csv(doc_topic_incidence, incidence_save_path, "doc_topic_incidence")
-    # print("first 5doc-topic incidence:\n", doc_topic_incidence.head())
-    #
-    # # determine optimal threshold for document-topic incidence
-    # threshold, row_norm_doc_topic_df = model.determine_threshold_doc_topic_threshold(doc_topic_incidence,
-    #                                                                                  opt_density=0.1,
-    #                                                                                  save_path=plot_save_path)
-    # print("optimal threshold: ", threshold)
-    # thres_row_norm_doc_topic_df = model.apply_threshold_doc_topic_incidence(row_norm_doc_topic_df, threshold=threshold)
-    # #save_df_to_csv(thres_row_norm_doc_topic_df, incidence_save_path, "thres_row_norm_doc_topic_incidence")
-    # print("first 5 thresholded doc-topic incidence:\n", thres_row_norm_doc_topic_df.head())
-    #
-    # # test term-topic incidence
-    # term_topic_incidence = model.get_term_topic_incidence(doc_ids=doc_ids)
-    # # save_df_to_csv(term_topic_incidence, incidence_save_path, "term_topic_incidence")
-    # print("first 5 term-topic incidence:\n", term_topic_incidence.head())
+# texts
+# if dataset_path:
+#     sentences = load_sentences_from_file(dataset_path)
+#     sentences = sentences.split('NEWFILE')
+# else:
+#     pdfs = files.get_files(path=path)
+#     sentences = []
+#     for i in tqdm.tqdm(range(len(pdfs)), desc='Extracting text from pdfs'):
+#         pdf = pdfs[i]
+#         sentence = files.extract_text_from_pdf(pdf)
+#         if type(sentence) != str:
+#             sentence = str(sentence)
+#         sentences.extend([sentence])
+#     #save_sentences_to_file(sentences, dataset_path)
+#
+# if model_path:
+#     model = TopicModel(None)
+#     model.load_model(path=model_path)
+#
+# else:
+#     model = TopicModel(documents=sentences)
+#     model.save_model(path=model_path)  # unique name with date
+#
+# # document-topic incidence
+# start = 0
+# duration = len(sentences)
+# doc_ids = list(range(start, start + len(sentences[start:start + duration]) - 1))
+# #print(doc_ids)
+#
+# doc_topic_incidence = model.get_document_topic_incidence(doc_ids=doc_ids)
+# #save_df_to_csv(doc_topic_incidence, incidence_save_path, "doc_topic_incidence")
+# print("first 5doc-topic incidence:\n", doc_topic_incidence.head())
+#
+# # determine optimal threshold for document-topic incidence
+# threshold, row_norm_doc_topic_df = model.determine_threshold_doc_topic_threshold(doc_topic_incidence,
+#                                                                                  opt_density=0.1,
+#                                                                                  save_path=plot_save_path)
+# print("optimal threshold: ", threshold)
+# thres_row_norm_doc_topic_df = model.apply_threshold_doc_topic_incidence(row_norm_doc_topic_df, threshold=threshold)
+# #save_df_to_csv(thres_row_norm_doc_topic_df, incidence_save_path, "thres_row_norm_doc_topic_incidence")
+# print("first 5 thresholded doc-topic incidence:\n", thres_row_norm_doc_topic_df.head())
+#
+# # test term-topic incidence
+# term_topic_incidence = model.get_term_topic_incidence(doc_ids=doc_ids)
+# # save_df_to_csv(term_topic_incidence, incidence_save_path, "term_topic_incidence")
+# print("first 5 term-topic incidence:\n", term_topic_incidence.head())
