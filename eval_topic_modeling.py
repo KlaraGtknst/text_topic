@@ -1,5 +1,8 @@
 import logging
 from datetime import datetime
+
+import pandas as pd
+
 import database.init_elasticsearch as db
 from constants import Paths
 from utils.logging_utils import init_debug_config
@@ -54,6 +57,8 @@ if __name__ == '__main__':
     thres_row_norm_doc_topic_df = model.apply_threshold_doc_topic_incidence(row_norm_doc_topic_df, threshold=threshold)
     files.save_df_to_csv(df=thres_row_norm_doc_topic_df, path=incidence_save_path,
                          file_name=f"thres_row_norm_doc_topic_incidence_{date}")
+    thres_row_norm_doc_topic_save_path = incidence_save_path + f"doc_topic_incidence_{date}.csv"
+    # thres_row_norm_doc_topic_df = pd.read_csv(incidence_save_path + f"thres_row_norm_doc_topic_incidence_{date}", index_col=0)
     logging.info("obtained & saved thresholded doc-topic incidence")
 
     # test term-topic incidence
@@ -64,7 +69,7 @@ if __name__ == '__main__':
     files.save_df_to_csv(term_topic_incidence, incidence_save_path, f"term_topic_incidence_{date}")
     logging.info("obtained & saved term-topic incidence in ", term_topic_save_path)
 
-    average_precision, average_recall = model.evaluate_topic_model(doc_topic_incidence_path=doc_topic_save_path,
+    average_precision, average_recall = model.evaluate_topic_model(doc_topic_incidence_path=thres_row_norm_doc_topic_save_path,
                                                                    save_path_topic_words=save_path_topic_words,
                                                                    save_df_path=incidence_save_path + f"evaluation_{date}.csv")
 
