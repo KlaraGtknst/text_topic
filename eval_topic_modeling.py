@@ -11,7 +11,7 @@ import data.files as files
 import topic.topic_modeling as tm
 
 if __name__ == '__main__':
-    date = '01_31_25' #datetime.now().strftime('%x').replace('/', '_')
+    date = '01_16_25' #datetime.now().strftime('%x').replace('/', '_')
     on_server = True
     init_debug_config(log_filename='eval_topic_modeling_', on_server=on_server)
     data_path = Paths.SERVER_DATA_PATH.value
