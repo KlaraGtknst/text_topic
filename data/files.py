@@ -1,3 +1,4 @@
+import csv
 import glob
 import json
 
@@ -253,8 +254,34 @@ def csv_to_fca_json(csv_file:str, output_file:str):
         json.dump(fca_json, f, indent=4)
     print(f"FCA JSON saved to {output_file}")
 
-# if __name__ == '__main__':
-#     local = True
+def dir_topic_words2csv(dir_path:str, output_file:str):
+    """
+    This function converts a json file containing the topics and their top 50 word of  a directory to a CSV file.
+    :param dir_path: Path to the directory with the topic words files
+    :param output_file: Path to save the CSV file, incl. filename and file ending
+    :return: -
+    """
+    with open(dir_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Extract non-empty topics
+    filtered_topics = [(topic_id, ", ".join(words)) for topic_id, words in data.items() if words]
+
+    # Write to CSV
+    with open(output_file, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Topic ID", "Topic Words"])  # Write header
+        writer.writerows(filtered_topics)
+
+    print(f"CSV file saved to {output_file}")
+
+if __name__ == '__main__':
+    local = True
+    input_path = '/Users/klara/Downloads/top-dir-31-01-25/'
+    for file in get_files(input_path, file_type='json', recursive=True):
+        print(file)
+        dir_topic_words2csv(file, file.replace('.json', '.csv'))
+
 #     path = '/Users/klara/Downloads/KDE_Projekt/sample_data_server' if local else '/norgay/bigstore/kgu/data/ETYNTKE/Workshop/'
 #     num_successes = 0
 #     limit_num_docs = 2
