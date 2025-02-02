@@ -1,6 +1,7 @@
 import csv
 import glob
 import json
+import os
 
 import pandas as pd
 import pypdf as pdf
@@ -254,18 +255,19 @@ def csv_to_fca_json(csv_file:str, output_file:str):
         json.dump(fca_json, f, indent=4)
     print(f"FCA JSON saved to {output_file}")
 
-def dir_topic_words2csv(dir_path:str, output_file:str):
+def dir_topic_words2csv(dir_path:str, output_file:str, top_n:int=5):
     """
     This function converts a json file containing the topics and their top 50 word of  a directory to a CSV file.
     :param dir_path: Path to the directory with the topic words files
     :param output_file: Path to save the CSV file, incl. filename and file ending
+    :param top_n: Number of top words to extract from each topic
     :return: -
     """
     with open(dir_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     # Extract non-empty topics
-    filtered_topics = [(topic_id, ", ".join(words)) for topic_id, words in data.items() if words]
+    filtered_topics = [(topic_id, ", ".join(words[:top_n])) for topic_id, words in data.items() if words]
 
     # Write to CSV
     with open(output_file, "w", newline="", encoding="utf-8") as f:
@@ -275,12 +277,67 @@ def dir_topic_words2csv(dir_path:str, output_file:str):
 
     print(f"CSV file saved to {output_file}")
 
+def dir_topic_words2csv_across_dirs(path2single_dirs_json:str, path2across_dir_csv:str, save_path:str, top_n:int=5):
+    """
+    Since the across-directory incidence maps directory names to topics (1 if present, 0 if not), but there is no way
+    to obtain the top words for each topic, this function extracts the top words for each topic from the
+    single-directory json files and saves them to a CSV file.
+
+    :param path2single_dirs_json: Path to the directory with the single-directory json files
+    :param path2across_dir_csv: Path to the across-directory CSV file
+    :param save_path: Path to save the CSV file, incl. filename and file ending
+    :param top_n: Number of top words to extract from each topic in the final across-directory CSV file
+    :return: -
+    """
+    existing_topics = set()
+
+    # Read existing topics from the across-directory CSV if it exists
+    if os.path.exists(path2across_dir_csv):
+        with open(path2across_dir_csv, "r", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            next(reader)  # Skip header
+            for row in reader:
+                if row:
+                    existing_topics.add(row[0])  # Store existing topic IDs
+
+    aggregated_topics = {}
+
+    # Process each JSON file in the directory
+    for file_path in get_files(path2single_dirs_json, file_type='json', recursive=True):
+        if os.path.isfile(file_path):
+            print(f"Processing {file}")
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except Exception as e:
+                print(f"Error loading {file}: {e}")
+                continue
+
+            # Extract topics ensuring no duplicates
+            for topic_id, words in data.items():
+                if words and topic_id not in existing_topics and topic_id not in aggregated_topics:
+                    aggregated_topics[topic_id] = ", ".join(words[:top_n])
+
+    # Write to CSV
+    with open(save_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Topic ID", "Topic Words"])  # Write header
+        for topic_id, words in aggregated_topics.items():
+            writer.writerow([topic_id, words])
+
+
 if __name__ == '__main__':
     local = True
+    # single dirs
     input_path = '/Users/klara/Downloads/top-dir-31-01-25/'
     for file in get_files(input_path, file_type='json', recursive=True):
         print(file)
-        dir_topic_words2csv(file, file.replace('.json', '.csv'))
+        dir_topic_words2csv(dir_path=file, output_file=file.replace('.json', '.csv'), top_n=5)
+
+    # across dirs
+    # path2across_dir_csv = '/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/server-across-dir-incidence-matrix-31-01-25.csv'
+    # dir_topic_words2csv_across_dirs(path2single_dirs_json=input_path, path2across_dir_csv=path2across_dir_csv,
+    #                                 save_path='/Users/klara/Downloads/server-across-dir-topic-words-31-01-25.csv', top_n=5)
 
 #     path = '/Users/klara/Downloads/KDE_Projekt/sample_data_server' if local else '/norgay/bigstore/kgu/data/ETYNTKE/Workshop/'
 #     num_successes = 0
