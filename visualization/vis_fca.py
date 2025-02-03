@@ -29,6 +29,9 @@ def calculate_font_size(label):
 
 def simplify_numbers(label):
     """Finds and replaces increasing sequences of numbers in a label."""
+    if any(char not in '0123456789 ' for char in label):    # If label contains non-numeric characters
+        return label
+
     # Extract numbers from label (handles numbers inside words or separated by spaces/commas)
     numbers = re.findall(r'\b\d+\b', label)  # all standalone numbers
     numbers = sorted(set(map(int, numbers)))  # Convert to integers, remove duplicates, and sort
@@ -52,18 +55,8 @@ def simplify_numbers(label):
 
         i += 1
 
-    # Reconstruct label by replacing the original numbers with the simplified version
-    number_pattern = r'\b(\d+)\b'
-
-    def replace_label(match):
-        number = int(match.group(0))  # Extract the number
-        # Find the corresponding replacement for this number
-        if replacements:
-            return replacements.pop(0)  # Pop replacements in order
-        return match.group(0)  # Fallback to the original match
-
     # Apply the simplification to the label, process each match in order
-    simplified_label = re.sub(number_pattern, replace_label, label)
+    simplified_label = ' '.join(replacements)
 
     return simplified_label
 
