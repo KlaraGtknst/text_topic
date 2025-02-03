@@ -1,12 +1,75 @@
 import logging
+import re
 
 import constants
 import utils.logging_utils as logging_utils
 import utils.os_manipulation as osm
 import data.files as files
 from topic.topic_fca import TopicFCA
+import textwrap
 
 logger = logging.getLogger(__name__)
+
+
+def wrap_label(label, width=10):
+    return '\\n'.join(textwrap.wrap(label, width))
+
+
+def calculate_font_size(label):
+    """Dynamically adjusts font size based on label length."""
+    base_size = 7  # Default font size
+    min_size = 5  # Minimum font size
+    words = len(label.split())  # Count words in label
+
+    # Reduce font size if label is too long
+    if words > 5:
+        return max(base_size - (words // 2), min_size)
+    return base_size  # Default font size
+
+
+def simplify_numbers(label):
+    """Finds and replaces increasing sequences of numbers in a label."""
+    # Extract numbers from label (handles numbers inside words or separated by spaces/commas)
+    numbers = re.findall(r'\b\d+\b', label)  # Find all standalone numbers
+    numbers = sorted(set(map(int, numbers)))  # Convert to integers, remove duplicates, and sort
+
+    if not numbers:
+        return label  # If no numbers, return original label
+
+    # Detect consecutive sequences and replace with "start-end"
+    i = 0
+    replacements = []
+    while i < len(numbers):
+        start = numbers[i]
+        while i + 1 < len(numbers) and numbers[i + 1] == numbers[i] + 1:
+            i += 1
+        end = numbers[i]
+
+        if start != end:
+            replacements.append(f"{start}-{end}")
+        else:
+            replacements.append(str(start))
+
+        i += 1
+
+    # Reconstruct label by replacing the original numbers with the simplified version
+    number_pattern = r'\b(\d+)\b'
+
+    def replace_label(match):
+        number = int(match.group(0))  # Extract the number
+        # Find the corresponding replacement for this number
+        if replacements:
+            return replacements.pop(0)  # Pop replacements in order
+        return match.group(0)  # Fallback to the original match
+
+    # Apply the simplification to the label, process each match in order
+    simplified_label = re.sub(number_pattern, replace_label, label)
+
+    return simplified_label
+
+
+def flatten_comprehension(matrix):
+    return [item for row in matrix for item in row]
 
 
 def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_server: bool = False,
@@ -21,6 +84,7 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
         (i.e. not IDs)
     :return: -
     """
+
     if ("thres" in filename_of_csv) or ("server-across-dir" in filename_of_csv):
         if ((("translated" in filename_of_csv) and (not translated))  # use translated document/ directory names
                 or ((not "translated" in filename_of_csv) and translated)  # use IDs
@@ -35,6 +99,10 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
         # if not on server -> likely to be across-dir-incidence-matrix -> needs space, hence strip prefix
         # else -> likely to be single-dir-incidence-matrix -> no need to strip prefix
         ctx = topic_fca.csv2ctx(path_to_file=path2csv, filename=filename_of_csv, strip_prefix=(not on_server))
+        # Apply text wrapping to node labels
+        # for node in ctx.lattice:
+        #     if hasattr(node, 'label') and isinstance(node.label, str):
+        #         node.label = wrap_label(node.label, width=12) + '\n'  # Adjust width as needed
         if ctx:
             osm.exists_or_create(path=save_path)
             add_id = filename_of_csv.split("_")[0] if on_server else "across_dirs"
@@ -42,21 +110,52 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
             if translated:
                 filename += "_translated"
 
-            ctx.lattice.graphviz(view=(not on_server), render=True,
-                                 filename=save_path + filename, format='svg',
-                                 directory=save_path)
+            # ctx.lattice.graphviz(view=False, render=True,
+            #                      filename=save_path + filename, format='svg',
+            #                      directory=save_path,
+            #                      engine='dot',
+            #                      graph_attr={'ranksep': '1.5', 'nodesep': '1.0'},
+            #                      #node_attr={'label': [r'\n'.join(textwrap.wrap(node.label, 12)) for node in ctx.lattice.],}
+            #                      )
+            # Generate the graph object
+            dot = ctx.lattice.graphviz(engine='dot')
 
-# if __name__ == "__main__":
-#     on_server = False
-#     date = logging_utils.get_date()
-#     # logging_utils.init_debug_config(log_filename='vis_fca_', on_server=on_server)
-#     path2across_dir_csv = "/norgay/bigstore/kgu/dev/clj_exploration_leaks/results/fca-dir-concepts/across-dir/" if (
-#         on_server) else "/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/fca-dir-concepts/across-dir/"
-#     save_path = constants.Paths.SERVER_FCA_SAVE_PATH.value + date + '/' if on_server else \
-#         f"/Users/klara/Developer/Uni/WiSe2425/text_topic/results/fca/{date}/"
-#     filename_of_csv = "server-across-dir-incidence-matrix.csv"  # "across-dir-incidence-matrix.csv"
-#
-#     # across-dir-incidence-matrix
-#     osm.exists_or_create(path=save_path)
-#     print("Displaying context...")
-#     display_context(path2csv=path2across_dir_csv, save_path=save_path, filename_of_csv=filename_of_csv, translated=False, on_server=on_server)
+
+            # Apply regex-based text wrapping, number simplification, and font size adjustment for node labels
+            def replace_label(match):
+                label_text = match.group(1)  # Extract label text
+                #print(len(set(label_text)), len(set(flatten_comprehension([obj.split(' ') for obj in ctx.objects]))),len(set(flatten_comprehension([obj.split(' ') for obj in ctx.properties]))))
+                #print(set(flatten_comprehension([obj.split(' ') for obj in ctx.objects])) == set(label_text))
+                # if len(set(label_text)) >= 50:#0.2*len(set(flatten_comprehension([obj.split(' ') for obj in ctx.objects]))):
+                #     return 'label="", fontsize="0"'  # Do not show label for highest node
+                # if len(set(label_text)) >= 50:#0.2*len(set(flatten_comprehension([prop.split(' ') for prop in ctx.properties]))):
+                #     return 'label="", fontsize="0"'  # Do not show label for lowest node
+
+                simplified_label = simplify_numbers(label_text)  # Simplify increasing numbers
+                wrapped_label = wrap_label(simplified_label, width=15)  # Wrap text
+                font_size = calculate_font_size(simplified_label)  # Adjust font size
+
+                return f'label="{wrapped_label}", fontsize="{font_size}"'  # Apply changes
+
+            # Modify dot.body safely using regex
+            dot.body = [re.sub(r'label="(.*?)"', replace_label, line) for line in dot.body]
+
+            # Save the modified Graphviz file
+            dot.render(filename=save_path + filename, format='svg', directory=save_path, cleanup=True)
+
+
+if __name__ == "__main__":
+    on_server = False
+    date = logging_utils.get_date()
+    # logging_utils.init_debug_config(log_filename='vis_fca_', on_server=on_server)
+    path2across_dir_csv = "/norgay/bigstore/kgu/dev/clj_exploration_leaks/results/fca-dir-concepts/across-dir/" if (
+        on_server) else "/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/fca-dir-concepts/across-dir/"
+    save_path = constants.Paths.SERVER_FCA_SAVE_PATH.value + date + '/' if on_server else \
+        f"/Users/klara/Developer/Uni/WiSe2425/text_topic/results/fca/{date}/"
+    filename_of_csv = "server-across-dir-incidence-matrix.csv"  # "across-dir-incidence-matrix.csv"
+
+    # across-dir-incidence-matrix
+    osm.exists_or_create(path=save_path)
+    print("Displaying context...")
+    display_context(path2csv=path2across_dir_csv, save_path=save_path, filename_of_csv=filename_of_csv,
+                    translated=False, on_server=on_server)
