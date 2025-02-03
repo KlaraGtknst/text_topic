@@ -46,41 +46,41 @@ if __name__ == '__main__':
     #                            save_path=save_path)
 
     # visualize FCA contexts
-    path2across_dir_csv = "/norgay/bigstore/kgu/dev/clj_exploration_leaks/results/fca-dir-concepts/across-dir/" if (
-        on_server) else "/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/fca-dir-concepts/across-dir/"
+    # path2across_dir_csv = "/norgay/bigstore/kgu/dev/clj_exploration_leaks/results/fca-dir-concepts/across-dir/" if (
+    #     on_server) else "/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/fca-dir-concepts/across-dir/"
     save_path = constants.Paths.SERVER_FCA_SAVE_PATH.value + date + '/' if on_server else \
         f"/Users/klara/Developer/Uni/WiSe2425/text_topic/results/fca/{date}/"
-    filename_of_csv = "server-across-dir-incidence-matrix.csv"  # "across-dir-incidence-matrix.csv"
+    # filename_of_csv = "server-across-dir-incidence-matrix.csv"  # "across-dir-incidence-matrix.csv"
 
     # across-dir-incidence-matrix
     # osm.exists_or_create(path=save_path)
     # display_context(path2csv=path2across_dir_csv, save_path=save_path, filename_of_csv=filename_of_csv, on_server=on_server)
 
     # single-dir-incidence-matrix
-    # use_translated = False
-    # fca_single_dir_save_path = save_path + 'single_dir_contexts/'
-    # if use_translated:
-    #     fca_single_dir_save_path += 'translated/'
-    # osm.exists_or_create(path=fca_single_dir_save_path)
-    # if on_server:
-    #     path2single_csv = f"/norgay/bigstore/kgu/dev/text_topic/results/fca/{date}/"
-    #     logging.info(f"Path to single csv files: {path2single_csv}")
-    #     for dir in files.get_files(path=path2single_csv, file_type='csv', recursive=on_server):
-    #         logging.info(f"Started with dir: {dir}")
-    #         display_context(path2csv='/'.join(dir.split('/')[:-1]), save_path=fca_single_dir_save_path,
-    #                         filename_of_csv=dir.split('/')[-1], on_server=on_server, translated=use_translated)
-    #         logging.info(f"Finished with dir: {dir}")
+    use_translated = False
+    fca_single_dir_save_path = save_path + 'single_dir_contexts/'
+    if use_translated:
+        fca_single_dir_save_path += 'translated/'
+    osm.exists_or_create(path=fca_single_dir_save_path)
+    if on_server:
+        path2single_csv = f"/norgay/bigstore/kgu/dev/text_topic/results/fca/01_31_25/"  #{date}/"
+        logging.info(f"Path to single csv files: {path2single_csv}")
+        for dir in files.get_files(path=path2single_csv, file_type='csv', recursive=on_server):
+            logging.info(f"Started with dir: {dir}")
+            display_context(path2csv='/'.join(dir.split('/')[:-1]), save_path=fca_single_dir_save_path,
+                            filename_of_csv=dir.split('/')[-1], on_server=on_server, translated=use_translated)
+            logging.info(f"Finished with dir: {dir}")
 
 
     # wordclouds
-    client = Elasticsearch(constants.DatabaseAddr.CLIENT_ADDR.value, request_timeout=100)
-
-    # obtain directories & display content
-    directories = get_column_values_scroll(client=client, index=constants.DatabaseAddr.DB_NAME.value,
-                                           column="directory")
-
-    for dir in directories:
-        display_directory_content(client=client, directory=dir,
-                                  save_path=constants.Paths.SERVER_PLOTS_SAVE_PATH.value + 'wordclouds/')
-
-    logging.info('Finished visualizations')
+    # client = Elasticsearch(constants.DatabaseAddr.CLIENT_ADDR.value, request_timeout=100)
+    #
+    # # obtain directories & display content
+    # directories = get_column_values_scroll(client=client, index=constants.DatabaseAddr.DB_NAME.value,
+    #                                        column="directory")
+    #
+    # for dir in directories:
+    #     display_directory_content(client=client, directory=dir,
+    #                               save_path=constants.Paths.SERVER_PLOTS_SAVE_PATH.value + 'wordclouds/')
+    #
+    # logging.info('Finished visualizations')
