@@ -40,10 +40,10 @@ if __name__ == '__main__':
     logging.info('Created and saved topic model')
 
     # # document-topic incidence
-    # start = 0
-    # duration = len(sentences)
-    # doc_ids = list(range(start, start + len(sentences[start:start + duration]) - 1))
-    #
+    start = 0
+    duration = len(sentences)
+    doc_ids = list(range(start, start + len(sentences[start:start + duration]) - 1))
+
     # doc_topic_incidence = model.get_document_topic_incidence(doc_ids=doc_ids)
     # doc_topic_save_path = incidence_save_path + f"doc_topic_incidence_{date}.csv"
     # files.save_df_to_csv(df=doc_topic_incidence, path=incidence_save_path, file_name=f"doc_topic_incidence_{date}")
@@ -64,9 +64,9 @@ if __name__ == '__main__':
     # test term-topic incidence
     term_topic_save_path = incidence_save_path + f"term_topic_incidence_{date}.csv"
     save_path_topic_words = incidence_save_path + f'topic_words_{date}.json'
-    # term_topic_incidence = model.get_term_topic_incidence(doc_ids=doc_ids,
-    #                                                       save_path_topic_words=save_path_topic_words)
-    # files.save_df_to_csv(term_topic_incidence, incidence_save_path, f"term_topic_incidence_{date}")
+    term_topic_incidence = model.get_term_topic_incidence(doc_ids=doc_ids,
+                                                          save_path_topic_words=save_path_topic_words)
+    files.save_df_to_csv(term_topic_incidence, incidence_save_path, f"term_topic_incidence_{date}")
     logging.info("obtained & saved term-topic incidence in ", term_topic_save_path)
 
     average_precision, average_recall = model.evaluate_topic_model(doc_topic_incidence_path=thres_row_norm_doc_topic_save_path,
