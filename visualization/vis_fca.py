@@ -17,20 +17,20 @@ def wrap_label(label, width=10):
 
 def calculate_font_size(label):
     """Dynamically adjusts font size based on label length."""
-    base_size = 7  # Default font size
-    min_size = 5  # Minimum font size
-    words = len(label.split())  # Count words in label
+    default_size = 15
+    min_size = 10
+    num_words = len(label.split())
 
     # Reduce font size if label is too long
-    if words > 5:
-        return max(base_size - (words // 2), min_size)
-    return base_size  # Default font size
+    if num_words > 20:
+        return max(default_size - (num_words // 2), min_size)
+    return default_size
 
 
 def simplify_numbers(label):
     """Finds and replaces increasing sequences of numbers in a label."""
     # Extract numbers from label (handles numbers inside words or separated by spaces/commas)
-    numbers = re.findall(r'\b\d+\b', label)  # Find all standalone numbers
+    numbers = re.findall(r'\b\d+\b', label)  # all standalone numbers
     numbers = sorted(set(map(int, numbers)))  # Convert to integers, remove duplicates, and sort
 
     if not numbers:
@@ -99,10 +99,7 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
         # if not on server -> likely to be across-dir-incidence-matrix -> needs space, hence strip prefix
         # else -> likely to be single-dir-incidence-matrix -> no need to strip prefix
         ctx = topic_fca.csv2ctx(path_to_file=path2csv, filename=filename_of_csv, strip_prefix=(not on_server))
-        # Apply text wrapping to node labels
-        # for node in ctx.lattice:
-        #     if hasattr(node, 'label') and isinstance(node.label, str):
-        #         node.label = wrap_label(node.label, width=12) + '\n'  # Adjust width as needed
+
         if ctx:
             osm.exists_or_create(path=save_path)
             add_id = filename_of_csv.split("_")[0] if on_server else "across_dirs"
@@ -110,29 +107,15 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
             if translated:
                 filename += "_translated"
 
-            # ctx.lattice.graphviz(view=False, render=True,
-            #                      filename=save_path + filename, format='svg',
-            #                      directory=save_path,
-            #                      engine='dot',
-            #                      graph_attr={'ranksep': '1.5', 'nodesep': '1.0'},
-            #                      #node_attr={'label': [r'\n'.join(textwrap.wrap(node.label, 12)) for node in ctx.lattice.],}
-            #                      )
             # Generate the graph object
-            dot = ctx.lattice.graphviz(engine='dot')
+            dot = ctx.lattice.graphviz(engine='dot', graph_attr={'ranksep': '1.5', 'nodesep': '1.0'})
 
 
             # Apply regex-based text wrapping, number simplification, and font size adjustment for node labels
             def replace_label(match):
                 label_text = match.group(1)  # Extract label text
-                #print(len(set(label_text)), len(set(flatten_comprehension([obj.split(' ') for obj in ctx.objects]))),len(set(flatten_comprehension([obj.split(' ') for obj in ctx.properties]))))
-                #print(set(flatten_comprehension([obj.split(' ') for obj in ctx.objects])) == set(label_text))
-                # if len(set(label_text)) >= 50:#0.2*len(set(flatten_comprehension([obj.split(' ') for obj in ctx.objects]))):
-                #     return 'label="", fontsize="0"'  # Do not show label for highest node
-                # if len(set(label_text)) >= 50:#0.2*len(set(flatten_comprehension([prop.split(' ') for prop in ctx.properties]))):
-                #     return 'label="", fontsize="0"'  # Do not show label for lowest node
-
                 simplified_label = simplify_numbers(label_text)  # Simplify increasing numbers
-                wrapped_label = wrap_label(simplified_label, width=15)  # Wrap text
+                wrapped_label = wrap_label(simplified_label, width=40)  # Wrap text
                 font_size = calculate_font_size(simplified_label)  # Adjust font size
 
                 return f'label="{wrapped_label}", fontsize="{font_size}"'  # Apply changes
