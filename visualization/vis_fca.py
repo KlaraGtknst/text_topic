@@ -29,6 +29,9 @@ def calculate_font_size(label):
 
 def simplify_numbers(label):
     """Finds and replaces increasing sequences of numbers in a label."""
+    if 'topic_' in label:
+        label = label.replace("topic_", "")
+
     if any(char not in '0123456789 ' for char in label):    # If label contains non-numeric characters
         return label
 
