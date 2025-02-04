@@ -25,7 +25,7 @@ if __name__ == '__main__':
     logging.info('Obtained Elasticsearch client and inserted metadata')
     paths2sentences = {}
     # texts
-    file_paths = files.get_files(path=data_path)[:3000]   # TODO: remove this later
+    file_paths = files.get_files(path=data_path)#[:3000]   # TODO: remove this later
     logging.info('Obtained pdfs')
     for file_path in tqdm.tqdm(file_paths, desc='Extracting text from pdfs'):
         sentence = files.extract_text_from_pdf(file_path)
