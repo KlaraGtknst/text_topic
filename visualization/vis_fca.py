@@ -111,7 +111,7 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
             def replace_label(match):
                 label_text = match.group(1)  # Extract label text
                 simplified_label = simplify_numbers(label_text)  # Simplify increasing numbers
-                wrapped_label = wrap_label(simplified_label, width=40)  # Wrap text
+                wrapped_label = wrap_label(simplified_label, width=30)  # Wrap text; across dir: 40
                 font_size = calculate_font_size(simplified_label)  # Adjust font size
 
                 return f'label="{wrapped_label}", fontsize="{font_size}"'  # Apply changes
