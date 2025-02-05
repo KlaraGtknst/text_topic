@@ -307,19 +307,35 @@ class TopicModel:
 
         bertscore_df = pd.DataFrame(columns=['topic_id', 'precision', 'recall', 'f1', 'hashcode'])
         bertscore_df.set_index('topic_id')
-        # iterate over topics
-        for topic_id in doc_topic_incidence.columns:
-            candidates = [self.documents[i] for i in topic_indices[topic_id]]
-            res = self._eval_topic_bertscore(candidates=candidates, references=terms_per_topic[topic_id])
-            bertscore_df[topic_id] = {'precision': res['precision'], 'recall': res['recall'], 'f1': res['f1'],
-                            'hashcode': res['hashcode']}
+        # # iterate over topics
+        # for topic_id in doc_topic_incidence.columns:
+        #     candidates = [self.documents[i] for i in topic_indices[topic_id]]
+        #     res = self._eval_topic_bertscore(candidates=candidates, references=terms_per_topic[topic_id])
+        #     bertscore_df[topic_id] = {'precision': res['precision'], 'recall': res['recall'], 'f1': res['f1'],
+        #                     'hashcode': res['hashcode']}
 
-        # save dataframe
-        # Convert sets to lists
-        # terms_per_topic_serializable = {
-        #     topic_num: list(terms)
-        #     for topic_num, terms in terms_per_topic.items()
-        # }
+
+        for topic_id in doc_topic_incidence.columns:
+            if topic_id not in terms_per_topic:
+                print(f"Warning: Missing terms for topic {topic_id}")
+                continue
+
+            candidates = [self.documents[i] for i in topic_indices.get(topic_id, [])]
+
+            if not candidates:
+                print(f"Warning: No documents found for topic {topic_id}")
+                continue
+
+            res = self._eval_topic_bertscore(candidates=candidates, references=terms_per_topic[topic_id])
+
+            bertscore_df.loc[topic_id] = {
+                'precision': res['precision'],
+                'recall': res['recall'],
+                'f1': res['f1'],
+                'hashcode': res['hashcode']
+            }
+
+
         print("Made terms per topic serializable")
         with open(save_df_path, "w") as f:
             json.dump(bertscore_df, f, indent=4)
