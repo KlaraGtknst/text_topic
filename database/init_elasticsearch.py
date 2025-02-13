@@ -1,15 +1,14 @@
 import logging
 import os
-from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
+from elasticsearch.helpers import bulk
 from sentence_transformers import SentenceTransformer
-
 from NER import named_entity_recognition
 from constants import *
 from data.caption_images import ImageCaptioner
 from data.files import get_hash_file, extract_text_from_pdf, extract_text_from_txt
-from utils.logging_utils import get_date, init_debug_config
-from utils.os_manipulation import scan_recurse, exists_or_create
+from utils.logging_utils import init_debug_config
+from utils.os_manipulation import scan_recurse
 
 '''------initiate, fill and search in database-------
 run this code by typing and altering the path:

@@ -1,12 +1,11 @@
 import logging
-
-from constants import Paths
-from utils.os_manipulation import exists_or_create
 import os
 from glob import glob
 from tqdm import tqdm
 from transformers import AutoProcessor, AutoModelForCausalLM
 from PIL import Image
+from constants import Paths
+from utils.os_manipulation import exists_or_create
 
 
 logging.getLogger("transformers").setLevel(logging.CRITICAL)
@@ -42,6 +41,7 @@ class ImageCaptioner:
             # Generate captions
             generated_ids = self.model.generate(pixel_values=pixel_values, max_length=50)
             return self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+
         except Exception as e:
             return f"Error: {e}"
 
@@ -56,13 +56,14 @@ class ImageCaptioner:
         exists_or_create(path=save_path)
         with open(os.path.join(save_path, f"{image_name}_caption.txt"), "w") as file:
             file.write(caption)
-        # print('saved caption to file:', os.path.join(save_path, f"{image_name}_caption.txt"))
 
 
 if __name__ == '__main__':
+    # test the image captioning model
     local = True
     path2imgs = Paths.LOCAL_DATA_PATH.value if local else Paths.SERVER_PLOTS_SAVE_PATH.value
-    save_path = Paths.LOCAL_DATA_PATH.value + "/captions/" if local else Paths.LOCAL_RESULTS_SAVE_PATH.value + '/captions/'
+    save_path = Paths.LOCAL_DATA_PATH.value + "/captions/" if local \
+        else Paths.LOCAL_RESULTS_SAVE_PATH.value + '/captions/'
 
     # Load the processor and model
     captioner = ImageCaptioner()
@@ -70,7 +71,5 @@ if __name__ == '__main__':
     # Load and preprocess the image
     l_img_paths = sorted(glob(os.path.join(path2imgs, "*.png")))
     for image_path in tqdm(l_img_paths):
-        # print("start image", image_path)
         caption = captioner.caption_image(image_path)
         captioner.save_caption_to_file(image_path, save_path=save_path)
-        # print("Generated Caption:", caption)

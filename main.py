@@ -1,13 +1,12 @@
+import datetime
 import logging
-from constants import *
-import topic.topic_modeling as tm
+import tqdm
 import data.files as files
 import database.init_elasticsearch as db
-import tqdm
-import datetime
+import topic.topic_modeling as tm
+from constants import *
 from data.files import save_sentences_to_file, save_df_to_csv
 from utils.logging_utils import init_debug_config
-from utils.os_manipulation import exists_or_create
 
 logger = logging.getLogger(__name__)
 

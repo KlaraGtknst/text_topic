@@ -1,8 +1,7 @@
 import logging
 import constants
 import database.init_elasticsearch as db
-from utils.logging_utils import get_date, init_debug_config
-from utils.os_manipulation import exists_or_create
+from utils.logging_utils import init_debug_config
 
 if __name__ == '__main__':  # run this code on pumbaa server, bc GPU is needed
     on_server = True

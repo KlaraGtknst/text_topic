@@ -1,11 +1,9 @@
 from collections import defaultdict
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
-import constants
 from constants import *
 from utils.os_manipulation import save_or_not, exists_or_create
 from visualization.two_d_display import scatter_documents_2d
-from elasticsearch import Elasticsearch
 
 
 def search_db(client, num_res: int = 10):
@@ -89,7 +87,6 @@ def get_directory_content(client, index: str, directory: str, scroll: str = "2m"
     return texts
 
 
-
 def display_directory_content(client, directory: str, save_path: str = None):
     """
     Displays a wordcloud of the content of a given directory.
@@ -99,7 +96,7 @@ def display_directory_content(client, directory: str, save_path: str = None):
     :param save_path: Path to save the wordcloud
     :return: None
     """
-    sentences = get_directory_content(client=client, directory=directory, index=constants.DatabaseAddr.DB_NAME.value)
+    sentences = get_directory_content(client=client, directory=directory, index=DatabaseAddr.DB_NAME.value)
     text = ' '.join(sentences)
     wordcloud = WordCloud(max_font_size=40).generate(text)
     plt.figure()
@@ -108,7 +105,6 @@ def display_directory_content(client, directory: str, save_path: str = None):
     plt.axis("off")
     exists_or_create(path=save_path)
     save_or_not(plt, file_name='wordcloud_' + directory + '.svg', save_path=save_path, format='svg')
-    #plt.show()
     plt.close()
 
 
@@ -155,7 +151,7 @@ def get_named_entities_for_docs(client, key_name: str, nested_field_path: str = 
         }
     }
 
-    response = client.search(index=constants.DatabaseAddr.DB_NAME.value, body=query, scroll="2m")
+    response = client.search(index=DatabaseAddr.DB_NAME.value, body=query, scroll="2m")
     scroll_id = response["_scroll_id"]
 
     # Process the first batch of results
@@ -197,7 +193,7 @@ def get_texts_from_docs(client, es_request_limit: int = 10000):
         }
     }
 
-    response = client.search(index=constants.DatabaseAddr.DB_NAME.value, body=query, scroll="2m")
+    response = client.search(index=DatabaseAddr.DB_NAME.value, body=query, scroll="2m")
     scroll_id = response["_scroll_id"]
 
     # Process the first batch of results
@@ -252,7 +248,6 @@ def get_column_values_scroll(client, index: str, column: str, scroll_time: str =
 
     # Continue scrolling until no hits are left
     while len(hits) > 0:
-
         scroll_id = response["_scroll_id"]
         hits = response["hits"]["hits"]
         values.extend([hit["_source"][column] for hit in hits if column in hit["_source"]])
@@ -263,7 +258,6 @@ def get_column_values_scroll(client, index: str, column: str, scroll_time: str =
 
     # Return the collected values
     return values
-
 
 # if __name__ == '__main__':
 #     client = Elasticsearch(constants.DatabaseAddr.CLIENT_ADDR.value, request_timeout=100)

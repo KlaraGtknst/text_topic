@@ -1,14 +1,13 @@
-import csv
-import glob
-import json
-import os
-
 import pandas as pd
 import pypdf as pdf
 import hashlib
 import warnings
 import tqdm
 import logging
+import csv
+import glob
+import json
+import os
 import utils.os_manipulation as osm
 from pdf2image import convert_from_path
 from data.caption_images import ImageCaptioner
@@ -107,19 +106,16 @@ def pdf_to_str(path: str) -> str:
     This function extracts the text from a pdf file.
     cf. https://pypi.org/project/PyPDF2/
     """
-    #warnings.filterwarnings("ignore", category=urllib3.exceptions.NotOpenSSLWarning)
     with warnings.catch_warnings(action="ignore"):
         warnings.simplefilter("ignore")  # Ignore all warnings
         try:
             reader = pdf.PdfReader(path)
-
             text = ''
             for page in reader.pages:
                 text += page.extract_text()
-
             return text
-        except:
-            # TODO: fix missing EOF marker in pdf
+
+        except Exception as e:
             return ''
 
 
@@ -223,39 +219,8 @@ def pdf2png(pdf_path: str, png_path: str, page_num: int):
         print(f"Error converting pdf to png: {e}")
         pass
 
-def csv_to_fca_json(csv_file:str, output_file:str):
-    """
-    This function converts a CSV file to a JSON file in the format required for the FCA visualization
-    using https://latviz.loria.fr/ (26.01.2025).
-    :param csv_file: Path to the CSV file
-    :param output_file: Path to save the JSON file
-    :return: -
-    """
-    # Load CSV into a DataFrame
-    df = pd.read_csv(csv_file, index_col=0)
 
-    # Extract object names and attribute names
-    obj_names = df.index.tolist()
-    attr_names = df.columns.tolist()
-
-    # Prepare the Data list
-    data_list = []
-    for attr_index, attr_name in enumerate(attr_names):
-        inds = df.index[df[attr_name] == 1].tolist()  # Indices of rows where the attribute is 1
-        data_list.append({"Count": len(inds), "Inds": inds})
-
-    # Create the JSON structure
-    fca_json = [
-        {"ObjNames": obj_names, "Params": {"AttrNames": attr_names}},
-        {"Count": len(obj_names), "Data": data_list}
-    ]
-
-    # Save to JSON
-    with open(output_file, "w") as f:
-        json.dump(fca_json, f, indent=4)
-    print(f"FCA JSON saved to {output_file}")
-
-def dir_topic_words2csv(dir_path:str, output_file:str, top_n:int=5):
+def dir_topic_words2csv(dir_path: str, output_file: str, top_n: int = 5):
     """
     This function converts a json file containing the topics and their top 50 word of  a directory to a CSV file.
     :param dir_path: Path to the directory with the topic words files
@@ -277,7 +242,9 @@ def dir_topic_words2csv(dir_path:str, output_file:str, top_n:int=5):
 
     print(f"CSV file saved to {output_file}")
 
-def dir_topic_words2csv_across_dirs(path2single_dirs_json:str, path2across_dir_csv:str, save_path:str, top_n:int=5):
+
+def dir_topic_words2csv_across_dirs(path2single_dirs_json: str, path2across_dir_csv: str, save_path: str,
+                                    top_n: int = 5):
     """
     Since the across-directory incidence maps directory names to topics (1 if present, 0 if not), but there is no way
     to obtain the top words for each topic, this function extracts the top words for each topic from the

@@ -1,6 +1,5 @@
 import datetime
 import logging
-
 from constants import Paths
 from utils.os_manipulation import exists_or_create
 

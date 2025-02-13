@@ -4,8 +4,6 @@ import numpy as np
 import pandas as pd
 from concepts import Context
 from fcapy.context import FormalContext
-
-import constants
 from data.files import extract_text_from_pdf, save_df_to_csv
 from utils.logging_utils import get_date, init_debug_config
 from utils.os_manipulation import exists_or_create
@@ -139,7 +137,6 @@ class TopicFCA:
         :param prefix: Prefix of the object ids; might be either "doc_" or "term_"
         :return: -
         """
-        # TODO: Works only for doc-topic context, NOT for term-topic context! Add this case.
         exists_or_create(path=path_to_file)
         with open(path_to_file + filename + ".fimi", "x") as f:
             for object_id in range(len(ctx.objects)):

@@ -1,8 +1,6 @@
 import datetime
 import matplotlib.pyplot as plt
-import numpy as np
 import seaborn as sns
-
 from utils.os_manipulation import exists_or_create
 from visualization.plotting_utils import obtain_low_dim_embs
 

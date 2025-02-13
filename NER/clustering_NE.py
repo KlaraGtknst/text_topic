@@ -1,14 +1,10 @@
-import datetime
 import json
-import logging
 from collections import Counter, defaultdict
-import gensim
+import gensim.downloader as api
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import cosine_similarity
-from gensim.models import Word2Vec
-import gensim.downloader as api
 import constants
 from utils.logging_utils import *
 from utils.os_manipulation import exists_or_create

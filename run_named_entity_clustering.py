@@ -1,12 +1,6 @@
-import logging
-
-import constants
-from NER.clustering_NE import *
 import tqdm
-
-from constants import Paths
+from NER.clustering_NE import *
 from database.init_elasticsearch import ESDatabase
-from utils.logging_utils import get_date
 
 if __name__ == '__main__':
     on_server = True

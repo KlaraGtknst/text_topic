@@ -1,8 +1,6 @@
 import logging
 import spacy
-import constants
-from utils.logging_utils import get_date, init_debug_config
-from utils.os_manipulation import exists_or_create
+from utils.logging_utils import init_debug_config
 
 
 class NamedEntityRecognition:

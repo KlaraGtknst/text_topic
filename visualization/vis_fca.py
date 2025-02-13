@@ -1,12 +1,10 @@
 import logging
 import re
-
+import textwrap
 import constants
 import utils.logging_utils as logging_utils
 import utils.os_manipulation as osm
-import data.files as files
 from topic.topic_fca import TopicFCA
-import textwrap
 
 logger = logging.getLogger(__name__)
 
@@ -126,7 +124,6 @@ def display_context(path2csv: str, save_path: str, filename_of_csv: str, on_serv
 if __name__ == "__main__":
     on_server = False
     date = logging_utils.get_date()
-    # logging_utils.init_debug_config(log_filename='vis_fca_', on_server=on_server)
     path2across_dir_csv = "/norgay/bigstore/kgu/dev/clj_exploration_leaks/results/fca-dir-concepts/across-dir/" if (
         on_server) else "/Users/klara/Developer/Uni/WiSe2425/clj_exploration_leaks/results/fca-dir-concepts/across-dir/"
     save_path = constants.Paths.SERVER_FCA_SAVE_PATH.value + date + '/' if on_server else \
