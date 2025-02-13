@@ -2,7 +2,6 @@ import datetime
 import json
 import numpy as np
 import pandas as pd
-from evaluate import load
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
