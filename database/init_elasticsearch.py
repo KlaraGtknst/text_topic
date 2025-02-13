@@ -83,10 +83,6 @@ class ESDatabase:
         """
         logger.info('started with initialize_db()')
 
-        # Create the client instance
-
-        logger.info(f'finished connecting to client.')
-
         # delete old index and create new one
         if delete_old_index:
             self.client.options(ignore_status=[400, 404]).indices.delete(index=DatabaseAddr.DB_NAME.value)
