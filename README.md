@@ -102,9 +102,10 @@ run the following command:
 ```bash
 python3 visualizations.py
 ```
-
+![wordcloud_Military.svg](doc/wordcloud_Military.svg)
+![TSNE_scatter_documents_dir_2d_01_22_25.png](doc/TSNE_scatter_documents_dir_2d_01_22_25.png)
 ## Named Entity Clustering
-Similar to ["Clusterinf Prominent Named Entities in Topic-Specific Text Corpora", A. Alsudais and H. Tchalian (2019)](https://arxiv.org/pdf/1807.10800),
+Similar to ["Clustering Prominent Named Entities in Topic-Specific Text Corpora", A. Alsudais and H. Tchalian (2019)](https://arxiv.org/pdf/1807.10800),
 we cluster named entities of different categories across the text extracted from the files of the dataset.
 To cluster the named entities, you can run the following command (i.e. run on the watzmann server):
 ```bash
