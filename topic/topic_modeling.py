@@ -17,7 +17,6 @@ class TopicModel:
     def __init__(self, documents: list):
         self.model = None
         self.documents = documents
-        self.bertscore = load("bertscore")
         # pretrained models: universal-sentence-encoder, sentence-transformers
         # model trains own model: doc2vec
         if documents is not None:
