@@ -31,20 +31,55 @@ When you run this command:
 2. A tunnel is created between your local machine and watzmann.
 3. Any connection made to localhost:9200 on your local machine will be securely forwarded to localhost:9200 on the watzmann machine.
 
-## Start the Pipeline
-After that, you can run the following file to index the documents (i.e. run on the watzmann server):
+## Start the Pipeline of filling the index
+We have chosen to split the pipeline into two parts, because the text related fields are computed on a different server 
+which has more graphical computation power.
+You can see the workflow in the following image:
+
+![es_workflow.svg](doc/es_workflow.svg)
+
+You can run the following file to initialize the index (i.e. run on the watzmann server):
 ```bash
 python3 main.py
 ```
+Hence, the index is created, but no documents are indexed yet.
+To index the documents and insert their metadata, run the following command (i.e. run on the watzmann server):
+```bash
+python3 insert_metadata.py
+```
+![text_related_workflow.svg](doc/text_related_workflow.svg)
+
+To insert the text related fields of the documents, run the following command (i.e. run on the pumbaa server):
+```bash 
+python3 insert_text_related_fields.py
+```
+As you can see in the image, the text related fields compromise of three fields.
+The first field is the text of a file either obtained directly, via a PdfReader or via an ImageCaptioner.
+The second field is the embeddings of the text, which are computed by the `sentence-transformers` library 
+([SBERT](https://huggingface.co/sentence-transformers/msmarco-MiniLM-L-12-v3)).
+The third field is a nested structure containing Named Entities of the text, 
+obtained using the small english pipeline `en_core_web_sm` of the [spaCy](https://spacy.io/models) library.
+
+
+## Obtain incidences
+With reference to ["The Geometric Structure of Topic Models", Johannes Hirth and Tom Hanika (2024)](https://arxiv.org/abs/2403.03607),
+we obtain the document-topic and topic-word incidences.
+
+![doc_topic_inc_fca_hirth_hanika.svg](doc/doc_topic_inc_fca_hirth_hanika.svg)
+
+You can run the following command to obtain the incidences (i.e. run on the watzmann server):
+```bash
+python3 create_fca_incidences.py
+```
 
 ## Incidences to Context
-Once the incidences are produced by the main.py file, 
-you want to convert them to the FIMI format:
+Once the incidences are produced, you want to convert them to the FIMI format:
 ```bash
 phyton3 run_topic_fca.py
 ```
+This call will also create document-topic incidences per directory which will be used later to compute a directory-topic context.
 
-These FIMI files can be used to compute their intents via PCBO (FCALGS).
+The FIMI files can be used to compute their intents via PCBO (FCALGS).
 This algorithm is implemented in the `fcalgs` package.
 You need to install the package first (i.e. run on the watzmann server):
 ```bash
@@ -59,7 +94,28 @@ After that, you can run the following command to compute the intents (in the `pc
 ```bash
 ./pcbo -P4 /file/to/fimi/file.fimi /name/of/output/file.fimi
 ```
+# Topic Modeling Strategies
 
+## Wordclouds & 2D scatter of documents coloured by their directory
+To run both strategies above (and more, you might have to comment functions you don't need),
+run the following command:
+```bash
+python3 visualizations.py
+```
+
+## Named Entity Clustering
+Similar to ["Clusterinf Prominent Named Entities in Topic-Specific Text Corpora", A. Alsudais and H. Tchalian (2019)](https://arxiv.org/pdf/1807.10800),
+we cluster named entities of different categories across the text extracted from the files of the dataset.
+To cluster the named entities, you can run the following command (i.e. run on the watzmann server):
+```bash
+python3 run_named_entity_clustering.py
+```
+The workflow is displayed in the following image:
+![text_related_workflow.svg](doc/NE_Clustering.svg)
+The results vary in quality strongly depending on the NER and text quality.
+An example of the clustering (of dataset [EYNTKE](https://archive.org/details/ETYNTKE)) is shown in the following image.
+Different language families are well separated, but the topological structure forms no clear clusters.
+![named_entity_clusters_LANGUAGE_PCA_01_22_25.svg](doc/named_entity_clusters_LANGUAGE_PCA_01_22_25.svg)
 
 ## Supplementary Information
 Ensure that the transformers library version is == 4.48.0.
