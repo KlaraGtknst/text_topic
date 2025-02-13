@@ -12,7 +12,7 @@ class NamedEntityRecognition:
         For more information on named entity recognition, see: https://spacy.io/models (13.02.2025)
         """
         init_debug_config(log_filename='named_entity_recognition_', on_server=on_server)
-        self.nlp = spacy.load("en_core_web_sm") # small english pipeline model
+        self.nlp = spacy.load("en_core_web_sm")  # small english pipeline model
 
     def get_named_entities(self, text: str):
         """
