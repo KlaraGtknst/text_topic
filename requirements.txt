@@ -50,7 +50,6 @@ executing==2.1.0
 fastjsonschema==2.20.0
 fcapy==0.1.4.4
 filelock==3.16.1
-flufl.enum==6.1.0
 fonttools==4.54.1
 fqdn==1.5.1
 frozendict==2.4.6
