@@ -1,5 +1,7 @@
 # text_topic
-Pipeline to embed .txt documents and cluster them according to their topic.
+This repository implements a pipeline to store various data of files in a large unstructured dataset. 
+These fields are used for topic modeling (wordclouds, based on low-dimensional versions of embedding vectors, Named Entity Clustering and document-topic incidences). 
+The information is aggregated and visualised using FCA. 
 
 ## Docker Container
 To build the docker container, run the following command in the root directory of the project on server:
