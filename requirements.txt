@@ -36,7 +36,7 @@ cymem==2.0.10
 dataclasses==0.6
 datasets==3.2.0
 debugpy==1.8.7
-decorator==5.1.1
+decorator==5.2.1
 defusedxml==0.7.1
 deprecation==2.1.0
 diffusers==0.32.1
