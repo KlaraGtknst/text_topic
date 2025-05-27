@@ -41,6 +41,15 @@ class ClusterNamedEntities:
         init_debug_config(log_filename='cluster_named_entities_', on_server=on_server)
 
     def elbow_method(self, similarity_matrix, save_path:str, max_k:int, category: str = ""):
+        """
+        Generate an elbow plot for KMeans clustering to determine the optimal number of clusters.
+        More information on the elbow method: https://www.w3schools.com/python/python_ml_k-means.asp (27.05.2025)
+        :param similarity_matrix: Similarity matrix for named entities.
+        :param save_path: Path to save the elbow plot.
+        :param max_k: Maximum number of clusters to consider for the elbow method.
+        :param category: Category of named entities for which the elbow method is applied, only used for plot title.
+        :return: -
+        """
         if not max_k:
             max_k = self.top_n
         assert type(max_k) == int, "max_k should be an integer"
