@@ -49,12 +49,13 @@ class ClusterNamedEntities:
         inertias = []
         data = similarity_matrix
 
-        for i in range(1, max_k + 1):
+        k_vals = range(1, max_k + 1)
+        for i in k_vals:
             kmeans = KMeans(n_clusters=i)
             kmeans.fit(data)
             inertias.append(kmeans.inertia_)
 
-        plt.plot(range(1, 11), inertias, marker='o')
+        plt.plot(k_vals, inertias, marker='o')
         plt.title('Elbow method')
         plt.xlabel('Number of clusters')
         plt.ylabel('Inertia')
