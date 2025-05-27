@@ -8,6 +8,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import constants
 from utils.logging_utils import *
 from utils.os_manipulation import exists_or_create
+from matplotlib import pyplot as plt
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,34 @@ class ClusterNamedEntities:
         self.output_file = output_file
         self.es_request_limit = es_request_limit
         init_debug_config(log_filename='cluster_named_entities_', on_server=on_server)
+
+    def elbow_method(self, similarity_matrix, save_path:str, max_k:int):
+        if not max_k:
+            max_k = self.top_n
+        assert type(max_k) == int, "max_k should be an integer"
+        assert max_k <= self.top_n, "max_k should be less than or equal to top_n"
+
+        inertias = []
+        data = similarity_matrix
+
+        for i in range(1, max_k + 1):
+            kmeans = KMeans(n_clusters=i)
+            kmeans.fit(data)
+            inertias.append(kmeans.inertia_)
+
+        plt.plot(range(1, 11), inertias, marker='o')
+        plt.title('Elbow method')
+        plt.xlabel('Number of clusters')
+        plt.ylabel('Inertia')
+        plt.tight_layout()
+
+        if save_path != "":
+            if not save_path.endswith('/'):
+                save_path += '/'
+            exists_or_create(path=save_path)
+            save_path_with_suffix = save_path + f"elbow_kmeans_cluster_NEs.svg"
+            plt.savefig(save_path_with_suffix, dpi=300, bbox_inches='tight', format='svg')
+            print(f"Elbow plot saved at: {save_path_with_suffix}")
 
     def fetch_named_entities_with_scroll(self):
         """
@@ -200,11 +229,15 @@ class ClusterNamedEntities:
         similarity_matrix = self.calculate_similarity_matrix(embeddings=embeddings)
         logging.info("Computed similarity matrix.")
 
-        # Step 4: Perform Clustering
-        clusters = self.cluster_named_entities(similarity_matrix=similarity_matrix)
-        logging.info(f"Performed clustering with {self.n_clusters} clusters.")
+        # additional step: Elbow Method for KMeans
+        save_path = constants.Paths.SERVER_PLOTS_SAVE_PATH.value + "cluster_NER/"
+        self.elbow_method(similarity_matrix=similarity_matrix, save_path=save_path, max_k=self.top_n)
 
-        # Step 5: Save Results
-        self.save_results(clusters=clusters, top_n_entities=top_n_entities, doc_map=doc_map,
-                          top_n_doc_maps=top_n_doc_maps, embeddings=embeddings)
-        logging.info(f"Saved clustering results for category: {self.category}")
+        # # Step 4: Perform Clustering
+        # clusters = self.cluster_named_entities(similarity_matrix=similarity_matrix)
+        # logging.info(f"Performed clustering with {self.n_clusters} clusters.")
+        #
+        # # Step 5: Save Results
+        # self.save_results(clusters=clusters, top_n_entities=top_n_entities, doc_map=doc_map,
+        #                   top_n_doc_maps=top_n_doc_maps, embeddings=embeddings)
+        # logging.info(f"Saved clustering results for category: {self.category}")

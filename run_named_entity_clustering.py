@@ -4,7 +4,8 @@ from database.init_elasticsearch import ESDatabase
 
 if __name__ == '__main__':
     on_server = True
-    init_debug_config(log_filename='run_named_entity_clustering_', on_server=on_server)
+    # init_debug_config(log_filename='run_named_entity_clustering_', on_server=on_server)
+    init_debug_config(log_filename='run_kmeans_elbow_', on_server=on_server)
 
     es_db = ESDatabase()
     client = es_db.get_es_client()
