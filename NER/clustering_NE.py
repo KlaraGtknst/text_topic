@@ -40,11 +40,13 @@ class ClusterNamedEntities:
         self.es_request_limit = es_request_limit
         init_debug_config(log_filename='cluster_named_entities_', on_server=on_server)
 
-    def elbow_method(self, similarity_matrix, save_path:str, max_k:int):
+    def elbow_method(self, similarity_matrix, save_path:str, max_k:int, category: str = ""):
         if not max_k:
             max_k = self.top_n
         assert type(max_k) == int, "max_k should be an integer"
         assert max_k <= self.top_n, "max_k should be less than or equal to top_n"
+        assert type(category) == str, "category should be a string"
+        assert category != "", "category should not be an empty string"
 
         inertias = []
         data = similarity_matrix
@@ -56,7 +58,7 @@ class ClusterNamedEntities:
             inertias.append(kmeans.inertia_)
 
         plt.plot(k_vals, inertias, marker='o')
-        plt.title('Elbow method')
+        plt.title(f'Elbow method for category {category}')
         plt.xlabel('Number of clusters')
         plt.ylabel('Inertia')
         plt.tight_layout()
@@ -65,7 +67,7 @@ class ClusterNamedEntities:
             if not save_path.endswith('/'):
                 save_path += '/'
             exists_or_create(path=save_path)
-            save_path_with_suffix = save_path + f"elbow_kmeans_cluster_NEs.svg"
+            save_path_with_suffix = save_path + f"elbow_kmeans_cluster_NEs_category_{category}.svg"
             plt.savefig(save_path_with_suffix, dpi=300, bbox_inches='tight', format='svg')
             print(f"Elbow plot saved at: {save_path_with_suffix}")
 
@@ -231,8 +233,8 @@ class ClusterNamedEntities:
         logging.info("Computed similarity matrix.")
 
         # additional step: Elbow Method for KMeans
-        save_path = constants.Paths.SERVER_PLOTS_SAVE_PATH.value + "cluster_NER/"
-        self.elbow_method(similarity_matrix=similarity_matrix, save_path=save_path, max_k=self.top_n)
+        save_path = constants.Paths.SERVER_PLOTS_SAVE_PATH.value + f"cluster_NER/"
+        self.elbow_method(similarity_matrix=similarity_matrix, save_path=save_path, max_k=self.top_n, category=self.category)
 
         # # Step 4: Perform Clustering
         # clusters = self.cluster_named_entities(similarity_matrix=similarity_matrix)
