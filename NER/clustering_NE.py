@@ -244,7 +244,7 @@ class ClusterNamedEntities:
         logging.info("Computed similarity matrix.")
 
         # additional step: Elbow Method for KMeans
-        save_path = constants.Paths.SERVER_PLOTS_SAVE_PATH.value + f"cluster_NER/"
+        save_path = constants.Paths.SERVER_PLOTS_SAVE_PATH.value + f"cluster_NER/elbow/"
         self.elbow_method(similarity_matrix=similarity_matrix, save_path=save_path, max_k=self.top_n, category=self.category)
 
         # # Step 4: Perform Clustering
