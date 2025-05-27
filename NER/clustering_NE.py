@@ -66,8 +66,8 @@ class ClusterNamedEntities:
             kmeans.fit(data)
             inertias.append(kmeans.inertia_)
 
-        plt.plot(k_vals, inertias, marker='o')
-        plt.title(f'Elbow method for category {category}')
+        plt.plot(k_vals, inertias, marker='o', label=category)
+        plt.title(f'Elbow method')
         plt.xlabel('Number of clusters')
         plt.ylabel('Inertia')
         plt.tight_layout()
@@ -77,8 +77,10 @@ class ClusterNamedEntities:
                 save_path += '/'
             exists_or_create(path=save_path)
             save_path_with_suffix = save_path + f"elbow_kmeans_cluster_NEs_category_{category}.svg"
+            plt.legend(loc='best')
             plt.savefig(save_path_with_suffix, dpi=300, bbox_inches='tight', format='svg')
             print(f"Elbow plot saved at: {save_path_with_suffix}")
+
 
     def fetch_named_entities_with_scroll(self):
         """
