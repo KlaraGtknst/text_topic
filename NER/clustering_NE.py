@@ -67,9 +67,9 @@ class ClusterNamedEntities:
             inertias.append(kmeans.inertia_)
 
         plt.plot(k_vals, inertias, marker='o', label=category)
-        plt.title(f'Elbow method')
-        plt.xlabel('Number of clusters')
-        plt.ylabel('Inertia')
+        plt.title(f'Elbow method',fontsize = 25)
+        plt.xlabel('Number of clusters',fontsize = 25)
+        plt.ylabel('Inertia',fontsize = 25)
         plt.tight_layout()
 
         if save_path != "":
