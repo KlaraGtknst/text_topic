@@ -38,7 +38,7 @@ graphviz==0.20.3
 hdbscan==0.8.40
 huggingface-hub==0.27.1
 idna==3.10
-Jinja2==3.1.5
+Jinja2==3.1.6
 joblib==1.4.2
 kiwisolver==1.4.8
 langcodes==3.5.0
@@ -109,9 +109,9 @@ thinc==8.3.4
 threadpoolctl==3.5.0
 tokenizers==0.21.0
 top2vec==1.0.36
-torch==2.5.1
+torch==2.6.0
 torchvision==0.20.1
-tornado==6.4.1
+tornado==6.4.2
 tqdm==4.66.5
 traitlets==5.14.3
 transformers==4.48.0
