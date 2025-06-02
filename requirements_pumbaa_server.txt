@@ -135,5 +135,5 @@ widgetsnbextension==4.0.13
 wordcloud==1.9.3
 wrapt==1.16.0
 xxhash==3.5.0
-yarl==1.18.3
+yarl==1.20.0
 zipp==3.20.2
