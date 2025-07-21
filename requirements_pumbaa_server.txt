@@ -111,7 +111,7 @@ tokenizers==0.21.0
 top2vec==1.0.36
 torch==2.5.1
 torchvision==0.20.1
-tornado==6.4.1
+tornado==6.5.1
 tqdm==4.66.5
 traitlets==5.14.3
 transformers==4.48.0
