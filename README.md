@@ -2,6 +2,7 @@
 This repository implements a pipeline to store various data of files from a large unstructured dataset. 
 These fields are used for topic modeling (wordclouds, based on low-dimensional versions of embedding vectors, Named Entity Clustering and document-topic incidences). 
 The information is aggregated and visualised using FCA. 
+A comprehensive overview of the system can be found in the [slides](https://github.com/KlaraGtknst/FAT_CAT_slides/blob/main/main.pdf) presented at the conference [CONCEPTS'25](https://concepts2025.conference.ubbcluj.ro/) (September 08th-12th, 2025, Cluj-Napoca, Romania) or in the corresponding [paper](https://arxiv.org/abs/2506.22309).
 
 ## Docker Container
 To build the docker container, run the following command in the root directory of the project on server:
